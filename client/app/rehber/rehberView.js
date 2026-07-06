@@ -1,0 +1,187 @@
+"use client";
+
+import { useState, useEffect, useMemo } from "react";
+import { Box, Paper, Typography, IconButton, Alert } from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
+import ArticleIcon from "@mui/icons-material/Article";
+import OpenInFullIcon from "@mui/icons-material/OpenInFull";
+
+import PersonCell from "./components/PersonCell";
+import GorevCell from "./components/GorevCell";
+import { EmailCell, PhoneCell } from "./components/ContactCell";
+import RehberFilters from "./components/RehberFilters";
+import { fetchRehberList } from "./services/rehberService";
+
+export default function RehberView() {
+    const [allRows, setAllRows] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [filters, setFilters] = useState({});
+
+    // Sayfa ilk açıldığında backend'den veriyi çek.
+    useEffect(() => {
+        let isMounted = true;
+
+        async function loadData() {
+            setLoading(true);
+            setError(null);
+            try {
+                const data = await fetchRehberList();
+                if (isMounted) setAllRows(data);
+            } catch (err) {
+                console.error("Rehber verisi alınamadı:", err);
+                if (isMounted) setError("Personel listesi yüklenemedi. Backend'in çalıştığından emin olun.");
+            } finally {
+                if (isMounted) setLoading(false);
+            }
+        }
+
+        loadData();
+        return () => {
+            isMounted = false;
+        };
+    }, []);
+
+    const handleFilterChange = (key, value) => {
+        setFilters((prev) => ({ ...prev, [key]: value }));
+    };
+
+    // Backend henüz filtre parametresi desteklemediği için,
+    // SORGULA butonu şimdilik zaten yüklenmiş veriyi client-side filtreliyor.
+    const filteredRows = useMemo(() => {
+        const search = (filters.isimSoyisim || "").toLowerCase().trim();
+        if (!search) return allRows;
+        return allRows.filter((row) => row.adSoyad?.toLowerCase().includes(search));
+    }, [allRows, filters.isimSoyisim]);
+
+    const handleSearch = () => {
+        // filteredRows zaten useMemo ile otomatik güncelleniyor;
+        // bu fonksiyon ileride backend'e gerçek sorgu atmak için yer tutucu.
+    };
+
+    const columns = useMemo(
+        () => [
+            {
+                field: "adSoyad",
+                headerName: "Ad Soyad",
+                flex: 1.4,
+                minWidth: 180,
+                renderCell: (params) => <PersonCell adSoyad={params.row.adSoyad} avatarUrl={params.row.avatarUrl} />,
+            },
+            {
+                field: "birim",
+                headerName: "Birim",
+                flex: 1.6,
+                minWidth: 200,
+            },
+            {
+                field: "unvan",
+                headerName: "Unvan",
+                flex: 1,
+                minWidth: 140,
+            },
+            {
+                field: "gorevler",
+                headerName: "Görev",
+                flex: 1.5,
+                minWidth: 200,
+                sortable: false,
+                renderCell: (params) => <GorevCell gorevler={params.row.gorevler} />,
+            },
+            {
+                field: "ePosta",
+                headerName: "E-Posta",
+                flex: 1.4,
+                minWidth: 190,
+                renderCell: (params) => <EmailCell ePosta={params.row.ePosta} />,
+            },
+            {
+                field: "telefon",
+                headerName: "Telefon",
+                flex: 1.1,
+                minWidth: 150,
+                renderCell: (params) => <PhoneCell telefon={params.row.telefon} />,
+            },
+            {
+                field: "actions",
+                headerName: "",
+                width: 56,
+                sortable: false,
+                filterable: false,
+                disableColumnMenu: true,
+                renderCell: () => (
+                    <IconButton size="small">
+                        <OpenInFullIcon fontSize="small" />
+                    </IconButton>
+                ),
+            },
+        ],
+        []
+    );
+
+    return (
+        <Paper
+            elevation={0}
+            sx={{
+                borderRadius: 2,
+                borderBottom: "4px solid",
+                borderBottomColor: "primary.main",
+                p: 3,
+            }}
+        >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 3 }}>
+                <ArticleIcon color="action" fontSize="small" />
+                <Typography variant="subtitle1" sx={{ fontWeight: 700, letterSpacing: 0.5 }}>
+                    REHBER
+                </Typography>
+            </Box>
+
+            <RehberFilters
+                filters={filters}
+                onFilterChange={handleFilterChange}
+                onSearch={handleSearch}
+                onAddPersonel={() => {
+                    // TODO: "Personel Ekle" modal/sayfası bağlanacak
+                }}
+            />
+
+            {error && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                    {error}
+                </Alert>
+            )}
+
+            <DataGrid
+                autoHeight
+                rows={filteredRows}
+                columns={columns}
+                loading={loading}
+                getRowHeight={() => 64}
+                disableRowSelectionOnClick
+                hideFooterSelectedRowCount
+                pageSizeOptions={[10, 25, 50]}
+                initialState={{
+                    pagination: { paginationModel: { pageSize: 10 } },
+                }}
+                sx={{
+                    border: "none",
+                    "& .MuiDataGrid-columnHeaders": {
+                        backgroundColor: "grey.50",
+                        borderBottom: "2px solid",
+                        borderBottomColor: "divider",
+                    },
+                    "& .MuiDataGrid-columnHeaderTitle": {
+                        fontWeight: 600,
+                    },
+                    "& .MuiDataGrid-cell": {
+                        borderBottom: "1px solid",
+                        borderBottomColor: "divider",
+                    },
+                    "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within": {
+                        outline: "none",
+                    },
+                }}
+            />
+        </Paper>
+    );
+}
