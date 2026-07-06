@@ -1,5 +1,5 @@
 'use client';
-
+import api from '../api/axiosClient';
 import React, { useState } from 'react';
 import Image from 'next/image';
 import {
@@ -41,10 +41,25 @@ export default function LoginPage() {
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Giriş Bilgileri:', formData);
-        alert(`Giriş deneniyor: ${formData.email}`);
+
+        try {
+            const response = await api.post('/login', {
+                email: formData.email,
+                password: formData.password
+            });
+
+            console.log('Giriş Başarılı! Backend Cevabı:', response.data);
+            alert('Giriş Başarılı!');
+
+
+        } catch (error) {
+            console.error('Giriş Hatası:', error.response?.data || error.message);
+
+            const errorMessage = error.response?.data?.message || 'Giriş başarısız! Bilgilerinizi kontrol edin.';
+            alert(errorMessage);
+        }
     };
 
     return (
