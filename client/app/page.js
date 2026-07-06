@@ -11,6 +11,7 @@ export default function Home() {
     const [news, setNews] = useState([]);
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [currentNewsIndex, setCurrentNewsIndex] = useState(0); // Haber geçişleri için index durumu
 
     useEffect(() => {
         const fetchData = async () => {
@@ -25,7 +26,7 @@ export default function Home() {
             } catch (error) {
                 console.error("Veriler çekilirken hata oluştu:", error);
             } finally {
-                setLoading(false);
+                loading && setLoading(false);
             }
         };
 
@@ -58,27 +59,93 @@ export default function Home() {
                 {/* 1. KART: HABERLER (Geniş alan kaplar) */}
                 <Grid size={{ xs: 12, md: 6 }}>
                     <Card sx={{ height: "100%", backgroundColor: "#0b192c", color: "white", borderRadius: 2 }}>
-                        <CardContent>
-                            <Typography variant="subtitle2" sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2, color: '#e0e0e0' }}>
-                                📰 HABERLER
-                            </Typography>
+                        <CardContent sx={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
+                            <Box>
+                                <Typography variant="subtitle2" sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2, color: '#e0e0e0' }}>
+                                    📰 HABERLER
+                                </Typography>
 
-                            {news.length > 0 ? (
-                                <Box sx={{ position: 'relative', borderRadius: 2, overflow: 'hidden' }}>
-                                    {/* İlk haberi gösteriyoruz (İleride Carousel eklenebilir) */}
-                                    <Box
-                                        component="img"
-                                        src={news[0].imageUrl || "https://via.placeholder.com/600x300?text=Haber+Görseli"}
-                                        sx={{ width: "100%", height: 300, objectFit: "cover", opacity: 0.7 }}
-                                    />
-                                    <Box sx={{ position: 'absolute', bottom: 20, left: 20, right: 20 }}>
-                                        <Typography variant="h6" fontWeight="bold">
-                                            {news[0].content}
-                                        </Typography>
+                                {news.length > 0 ? (
+                                    <Box sx={{ position: 'relative', borderRadius: 2, overflow: 'hidden' }}>
+                                        {/* Aktif indexteki haberi dinamik olarak gösteriyoruz */}
+                                        <Box
+                                            component="img"
+                                            src={news[currentNewsIndex]?.imageUrl || "https://via.placeholder.com/600x300?text=Haber+Görseli"}
+                                            sx={{ width: "100%", height: 300, objectFit: "cover", opacity: 0.7 }}
+                                        />
+                                        <Box sx={{ position: 'absolute', bottom: 20, left: 20, right: 20 }}>
+                                            <Typography variant="h6" fontWeight="bold">
+                                                {news[currentNewsIndex]?.content}
+                                            </Typography>
+                                        </Box>
                                     </Box>
+                                ) : (
+                                    <Typography sx={{ mt: 4, textAlign: 'center' }}>Henüz haber bulunmuyor.</Typography>
+                                )}
+                            </Box>
+
+                            {/* Figma Tasarımındaki Geçiş Okları ve Sayfalama Noktaları */}
+                            {/* Figma Tasarımındaki Geçiş Okları ve Sayfalama Noktaları - ORTALANMIŞ HALİ */}
+                            {news.length > 1 && (
+                                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 3, gap: 2 }}>
+
+                                    {/* Sol Ok (<) */}
+                                    <button
+                                        onClick={() => setCurrentNewsIndex((prev) => (prev === 0 ? news.length - 1 : prev - 1))}
+                                        style={{
+                                            color: '#fff',
+                                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                            border: 'none',
+                                            borderRadius: '4px',
+                                            padding: '6px 12px',
+                                            cursor: 'pointer',
+                                            fontSize: '14px',
+                                            fontWeight: 'bold',
+                                            transition: 'background-color 0.2s'
+                                        }}
+                                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'}
+                                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                                    >
+                                        &lt;
+                                    </button>
+
+                                    {/* Ortadaki Sayfalama Noktaları */}
+                                    <Box sx={{ display: 'flex', gap: 1 }}>
+                                        {news.map((_, index) => (
+                                            <Box
+                                                key={index}
+                                                sx={{
+                                                    width: 8,
+                                                    height: 8,
+                                                    borderRadius: '50%',
+                                                    backgroundColor: currentNewsIndex === index ? '#fff' : 'rgba(255, 255, 255, 0.3)',
+                                                    transition: 'all 0.3s ease'
+                                                }}
+                                            />
+                                        ))}
+                                    </Box>
+
+                                    {/* Sağ Ok (>) */}
+                                    <button
+                                        onClick={() => setCurrentNewsIndex((prev) => (prev === news.length - 1 ? 0 : prev + 1))}
+                                        style={{
+                                            color: '#fff',
+                                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                            border: 'none',
+                                            borderRadius: '4px',
+                                            padding: '6px 12px',
+                                            cursor: 'pointer',
+                                            fontSize: '14px',
+                                            fontWeight: 'bold',
+                                            transition: 'background-color 0.2s'
+                                        }}
+                                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'}
+                                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                                    >
+                                        &gt;
+                                    </button>
+
                                 </Box>
-                            ) : (
-                                <Typography sx={{ mt: 4, textAlign: 'center' }}>Henüz haber bulunmuyor.</Typography>
                             )}
                         </CardContent>
                     </Card>
