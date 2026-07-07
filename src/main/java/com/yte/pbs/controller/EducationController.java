@@ -21,7 +21,6 @@ public class EducationController {
         this.educationRepository = educationRepository;
     }
 
-
     @GetMapping
     public ResponseEntity<List<Education>> getUserEducations(@RequestParam String email) {
         return userRepository.findByEmail(email)
@@ -42,5 +41,25 @@ public class EducationController {
         }
 
         return ResponseEntity.badRequest().body("Eğitim eklenemedi: Kullanıcı bulunamadı.");
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateEducation(@PathVariable Long id, @RequestBody Education educationInput) {
+        return educationRepository.findById(id)
+                .map(existingEducation -> {
+
+                    Education updatedEducation = educationRepository.save(existingEducation);
+                    return ResponseEntity.ok(updatedEducation);
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteEducation(@PathVariable Long id) {
+        if (educationRepository.existsById(id)) {
+            educationRepository.deleteById(id);
+            return ResponseEntity.ok("Eğitim kaydı başarıyla silindi.");
+        }
+        return ResponseEntity.notFound().build();
     }
 }
