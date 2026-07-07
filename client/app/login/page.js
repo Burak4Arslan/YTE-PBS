@@ -2,6 +2,7 @@
 import api from '../api/axiosInstance';
 import React, { useState } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import {
     Box,
     Typography,
@@ -17,6 +18,7 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 export default function LoginPage() {
+    const router = useRouter();
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -51,7 +53,7 @@ export default function LoginPage() {
             });
 
             console.log('Giriş Başarılı! Backend Cevabı:', response.data);
-            alert('Giriş Başarılı!');
+            router.push('/');
 
         } catch (error) {
             console.error('Giriş Hatası:', error.response?.data || error.message);
