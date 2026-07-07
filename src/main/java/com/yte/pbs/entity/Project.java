@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProjectEntity extends BaseEntity{
+public class Project extends BaseEntity{
 
 
 

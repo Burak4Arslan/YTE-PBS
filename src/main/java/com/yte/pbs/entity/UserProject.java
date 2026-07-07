@@ -22,7 +22,7 @@ public class UserProject extends BaseEntity{
 
     @ManyToOne
     @JoinColumn(name = "project_id", nullable = false)
-    private ProjectEntity project;
+    private Project project;
 
     @Column(name = "begin_date", nullable = false)
     private LocalDate beginDate;
