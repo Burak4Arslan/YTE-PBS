@@ -1,7 +1,6 @@
 "use client";
-
 import { useEffect, useState } from "react";
-import axios from "axios";
+import axiosInstance from "./api/axiosInstance";
 import { Grid, Card, CardContent, Typography, Avatar, Box, CircularProgress } from "@mui/material";
 
 // .env dosyasındaki URL'yi alıyoruz, yoksa yedeği kullanıyoruz
@@ -16,17 +15,21 @@ export default function Home() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // Her iki API'ye aynı anda istek atıp performansı artırıyoruz
+                // İstekleri atıyoruz
                 const [newsRes, eventsRes] = await Promise.all([
-                    axios.get(`${API_URL}/api/news`),
-                    axios.get(`${API_URL}/api/events`)
+                    axiosInstance.get("/api/news"),
+                    axiosInstance.get("/api/events")
                 ]);
-                setNews(newsRes.data);
-                setEvents(eventsRes.data);
+
+                // Veriler başarıyla gelirse state'leri güncelle
+                if (newsRes && newsRes.data) setNews(newsRes.data);
+                if (eventsRes && eventsRes.data) setEvents(eventsRes.data);
             } catch (error) {
+                // Hata interceptor tarafından yakalanıp toast basılacak, konsola da yazalım
                 console.error("Veriler çekilirken hata oluştu:", error);
             } finally {
-                loading && setLoading(false);
+                // Ne olursa olsun yükleniyor ekranını kapat ki sayfa açılsın
+                setLoading(false);
             }
         };
 

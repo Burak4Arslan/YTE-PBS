@@ -1,7 +1,5 @@
 package com.yte.pbs.config;
 
-import com.yte.pbs.entity.Authority;
-import com.yte.pbs.entity.User;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,124 +32,82 @@ import java.util.List;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration authenticationConfiguration
-    ) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
-    }
-
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-
-                .csrf(csrf -> csrf
-                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                        .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
-                )
-
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                )
-
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login").permitAll()
-                        .requestMatchers("/api/directory").permitAll() // rehber sayfasinda kisilerin gozukmesi icin izin verildi.
-                        .anyRequest().authenticated()
-                )
-
-                .addFilterAfter(
-                        new CsrfCookieFilter(),
-                        BasicAuthenticationFilter.class
-                );
-
-        return http.build();
-    }
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-
-        configuration.setAllowedOrigins(
-                List.of("http://localhost:3000")
-        );
-
-        configuration.setAllowedMethods(
-                List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")
-        );
-
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource source =
-                new UrlBasedCorsConfigurationSource();
-
-        source.registerCorsConfiguration("/**", configuration);
-
-        return source;
-    }
-
-    private static class CsrfCookieFilter extends OncePerRequestFilter {
-
-        @Override
-        protected void doFilterInternal(
-                HttpServletRequest request,
-                HttpServletResponse response,
-                FilterChain filterChain
-        ) throws ServletException, IOException {
-
-            CsrfToken csrfToken =
-                    (CsrfToken) request.getAttribute(CsrfToken.class.getName());
-
-            if (csrfToken != null) {
-                csrfToken.getToken();
-            }
-
-            filterChain.doFilter(request, response);
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+                return new BCryptPasswordEncoder();
         }
-    }
 
-    @Bean
-    public org.springframework.boot.CommandLineRunner initializeSecurityTestData(
-            com.yte.pbs.repository.AuthorityRepository authorityRepository,
-            com.yte.pbs.repository.UserRepository userRepository,
-            org.springframework.security.crypto.password.PasswordEncoder passwordEncoder) {
-        return args -> {
-            com.yte.pbs.entity.Authority adminAuthority = authorityRepository.findByName("ADMIN")
-                    .orElseGet(() -> authorityRepository.save(new com.yte.pbs.entity.Authority("ADMIN", "System administrator")));
+        @Bean
+        public AuthenticationManager authenticationManager(
+                        AuthenticationConfiguration authenticationConfiguration) throws Exception {
+                return authenticationConfiguration.getAuthenticationManager();
+        }
 
-            com.yte.pbs.entity.Authority employeeAuthority = authorityRepository.findByName("EMPLOYEE")
-                    .orElseGet(() -> authorityRepository.save(new com.yte.pbs.entity.Authority("EMPLOYEE", "Employee")));
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+                http
+                                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-            userRepository.findByUsernameOrEmail("admin", "admin@pbs.com").orElseGet(() -> {
-                com.yte.pbs.entity.User user = new com.yte.pbs.entity.User();
-                user.setUsername("admin");
-                user.setFirstName("Ahmet");
-                user.setLastName("Yilmaz");
-                user.setEmail("admin@pbs.com");
-                user.setPassword(passwordEncoder.encode("Password123*"));
-                user.setAuthorities(new java.util.HashSet<>(java.util.List.of(adminAuthority)));
-                return userRepository.save(user);
-            });
+                                .csrf(csrf -> csrf
+                                                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                                                .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()))
 
-            userRepository.findByUsernameOrEmail("personel", "personel@pbs.com").orElseGet(() -> {
-                com.yte.pbs.entity.User user = new com.yte.pbs.entity.User();
-                user.setUsername("personel");
-                user.setFirstName("Mehmet");
-                user.setLastName("Demir");
-                user.setEmail("personel@pbs.com");
-                user.setPassword(passwordEncoder.encode("Password123*"));
-                user.setAuthorities(new java.util.HashSet<>(java.util.List.of(employeeAuthority)));
-                return userRepository.save(user);
-            });
+                                .sessionManagement(session -> session
+                                                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
 
-            System.out.println("Use 'admin' / 'Password123*' to login.");
-        };
-    }
+                                .authorizeHttpRequests(auth -> auth
+                                                // Ortak İzinler (Giriş ve Rehber Sayfası)
+                                                .requestMatchers("/api/auth/**", "/api/auth/login").permitAll()
+                                                .requestMatchers("/api/directory").permitAll()
+
+                                                // Senin Eklediğin İzinler (Haberler ve Etkinlikler)
+                                                .requestMatchers("/api/news/**").permitAll()
+                                                .requestMatchers("/api/events/**").permitAll()
+
+                                                .anyRequest().authenticated())
+
+                                .addFilterAfter(
+                                                new CsrfCookieFilter(),
+                                                BasicAuthenticationFilter.class);
+
+                return http.build();
+        }
+
+        @Bean
+        public CorsConfigurationSource corsConfigurationSource() {
+                CorsConfiguration configuration = new CorsConfiguration();
+
+                configuration.setAllowedOrigins(
+                                List.of("http://localhost:3000"));
+
+                configuration.setAllowedMethods(
+                                List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+                configuration.setAllowedHeaders(List.of("*"));
+                configuration.setAllowCredentials(true);
+
+                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+
+                source.registerCorsConfiguration("/**", configuration);
+
+                return source;
+        }
+
+        private static class CsrfCookieFilter extends OncePerRequestFilter {
+
+                @Override
+                protected void doFilterInternal(
+                                HttpServletRequest request,
+                                HttpServletResponse response,
+                                FilterChain filterChain) throws ServletException, IOException {
+
+                        CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+
+                        if (csrfToken != null) {
+                                csrfToken.getToken();
+                        }
+
+                        filterChain.doFilter(request, response);
+                }
+        }
 }
