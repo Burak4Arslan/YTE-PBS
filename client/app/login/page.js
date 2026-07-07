@@ -2,6 +2,7 @@
 import api from '../api/axiosInstance';
 import React, { useState } from 'react';
 import Image from 'next/image';
+import { toast } from 'react-toastify';
 import {
     Box,
     Typography,
@@ -51,12 +52,12 @@ export default function LoginPage() {
             });
 
             console.log('Giriş Başarılı! Backend Cevabı:', response.data);
-            alert('Giriş Başarılı!');
+            toast.success('Giriş Başarılı! Hoş geldiniz. 🎉');
 
         } catch (error) {
             console.error('Giriş Hatası:', error.response?.data || error.message);
-            const errorMessage = error.response?.data || 'Giriş başarısız!';
-            alert(errorMessage);
+            const errorMessage = error.response?.data?.message || error.response?.data || 'Giriş başarısız! Bilgilerinizi kontrol edin.';
+            toast.error(errorMessage);
         }
     };
 
