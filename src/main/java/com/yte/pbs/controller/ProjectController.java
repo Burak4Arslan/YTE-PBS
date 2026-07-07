@@ -1,6 +1,6 @@
 package com.yte.pbs.controller;
 
-import com.yte.pbs.entity.ProjectEntity;
+import com.yte.pbs.entity.Project;
 import com.yte.pbs.repository.ProjectRepository;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +22,7 @@ public class ProjectController {
     }
 
     @GetMapping
-    public List<ProjectEntity> getAllProjects(@RequestParam String email) {
+    public List<Project> getAllProjects(@RequestParam String email) {
         {
             return projectRepository.findAll();
         }
