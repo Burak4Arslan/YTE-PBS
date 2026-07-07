@@ -10,24 +10,42 @@ const axiosInstance = axios.create({
     xsrfHeaderName: 'X-XSRF-TOKEN'
 });
 
-// Arka yüzden dönen yanıtları ve hataları küresel olarak yakalayan interceptor
 axiosInstance.interceptors.response.use(
-    (response) => {
-        // İstek başarılıysa veriyi hiç bozmadan doğrudan geçir
-        return response;
-    },
+    (response) => response,
     (error) => {
-        // Hata durumunda tetiklenen merkezi alan
-        if (error.response) {
-            // Sunucu bir hata kodu döndüyse (Örn: 400, 401, 403, 500)
-            toast.error(`Hata (${error.response.status}): İşlem gerçekleştirilemedi! ❌`);
-        } else if (error.request) {
-            // Sunucuya hiç ulaşılamadıysa (Backend kapalıysa veya timeout olduysa)
+        const currentUrl = error.config?.url || '';
+
+        // KRİTİK İSTİSNA: Kullanıcı zaten login sayfasındayken yanlış şifre girip 401/403 yiyorsa
+        // onu tekrar login'e şutlayıp sonsuz döngüye sokmuyoruz.
+        const isLoginRequest = currentUrl.includes('/api/auth/login');
+
+        // 1. Network / Sunucu Kapalı Hatası (response objesi hiç yoksa)
+        if (!error.response) {
             toast.error("Hata: Sunucuya bağlanılamadı. Lütfen backend servisini kontrol edin! 🔌");
-        } else {
-            // İstek kurulurken meydana gelen diğer beklenmeyen hatalar
-            toast.error(`Sistemsel Hata: ${error.message}`);
+            return Promise.reject(error);
         }
+
+        const status = error.response.status;
+
+        // 2. Yetkisiz Erişim ve Oturum Sonlanma Yönetimi (401 + 403)
+        //    Spring Security oturum yokken 401, yetki yokken 403 döner — ikisini de yakala
+        if ((status === 401 || status === 403) && !isLoginRequest) {
+            toast.error("Oturumunuz sonlandı veya bu sayfaya erişim yetkiniz yok! Giriş sayfasına yönlendiriliyorsunuz... 🔒");
+
+            setTimeout(() => {
+                if (typeof window !== 'undefined') {
+                    window.location.href = '/login';
+                }
+            }, 2000); // 2 saniye toast okunsun diye bekletiyoruz
+
+            return Promise.reject(error);
+        }
+
+        // 3. Diğer Genel Hatalar (Örn: 500, 404, 400 vs.)
+        if (!isLoginRequest) {
+            toast.error(`Hata (${status}): İşlem gerçekleştirilemedi! ❌`);
+        }
+
         return Promise.reject(error);
     }
 );

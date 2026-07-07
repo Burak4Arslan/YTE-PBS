@@ -1,9 +1,9 @@
 'use client';
 import api from '../api/axiosInstance';
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
-import {useRouter} from 'next/navigation';
-import {toast} from 'react-toastify';
+import { useRouter } from 'next/navigation';
+import { toast } from 'react-toastify';
 import {
     Box,
     Button,
@@ -59,7 +59,9 @@ export default function LoginPage() {
 
         } catch (error) {
             console.error('Giriş Hatası:', error.response?.data || error.message);
-            const errorMessage = error.response?.data?.message || error.response?.data || 'Giriş başarısız! Bilgilerinizi kontrol edin.';
+            const errorMessage = error.response?.status === 401
+                ? 'Kullanıcı adı veya şifre hatalı! Lütfen bilgilerinizi kontrol edin. 🔑'
+                : 'Giriş başarısız! Lütfen tekrar deneyin.';
             toast.error(errorMessage);
         }
     };
