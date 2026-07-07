@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import {
     Avatar,
     Box,
+    Button,
     Card,
     CardContent,
     Grid,
@@ -519,15 +520,13 @@ export default function PersonalCorporateInfo() {
                     </Card>
                 </Grid>
             </Grid>
-<<<<<<< HEAD
 
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
                 <Button type="submit" variant="contained">
                     Kaydet
                 </Button>
             </Box>
-=======
->>>>>>> 2e5480a5c4bf399e4b3cd3eac98a2a7b5ba7d76f
+
         </Box>
     );
 }
