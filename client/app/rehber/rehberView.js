@@ -3,7 +3,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Box, Paper, Typography, IconButton, Alert } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import ArticleIcon from "@mui/icons-material/Article";
 import OpenInFullIcon from "@mui/icons-material/OpenInFull";
 
 import PersonCell from "./components/PersonCell";
@@ -130,7 +129,7 @@ export default function RehberView() {
             }}
         >
             <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 3 }}>
-                <ArticleIcon color="action" fontSize="small" />
+                <img src="/rehber.png" alt="Rehber" style={{ width: 24, height: 24 }} />
                 <Typography variant="subtitle1" sx={{ fontWeight: 700, letterSpacing: 0.5 }}>
                     REHBER
                 </Typography>
