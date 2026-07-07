@@ -23,7 +23,7 @@ public class Project extends BaseEntity{
     private LocalDate beginDate;
 
 
-    @Column(name = "end_date", nullable = false)
+    @Column(name = "end_date")
     private LocalDate endDate;
 
 }
