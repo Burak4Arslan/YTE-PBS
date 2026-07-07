@@ -142,7 +142,7 @@ public class DataInitializer {
         directoryEntryRepository.deleteAll();
         directoryEntryRepository.save(new DirectoryEntry(
                 "Ahmet Yılmaz", "Yazılım Geliştirme", "Kıdemli Mühendis",
-                "Backend Geliştirme", "PBS", "ahmet.yilmaz@yte.org", "0532 111 2233"));
+                "Backend Geliştirme", "PBS", "admin@pbs.com", "0532 111 2233"));
         directoryEntryRepository.save(new DirectoryEntry(
                 "Fatima Demir", "Yazılım Geliştirme", "Mühendis",
                 "Frontend Geliştirme", "PBS", "fatima.demir@yte.org", "0532 111 2234"));
