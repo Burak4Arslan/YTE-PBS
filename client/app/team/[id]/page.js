@@ -5,9 +5,8 @@ import { Box, Container, Typography } from '@mui/material';
 import EmployeeCard from '../components/EmployeeCard';
 
 export default function EmployeeProfilePage({ params }) {
-    // Mock data structure
     const sampleEmployee = {
-        photoUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
+        photoUrl: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=190",
         name: "Dr. Cenk Çelik",
         department: "Dijital Strateji ve Dijital Dönüşüm Planlama",
         role: "Kıdemli Uzman Araştırmacı - Proje Yöneticisi - MGM",
@@ -26,14 +25,16 @@ export default function EmployeeProfilePage({ params }) {
 
     return (
         <Box
-            display="flex"
-            flexDirection="column"
-            justifyContent="center"
-            alignItems="center"
-            minHeight="100vh"
-            sx={{ backgroundColor: '#f8f9fa', p: 3 }}
+            sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                minHeight: '100vh',
+                backgroundColor: '#f8f9fa',
+                p: 3
+            }}
         >
-            <Container maxWidth="sm">
+            <Container maxWidth="md" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                 <Typography
                     variant="h5"
                     fontWeight="600"
@@ -41,9 +42,8 @@ export default function EmployeeProfilePage({ params }) {
                     align="center"
                     mb={4}
                 >
-                    Personel Detay Kartı
                 </Typography>
-                <Box display="flex" justifyContent="center">
+                <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
                     <EmployeeCard employee={sampleEmployee} />
                 </Box>
             </Container>
