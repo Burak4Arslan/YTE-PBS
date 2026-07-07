@@ -1,5 +1,5 @@
 'use client';
-import api from '../api/axiosClient';
+import api from '../api/axiosInstance';
 import React, { useState } from 'react';
 import Image from 'next/image';
 import {

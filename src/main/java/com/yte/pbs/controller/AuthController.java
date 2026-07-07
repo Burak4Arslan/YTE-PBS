@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.servlet.ServletException;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -63,5 +64,11 @@ public class AuthController {
                     .status(HttpStatus.UNAUTHORIZED)
                     .body("Error: Invalid username/email or password.");
         }
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request) throws ServletException {
+        request.logout();
+        return ResponseEntity.ok("Logout successful.");
     }
 }
