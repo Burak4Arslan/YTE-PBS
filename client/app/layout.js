@@ -17,6 +17,7 @@ export default function RootLayout({ children }) {
         <html lang="tr" className={roboto.className}>
             <body>
                 <ThemeRegistry>
+                    <TopNav />
                     {children}
                 </ThemeRegistry>
 
