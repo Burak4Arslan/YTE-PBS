@@ -3,7 +3,6 @@
 import React from 'react';
 import { Box, Container, Typography } from '@mui/material';
 import EmployeeCard from '../components/EmployeeCard';
-import PersonalCorporateInfo from '../components/PersonalCorporateInfo';
 
 export default function EmployeeProfilePage({ params }) {
     const sampleEmployee = {
@@ -52,9 +51,7 @@ export default function EmployeeProfilePage({ params }) {
                     <EmployeeCard employee={sampleEmployee} />
                 </Box>
 
-                <Box mt={4}>
-                    <PersonalCorporateInfo />
-                </Box>
+
             </Container>
         </Box>
     );

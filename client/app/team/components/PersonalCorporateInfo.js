@@ -3,8 +3,8 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import {
+    Avatar,
     Box,
-    Button,
     Card,
     CardContent,
     Grid,
@@ -12,6 +12,10 @@ import {
     TextField,
     Typography
 } from '@mui/material';
+import {
+    BadgeOutlined,
+    PersonOutlined
+} from '@mui/icons-material';
 
 const bloodTypes = [
     'A+',
@@ -24,8 +28,23 @@ const bloodTypes = [
     '0-'
 ];
 
+const fieldSx = {
+    '& .MuiInputBase-root': {
+        backgroundColor: '#fff'
+    }
+};
+
+const cardSx = {
+    height: '100%',
+    borderRadius: 2,
+    boxShadow: '0 2px 8px rgba(0,0,0,0.14)',
+    borderBottom: '6px solid',
+    borderBottomColor: 'primary.main',
+    overflow: 'hidden'
+};
+
 export default function PersonalCorporateInfo() {
-    const { register, handleSubmit } = useForm({
+    const { register, handleSubmit, watch } = useForm({
         defaultValues: {
             firstName: '',
             lastName: '',
@@ -56,6 +75,7 @@ export default function PersonalCorporateInfo() {
             roomNumber: ''
         }
     });
+    const lastName = watch('lastName');
 
     const onSubmit = (data) => {
         console.log(data);
@@ -67,128 +87,219 @@ export default function PersonalCorporateInfo() {
             onSubmit={handleSubmit(onSubmit)}
             sx={{ width: '100%' }}
         >
-            <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
-                    <Card sx={{ height: '100%' }}>
-                        <CardContent>
-                            <Typography variant="h6" fontWeight={700} mb={3}>
-                                Kişisel Bilgiler
-                            </Typography>
+            <Grid container spacing={2}>
+                <Grid size={{ xs: 12, md: 6 }}>
+                    <Card sx={cardSx}>
+                        <CardContent sx={{ p: 2.5 }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'flex-start',
+                                    mb: 3
+                                }}
+                            >
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 1
+                                    }}
+                                >
+                                    <BadgeOutlined
+                                        sx={{
+                                            color: 'primary.main',
+                                            fontSize: 20
+                                        }}
+                                    />
+
+                                    <Typography
+                                        variant="subtitle2"
+                                        fontWeight={700}
+                                    >
+                                        KİŞİSEL
+                                    </Typography>
+                                </Box>
+
+                                <Avatar
+                                    sx={{
+                                        width: 48,
+                                        height: 48,
+                                        bgcolor: '#bdbdbd'
+                                    }}
+                                >
+                                    <PersonOutlined />
+                                </Avatar>
+                            </Box>
 
                             <Grid container spacing={2}>
-                                <Grid item xs={12} sm={6}>
+                                <Grid size={{ xs: 12, sm: 6 }}>
                                     <TextField
                                         fullWidth
+                                        size="small"
                                         label="Ad"
+                                        disabled
+                                        sx={fieldSx}
                                         {...register('firstName')}
                                     />
                                 </Grid>
 
-                                <Grid item xs={12} sm={6}>
+                                <Grid size={{ xs: 12, sm: 6 }}>
                                     <TextField
                                         fullWidth
+                                        size="small"
+                                        disabled
                                         label="Soyad"
+                                        sx={fieldSx}
                                         {...register('lastName')}
                                     />
                                 </Grid>
 
-                                <Grid item xs={12}>
+                                <Grid size={{ xs: 12, sm: 6 }}>
                                     <TextField
                                         fullWidth
+                                        size="small"
                                         label="T.C. Kimlik Numarası"
+                                        disabled
+                                        sx={fieldSx}
                                         {...register('nationalIdentityNumber')}
                                     />
                                 </Grid>
 
-                                <Grid item xs={12} sm={6}>
+                                <Grid size={{ xs: 12, sm: 6 }}>
                                     <TextField
                                         fullWidth
+                                        size="small"
                                         label="Cinsiyet"
+                                        disabled
+                                        sx={fieldSx}
                                         {...register('gender')}
                                     />
                                 </Grid>
 
-                                <Grid item xs={12} sm={6}>
+                                <Grid size={{ xs: 12, sm: 6 }}>
                                     <TextField
                                         fullWidth
+                                        size="small"
                                         label="Akademik Unvan"
+                                        disabled
+                                        sx={fieldSx}
                                         {...register('academicTitle')}
                                     />
                                 </Grid>
 
-                                <Grid item xs={12}>
+                                <Grid size={{ xs: 12, sm: 6 }}>
                                     <TextField
                                         fullWidth
+                                        size="small"
                                         label="E-posta"
                                         type="email"
+                                        disabled
+                                        sx={fieldSx}
                                         {...register('email')}
                                     />
                                 </Grid>
 
-                                <Grid item xs={12} sm={6}>
+                                <Grid size={{ xs: 12, sm: 6 }}>
                                     <TextField
                                         fullWidth
+                                        size="small"
                                         label="Doğum Tarihi"
                                         type="date"
-                                        InputLabelProps={{ shrink: true }}
+                                        sx={fieldSx}
+                                        slotProps={{
+                                            inputLabel: {
+                                                shrink: true
+                                            }
+                                        }}
                                         {...register('birthDate')}
                                     />
                                 </Grid>
 
-                                <Grid item xs={12} sm={6}>
+                                <Grid size={{ xs: 12, sm: 6 }}>
                                     <TextField
                                         fullWidth
+                                        size="small"
                                         select
                                         label="Kan Grubu"
                                         defaultValue=""
+                                        sx={fieldSx}
+                                        slotProps={{
+
+                                            select: {
+
+                                                MenuProps: {
+
+                                                    disableScrollLock: true
+
+                                                }
+
+                                            }
+
+                                        }}
                                         {...register('bloodType')}
                                     >
+                                        <MenuItem value="">
+                                            Seçiniz
+                                        </MenuItem>
+
                                         {bloodTypes.map((bloodType) => (
-                                            <MenuItem key={bloodType} value={bloodType}>
+                                            <MenuItem
+                                                key={bloodType}
+                                                value={bloodType}
+                                            >
                                                 {bloodType}
                                             </MenuItem>
                                         ))}
                                     </TextField>
                                 </Grid>
 
-                                <Grid item xs={12} sm={6}>
+                                <Grid size={{ xs: 12, sm: 6 }}>
                                     <TextField
                                         fullWidth
+                                        size="small"
                                         label="Telefon"
+                                        sx={fieldSx}
                                         {...register('phoneNumber')}
                                     />
                                 </Grid>
 
-                                <Grid item xs={12} sm={6}>
+                                <Grid size={{ xs: 12, sm: 6 }}>
                                     <TextField
                                         fullWidth
+                                        size="small"
                                         label="Araç Plakası"
+                                        sx={fieldSx}
                                         {...register('vehiclePlate')}
                                     />
                                 </Grid>
 
-                                <Grid item xs={12}>
+                                <Grid size={{ xs: 12, sm: 6 }}>
                                     <TextField
                                         fullWidth
+                                        size="small"
                                         label="Acil Durumda Ulaşılacak Kişi"
+                                        sx={fieldSx}
                                         {...register('emergencyContactName')}
                                     />
                                 </Grid>
 
-                                <Grid item xs={12}>
+                                <Grid size={{ xs: 12, sm: 6 }}>
                                     <TextField
                                         fullWidth
-                                        label="Acil Durumda Ulaşılacak Kişi Telefonu"
+                                        size="small"
+                                        label="Acil Durumda Ulaşılacak Kişi Tel"
+                                        sx={fieldSx}
                                         {...register('emergencyContactPhone')}
                                     />
                                 </Grid>
 
-                                <Grid item xs={12}>
+                                <Grid size={{ xs: 12 }}>
                                     <TextField
                                         fullWidth
-                                        multiline
-                                        minRows={3}
+                                        size="small"
                                         label="İkametgâh Adresi"
+                                        sx={fieldSx}
                                         {...register('residentialAddress')}
                                     />
                                 </Grid>
@@ -197,102 +308,183 @@ export default function PersonalCorporateInfo() {
                     </Card>
                 </Grid>
 
-                <Grid item xs={12} md={6}>
-                    <Card sx={{ height: '100%' }}>
-                        <CardContent>
-                            <Typography variant="h6" fontWeight={700} mb={3}>
-                                Kurumsal Bilgiler
-                            </Typography>
+                <Grid size={{ xs: 12, md: 6 }}>
+                    <Card sx={cardSx}>
+                        <CardContent sx={{ p: 2.5 }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 1,
+                                    mb: 3
+                                }}
+                            >
+                                <BadgeOutlined
+                                    sx={{
+                                        color: 'primary.main',
+                                        fontSize: 20
+                                    }}
+                                />
+
+                                <Typography
+                                    variant="subtitle2"
+                                    fontWeight={700}
+                                >
+                                    KURUMSAL
+                                </Typography>
+                            </Box>
 
                             <Grid container spacing={2}>
-                                <Grid item xs={12} sm={6}>
+                                <Grid size={{ xs: 12, sm: 6 }}>
                                     <TextField
                                         fullWidth
+                                        size="small"
                                         label="İşe Giriş Tarihi"
                                         type="date"
-                                        InputLabelProps={{ shrink: true }}
+                                        disabled
+                                        sx={fieldSx}
+                                        slotProps={{
+                                            inputLabel: {
+                                                shrink: true
+                                            }
+                                        }}
                                         {...register('employmentStartDate')}
                                     />
                                 </Grid>
 
-                                <Grid item xs={12} sm={6}>
+                                <Grid size={{ xs: 12, sm: 6 }}>
                                     <TextField
                                         fullWidth
+                                        size="small"
                                         label="Sicil No"
+                                        disabled
+                                        sx={fieldSx}
                                         {...register('registrationNumber')}
                                     />
                                 </Grid>
 
-                                <Grid item xs={12} sm={6}>
+
+                                <Grid size={{ xs: 12, sm: 6 }}>
                                     <TextField
                                         fullWidth
+                                        size="small"
                                         label="Kadro"
+                                        disabled
+                                        sx={fieldSx}
                                         {...register('cadre')}
                                     />
                                 </Grid>
 
-                                <Grid item xs={12} sm={6}>
+                                <Grid size={{ xs: 12, sm: 6 }}>
                                     <TextField
                                         fullWidth
+                                        size="small"
                                         label="Unvan"
+                                        disabled
+                                        sx={fieldSx}
                                         {...register('title')}
                                     />
                                 </Grid>
 
-                                <Grid item xs={12}>
+                                <Grid size={{ xs: 12, sm: 6 }}>
                                     <TextField
                                         fullWidth
+                                        size="small"
                                         label="Birim"
+                                        disabled
+                                        sx={fieldSx}
                                         {...register('unit')}
                                     />
                                 </Grid>
 
-                                <Grid item xs={12}>
+                                <Grid size={{ xs: 12, sm: 6 }}>
                                     <TextField
                                         fullWidth
+                                        size="small"
                                         label="Çalışılan Proje"
+                                        disabled
+                                        sx={fieldSx}
                                         {...register('currentProject')}
                                     />
                                 </Grid>
 
-                                <Grid item xs={12}>
+                                <Grid size={{ xs: 12, sm: 6 }}>
                                     <TextField
                                         fullWidth
+                                        size="small"
                                         label="Görevi"
+                                        disabled
+                                        sx={fieldSx}
                                         {...register('duty')}
                                     />
                                 </Grid>
 
-                                <Grid item xs={12} sm={6}>
+                                <Grid size={{ xs: 12, sm: 6 }}>
                                     <TextField
                                         fullWidth
+                                        size="small"
+                                        label="Soyad"
+                                        value={lastName}
+                                        disabled
+                                        sx={fieldSx}
+                                    />
+                                </Grid>
+
+                                <Grid size={{ xs: 12, sm: 6 }}>
+                                    <TextField
+                                        fullWidth
+                                        size="small"
                                         label="Personel Türü"
+                                        disabled
+                                        sx={fieldSx}
                                         {...register('personnelType')}
                                     />
                                 </Grid>
 
-                                <Grid item xs={12} sm={6}>
+                                <Grid size={{ xs: 12, sm: 6 }}>
                                     <TextField
                                         fullWidth
+                                        size="small"
                                         label="Çalışma Türü"
+                                        disabled
+                                        sx={fieldSx}
                                         {...register('workType')}
                                     />
                                 </Grid>
 
-                                <Grid item xs={12} sm={6}>
+                                <Grid size={{ xs: 12, sm: 6 }}>
                                     <TextField
                                         fullWidth
+                                        size="small"
                                         label="Çalışma Durumu"
+                                        disabled
+                                        sx={fieldSx}
                                         {...register('workStatus')}
                                     />
                                 </Grid>
 
-                                <Grid item xs={12} sm={6}>
+                                <Grid size={{ xs: 12, sm: 6 }}>
                                     <TextField
                                         fullWidth
+                                        size="small"
                                         select
                                         label="Servis Kullanımı"
+                                        disabled
                                         defaultValue=""
+                                        sx={fieldSx}
+                                        slotProps={{
+
+                                            select: {
+
+                                                MenuProps: {
+
+                                                    disableScrollLock: true
+
+                                                }
+
+                                            }
+
+                                        }}
                                         {...register('usesShuttleService')}
                                     >
                                         <MenuItem value="">
@@ -307,18 +499,22 @@ export default function PersonalCorporateInfo() {
                                     </TextField>
                                 </Grid>
 
-                                <Grid item xs={12} sm={6}>
+                                <Grid size={{ xs: 12, sm: 6 }}>
                                     <TextField
                                         fullWidth
+                                        size="small"
                                         label="Dahili Numara"
+                                        sx={fieldSx}
                                         {...register('internalPhoneNumber')}
                                     />
                                 </Grid>
 
-                                <Grid item xs={12} sm={6}>
+                                <Grid size={{ xs: 12, sm: 6 }}>
                                     <TextField
                                         fullWidth
+                                        size="small"
                                         label="Oda Numarası"
+                                        sx={fieldSx}
                                         {...register('roomNumber')}
                                     />
                                 </Grid>
@@ -327,12 +523,6 @@ export default function PersonalCorporateInfo() {
                     </Card>
                 </Grid>
             </Grid>
-
-            <Box display="flex" justifyContent="flex-end" mt={3}>
-                <Button type="submit" variant="contained">
-                    Kaydet
-                </Button>
-            </Box>
         </Box>
     );
 }

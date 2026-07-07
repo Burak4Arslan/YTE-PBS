@@ -110,7 +110,7 @@ export default function EmployeeCard({ employee }) {
 
                 <Grid container spacing={3} sx={{ fontSize: '0.875rem' }}>
                     {/* Left Column */}
-                    <Grid item xs={12} sm={6}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                             <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
                                 <BadgeOutlined fontSize="small" color="action" sx={{ mt: 0.3 }} />
@@ -150,7 +150,7 @@ export default function EmployeeCard({ employee }) {
                     </Grid>
 
                     {/* Right Column */}
-                    <Grid item xs={12} sm={6}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                             <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
                                 <PhoneOutlined fontSize="small" color="action" sx={{ mt: 0.3 }} />
