@@ -1,6 +1,7 @@
 import { Roboto } from "next/font/google";
 import "./globals.css";
 import ThemeRegistry from "../theme/ThemeRegistry";
+import TopNav from "./components/TopNav";
 
 // React Toastify kütüphanesini ve şık CSS tasarımlarını içeri alıyoruz
 import { ToastContainer } from "react-toastify";
