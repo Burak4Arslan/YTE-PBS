@@ -1,10 +1,15 @@
 'use client';
 
 import React from 'react';
+import { useParams } from 'next/navigation';
 import { Box, Container } from '@mui/material';
 import PersonalCorporateInfo from '../../team/components/PersonalCorporateInfo';
+import PersonnelFiles from '../components/PersonnelFiles';
 
 export default function PersonnelDetailPage() {
+    const params = useParams();
+    const userId = params.id;
+
     return (
         <Box
             sx={{
@@ -23,6 +28,7 @@ export default function PersonnelDetailPage() {
                 }}
             >
                 <PersonalCorporateInfo />
+                <PersonnelFiles userId={userId} />
             </Container>
         </Box>
     );

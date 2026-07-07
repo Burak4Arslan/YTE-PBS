@@ -29,7 +29,10 @@ public class PersonnelFile extends BaseEntity {
     private Long fileSize;
 
     @JsonIgnore
-    @Column(name = "file_data", nullable = false)
+    @Column(
+            name = "file_data",
+            nullable = false,
+            columnDefinition = "BYTEA"
+    )
     private byte[] fileData;
 }
-
