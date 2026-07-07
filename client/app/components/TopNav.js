@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { AppBar, Toolbar, Box, Typography, Avatar, IconButton } from "@mui/material";
 import Image from "next/image";
 import LogoutIcon from "@mui/icons-material/Logout";
+import api from "../api/axiosClient";
 
 const NAV_LINKS = [
     { label: "Genel", href: "/" },
@@ -15,12 +16,23 @@ const NAV_LINKS = [
     { label: "Organizasyon Şeması", href: "/organizasyon-semasi" },
 ];
 
-export default function TopNav({ userName = "Kemal Yılmaz", avatarUrl = null }) {
+export default function TopNav({ userName = "User", avatarUrl = null }) {
     const pathname = usePathname();
+    const router = useRouter();
 
     if (pathname === "/login") {
         return null;
     }
+
+    const handleLogout = async () => {
+        try {
+            await api.post("/api/auth/logout");
+            router.push("/login");
+        } catch (error) {
+            console.error("Logout error:", error);
+            router.push("/login");
+        }
+    };
 
     return (
         <AppBar
@@ -70,7 +82,7 @@ export default function TopNav({ userName = "Kemal Yılmaz", avatarUrl = null })
                     </Typography>
                 </Box>
 
-                <IconButton size="small">
+                <IconButton size="small" onClick={handleLogout}>
                     <LogoutIcon fontSize="small" />
                 </IconButton>
             </Toolbar>
