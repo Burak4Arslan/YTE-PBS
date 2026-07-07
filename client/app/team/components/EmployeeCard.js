@@ -122,7 +122,7 @@ export default function EmployeeCard({ employee }) {
                             <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
                                 <BusinessOutlined fontSize="small" color="action" sx={{ mt: 0.3 }} />
                                 <Typography variant="body2" color="text.secondary">
-                                    <strong>staffType:</strong> {staffType}
+                                    <strong>Kadro:</strong> {staffType}
                                 </Typography>
                             </Box>
 
@@ -173,7 +173,14 @@ export default function EmployeeCard({ employee }) {
                                 </Typography>
                             </Box>
 
-                            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'flex-start',
+                                    gap: 1.5,
+                                    minWidth: 0
+                                }}
+                            >
                                 <MailOutlined fontSize="small" color="action" sx={{ mt: 0.3 }} />
                                 <Typography
                                     variant="body2"
