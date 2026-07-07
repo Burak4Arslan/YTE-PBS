@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { AppBar, Toolbar, Box, Typography, Avatar, IconButton } from "@mui/material";
 import Image from "next/image";
 import LogoutIcon from "@mui/icons-material/Logout";
-import api from "../api/axiosClient";
+import api from "../api/axiosInstance";
 
 const NAV_LINKS = [
     { label: "Genel", href: "/" },
