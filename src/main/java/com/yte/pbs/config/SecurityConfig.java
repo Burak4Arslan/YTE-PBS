@@ -1,5 +1,7 @@
 package com.yte.pbs.config;
 
+import com.yte.pbs.entity.Authority;
+import com.yte.pbs.entity.User;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -112,5 +114,43 @@ public class SecurityConfig {
 
             filterChain.doFilter(request, response);
         }
+    }
+
+    @Bean
+    public org.springframework.boot.CommandLineRunner initializeSecurityTestData(
+            com.yte.pbs.repository.AuthorityRepository authorityRepository,
+            com.yte.pbs.repository.UserRepository userRepository,
+            org.springframework.security.crypto.password.PasswordEncoder passwordEncoder) {
+        return args -> {
+            com.yte.pbs.entity.Authority adminAuthority = authorityRepository.findByName("ADMIN")
+                    .orElseGet(() -> authorityRepository.save(new com.yte.pbs.entity.Authority("ADMIN", "System administrator")));
+
+            com.yte.pbs.entity.Authority employeeAuthority = authorityRepository.findByName("EMPLOYEE")
+                    .orElseGet(() -> authorityRepository.save(new com.yte.pbs.entity.Authority("EMPLOYEE", "Employee")));
+
+            userRepository.findByUsernameOrEmail("admin", "admin@pbs.com").orElseGet(() -> {
+                com.yte.pbs.entity.User user = new com.yte.pbs.entity.User();
+                user.setUsername("admin");
+                user.setFirstName("Ahmet");
+                user.setLastName("Yilmaz");
+                user.setEmail("admin@pbs.com");
+                user.setPassword(passwordEncoder.encode("Password123*"));
+                user.setAuthorities(new java.util.HashSet<>(java.util.List.of(adminAuthority)));
+                return userRepository.save(user);
+            });
+
+            userRepository.findByUsernameOrEmail("personel", "personel@pbs.com").orElseGet(() -> {
+                com.yte.pbs.entity.User user = new com.yte.pbs.entity.User();
+                user.setUsername("personel");
+                user.setFirstName("Mehmet");
+                user.setLastName("Demir");
+                user.setEmail("personel@pbs.com");
+                user.setPassword(passwordEncoder.encode("Password123*"));
+                user.setAuthorities(new java.util.HashSet<>(java.util.List.of(employeeAuthority)));
+                return userRepository.save(user);
+            });
+
+            System.out.println("Use 'admin' / 'Password123*' to login.");
+        };
     }
 }

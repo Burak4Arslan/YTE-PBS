@@ -45,19 +45,17 @@ export default function LoginPage() {
         e.preventDefault();
 
         try {
-            const response = await api.post('/login', {
-                email: formData.email,
+            const response = await api.post('/api/auth/login', {
+                usernameOrEmail: formData.email,
                 password: formData.password
             });
 
             console.log('Giriş Başarılı! Backend Cevabı:', response.data);
             alert('Giriş Başarılı!');
 
-
         } catch (error) {
             console.error('Giriş Hatası:', error.response?.data || error.message);
-
-            const errorMessage = error.response?.data?.message || 'Giriş başarısız! Bilgilerinizi kontrol edin.';
+            const errorMessage = error.response?.data || 'Giriş başarısız!';
             alert(errorMessage);
         }
     };

@@ -121,4 +121,9 @@ public class User extends BaseEntity {
                 .map(Authority::getName)
                 .collect(Collectors.toSet());
     }
+
+    public void setRoles(Set<Authority> roles){
+        this.authorities = roles;
+    }
+
 }
