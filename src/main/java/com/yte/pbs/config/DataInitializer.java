@@ -72,7 +72,7 @@ public class DataInitializer {
             user.setFirstName(firstName);
             user.setLastName(lastName);
             user.setEmail(email);
-            user.setPassword(passwordEncoder.encode("Password123*"));
+            user.setPassword(passwordEncoder.encode("1"));
         }
         user.getAuthorities().add(authority);
         userRepository.save(user);
