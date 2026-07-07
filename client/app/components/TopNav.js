@@ -18,6 +18,10 @@ const NAV_LINKS = [
 export default function TopNav({ userName = "Kemal Yılmaz", avatarUrl = null }) {
     const pathname = usePathname();
 
+    if (pathname === "/login") {
+        return null;
+    }
+
     return (
         <AppBar
             position="static"
