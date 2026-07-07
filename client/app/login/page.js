@@ -1,18 +1,19 @@
 'use client';
 import api from '../api/axiosInstance';
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import {useRouter} from 'next/navigation';
+import {toast} from 'react-toastify';
 import {
     Box,
-    Typography,
-    TextField,
     Button,
     Checkbox,
     FormControlLabel,
-    Paper,
     IconButton,
-    InputAdornment
+    InputAdornment,
+    Paper,
+    TextField,
+    Typography
 } from '@mui/material';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
@@ -54,11 +55,12 @@ export default function LoginPage() {
 
             console.log('Giriş Başarılı! Backend Cevabı:', response.data);
             router.push('/');
+            toast.success('Giriş Başarılı! Hoş geldiniz. 🎉');
 
         } catch (error) {
             console.error('Giriş Hatası:', error.response?.data || error.message);
-            const errorMessage = error.response?.data || 'Giriş başarısız!';
-            alert(errorMessage);
+            const errorMessage = error.response?.data?.message || error.response?.data || 'Giriş başarısız! Bilgilerinizi kontrol edin.';
+            toast.error(errorMessage);
         }
     };
 
