@@ -5,6 +5,12 @@ import { Box, Container, Typography } from '@mui/material';
 import EmployeeCard from '../components/EmployeeCard';
 import PersonalCorporateInfo from '../components/PersonalCorporateInfo';
 
+/*
+Deneyim ve Katkılar kısımlarının frontendinde örnek yaparken
+src/main/java/com.yte.pbs/config/DataInitializer.java'daki
+Cenk Çelik kullanılabilir.
+ */
+
 export default function EmployeeProfilePage({ params }) {
     const sampleEmployee = {
         photoUrl: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=190",

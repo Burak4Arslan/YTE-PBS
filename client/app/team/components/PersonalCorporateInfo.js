@@ -130,8 +130,9 @@ export default function PersonalCorporateInfo() {
                                         fullWidth
                                         label="Doğum Tarihi"
                                         type="date"
-                                        InputLabelProps={{ shrink: true }}
-                                        {...register('birthDate')}
+                                        slotProps={{
+                                            inputLabel: { shrink: true }
+                                        }}
                                     />
                                 </Grid>
 
@@ -328,7 +329,7 @@ export default function PersonalCorporateInfo() {
                 </Grid>
             </Grid>
 
-            <Box display="flex" justifyContent="flex-end" mt={3}>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
                 <Button type="submit" variant="contained">
                     Kaydet
                 </Button>
