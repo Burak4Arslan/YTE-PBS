@@ -170,9 +170,21 @@ export default function LoginPage() {
                                     mb: 2.5,
                                     '& .MuiOutlinedInput-root': {
                                         borderRadius: '4px',
-                                        '&.Mui-focused fieldset': { borderColor: '#E32619', borderWidth: '1px' }
+                                        backgroundColor: '#ffffff',
+                                        '&.Mui-focused fieldset': {
+                                            borderColor: '#E32619',
+                                            borderWidth: '1px'
+                                        }
                                     },
-                                    '& .MuiInputLabel-root.Mui-focused': { color: '#6B7280' }
+                                    '& .MuiInputLabel-root.Mui-focused': {
+                                        color: '#6B7280'
+                                    },
+                                    '& input:-webkit-autofill': {
+                                        WebkitBoxShadow: '0 0 0 1000px #ffffff inset',
+                                        WebkitTextFillColor: '#000000',
+                                        caretColor: '#000000',
+                                        transition: 'background-color 5000s ease-in-out 0s'
+                                    }
                                 }}
                             />
 
@@ -207,9 +219,21 @@ export default function LoginPage() {
                                     mb: 2.5,
                                     '& .MuiOutlinedInput-root': {
                                         borderRadius: '4px',
-                                        '&.Mui-focused fieldset': { borderColor: '#E32619', borderWidth: '1px' }
+                                        backgroundColor: '#ffffff',
+                                        '&.Mui-focused fieldset': {
+                                            borderColor: '#E32619',
+                                            borderWidth: '1px'
+                                        }
                                     },
-                                    '& .MuiInputLabel-root.Mui-focused': { color: '#6B7280' }
+                                    '& .MuiInputLabel-root.Mui-focused': {
+                                        color: '#6B7280'
+                                    },
+                                    '& input:-webkit-autofill': {
+                                        WebkitBoxShadow: '0 0 0 1000px #ffffff inset',
+                                        WebkitTextFillColor: '#000000',
+                                        caretColor: '#000000',
+                                        transition: 'background-color 5000s ease-in-out 0s'
+                                    }
                                 }}
                             />
 

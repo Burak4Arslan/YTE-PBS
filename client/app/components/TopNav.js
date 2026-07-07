@@ -42,15 +42,55 @@ export default function TopNav({ userName = "User", avatarUrl = null }) {
             sx={{ borderBottom: "1px solid", borderBottomColor: "divider" }}
         >
             <Toolbar sx={{ gap: 3, minHeight: 64 }}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <Image src="/logo.png" alt="BİLGEM" width={36} height={36} />
+                <Box
+                    sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 2,
+                        flexShrink: 0,
+                        width: 351,
+                    }}
+                >
+                    <Image
+                        src="/logo.png"
+                        alt="TÜBİTAK BİLGEM"
+                        width={137}
+                        height={42}
+                        style={{
+                            width: "137px",
+                            height: "42px",
+                            objectFit: "contain",
+                        }}
+                    />
+
+                    <Box
+                        sx={{
+                            width: "1px",
+                            height: 32,
+                            backgroundColor: "divider",
+                            flexShrink: 0,
+                        }}
+                    />
+
+                    <Typography
+                        variant="subtitle1"
+                        sx={{
+                            fontWeight: 600,
+                            whiteSpace: "nowrap",
+                        }}
+                    >
+                        Personel Bilgi Sistemi
+                    </Typography>
                 </Box>
 
-                <Typography variant="subtitle1" sx={{ fontWeight: 600, whiteSpace: "nowrap" }}>
-                    Personel Bilgi Sistemi
-                </Typography>
-
-                <Box sx={{ display: "flex", gap: 3, ml: 4, flexGrow: 1 }}>
+                <Box
+                    sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 3,
+                        ml: "auto",
+                    }}
+                >
                     {NAV_LINKS.map((link) => {
                         const isActive = pathname === link.href;
                         return (
@@ -73,7 +113,14 @@ export default function TopNav({ userName = "User", avatarUrl = null }) {
                     })}
                 </Box>
 
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Box
+                    sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        ml: 2,
+                    }}
+                >
                     <Avatar src={avatarUrl || undefined} sx={{ width: 32, height: 32 }}>
                         {!avatarUrl && userName.charAt(0)}
                     </Avatar>
