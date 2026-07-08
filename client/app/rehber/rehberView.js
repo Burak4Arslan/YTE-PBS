@@ -10,21 +10,22 @@ import PersonCell from "./components/PersonCell";
 import GorevCell from "./components/GorevCell";
 import { EmailCell, PhoneCell } from "./components/ContactCell";
 import RehberFilters from "./components/RehberFilters";
-import { fetchRehberList } from "./services/rehberService";
+import { fetchRehberList, fetchTitles, fetchDuties, fetchUnits, fetchProjects } from "./services/rehberService";
 
 import RehberDetayModal from "./components/RehberDetayModal";
 
 export default function RehberView() {
     const router = useRouter();
-    const [allRows, setAllRows] = useState([]);
+    const [rows, setRows] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [filters, setFilters] = useState({});
+    const [options, setOptions] = useState({ unvan: [], gorev: [], birim: [], proje: [] });
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedPersonelId, setSelectedPersonelId] = useState(null);
 
-    // Sayfa ilk açıldığında backend'den veriyi çek.
+    // Sayfa ilk açıldığında backend'den veriyi çek ve seçenekleri yükle.
     useEffect(() => {
         let isMounted = true;
 
@@ -32,8 +33,23 @@ export default function RehberView() {
             setLoading(true);
             setError(null);
             try {
-                const data = await fetchRehberList();
-                if (isMounted) setAllRows(data);
+                const [data, titles, duties, units, projects] = await Promise.all([
+                    fetchRehberList(),
+                    fetchTitles(),
+                    fetchDuties(),
+                    fetchUnits(),
+                    fetchProjects()
+                ]);
+
+                if (isMounted) {
+                    setRows(data);
+                    setOptions({
+                        unvan: titles,
+                        gorev: duties,
+                        birim: units,
+                        proje: projects
+                    });
+                }
             } catch (err) {
                 console.error("Rehber verisi alınamadı:", err);
                 if (isMounted) setError("Personel listesi yüklenemedi. Backend'in çalıştığından emin olun.");
@@ -48,22 +64,31 @@ export default function RehberView() {
         };
     }, []);
 
+    const handleSearchWith = async (currentFilters) => {
+        setLoading(true);
+        setError(null);
+        try {
+            const data = await fetchRehberList(currentFilters);
+            setRows(data);
+        } catch (err) {
+            console.error("Rehber araması başarısız:", err);
+            setError("Arama sırasında bir hata oluştu.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleFilterChange = (key, value) => {
-        setFilters((prev) => ({ ...prev, [key]: value }));
+        setFilters((prev) => {
+            const newFilters = { ...prev, [key]: value };
+            if (value === "") {
+                handleSearchWith(newFilters);
+            }
+            return newFilters;
+        });
     };
 
-    // Backend henüz filtre parametresi desteklemediği için,
-    // SORGULA butonu şimdilik zaten yüklenmiş veriyi client-side filtreliyor.
-    const filteredRows = useMemo(() => {
-        const search = (filters.isimSoyisim || "").toLowerCase().trim();
-        if (!search) return allRows;
-        return allRows.filter((row) => row.adSoyad?.toLowerCase().includes(search));
-    }, [allRows, filters.isimSoyisim]);
-
-    const handleSearch = () => {
-        // filteredRows zaten useMemo ile otomatik güncelleniyor;
-        // bu fonksiyon ileride backend'e gerçek sorgu atmak için yer tutucu.
-    };
+    const handleSearch = () => handleSearchWith(filters);
 
     const handleOpenDetail = (id) => {
         setSelectedPersonelId(id);
@@ -152,6 +177,7 @@ export default function RehberView() {
 
             <RehberFilters
                 filters={filters}
+                options={options}
                 onFilterChange={handleFilterChange}
                 onSearch={handleSearch}
                 onAddPersonel={() => {
@@ -167,7 +193,7 @@ export default function RehberView() {
 
             <DataGrid
                 autoHeight
-                rows={filteredRows}
+                rows={rows}
                 columns={columns}
                 loading={loading}
                 getRowHeight={() => 64}

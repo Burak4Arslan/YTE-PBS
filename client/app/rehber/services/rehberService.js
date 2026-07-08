@@ -6,9 +6,7 @@ import api from "../../api/axiosInstance";
  *
  * Frontend component'leri (PersonCell, GorevCell, ContactCell) ise
  * adSoyad / birim / unvan / gorevler / ePosta / telefon isimlerini bekliyor.
- * Bu fonksiyon ikisi arasındaki farkı tek bir yerden yönetir; backend alan
- * isimleri değişirse sadece burası güncellenir, component'lere dokunmaya
- * gerek kalmaz.
+ * Bu fonksiyon ikisi arasındaki farkı tek bir yerden yönetir.
  */
 function mapDirectoryEntryToRehberRow(entry) {
     return {
@@ -25,13 +23,35 @@ function mapDirectoryEntryToRehberRow(entry) {
 
 /**
  * GET /api/directory
- * Not: Backend şu an query parametresi ile filtreleme desteklemiyor
- * (controller sadece findAll() dönüyor). Bu yüzden filtreleri şimdilik
- * frontend tarafında (RehberView içinde) uyguluyoruz. Backend'e filtre
- * parametreleri eklendiğinde, bu fonksiyona `{ params: filters }` eklenip
- * client-side filtreleme kaldırılabilir.
  */
-export async function fetchRehberList() {
-    const response = await api.get("/api/directory");
+export async function fetchRehberList(filters = {}) {
+    const params = new URLSearchParams();
+    if (filters.isimSoyisim) params.append("fullName", filters.isimSoyisim);
+    if (filters.unvan) params.append("title", filters.unvan);
+    if (filters.gorev) params.append("duty", filters.gorev);
+    if (filters.birim) params.append("unit", filters.birim);
+    if (filters.proje) params.append("project", filters.proje);
+
+    const response = await api.get(`/api/directory?${params.toString()}`);
     return response.data.map(mapDirectoryEntryToRehberRow);
+}
+
+export async function fetchTitles() {
+    const response = await api.get("/api/directory/options/titles");
+    return response.data;
+}
+
+export async function fetchDuties() {
+    const response = await api.get("/api/directory/options/duties");
+    return response.data;
+}
+
+export async function fetchUnits() {
+    const response = await api.get("/api/directory/options/units");
+    return response.data;
+}
+
+export async function fetchProjects() {
+    const response = await api.get("/api/directory/options/projects");
+    return response.data;
 }

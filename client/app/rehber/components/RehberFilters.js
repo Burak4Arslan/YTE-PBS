@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Box, TextField, InputAdornment, Select, MenuItem, FormControl, Button } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
@@ -9,11 +10,18 @@ const FILTER_FIELDS = [
     { key: "gorev", label: "Görev" },
     { key: "birim", label: "Birim" },
     { key: "proje", label: "Proje" },
-    { key: "katki", label: "Katkı" },
-    { key: "takim", label: "Takım" },
 ];
 
-export default function RehberFilters({ filters, onFilterChange, onSearch, onAddPersonel }) {
+export default function RehberFilters({ filters, options, onFilterChange, onSearch, onAddPersonel }) {
+    const [isAdmin, setIsAdmin] = useState(false);
+
+    useEffect(() => {
+        const userRole = localStorage.getItem("user_role");
+        if (userRole === "ADMIN") {
+            setIsAdmin(true);
+        }
+    }, []);
+
     return (
         <Box sx={{ display: "flex", gap: 1.5, alignItems: "center", flexWrap: "wrap", mb: 3 }}>
             <TextField
@@ -41,6 +49,11 @@ export default function RehberFilters({ filters, onFilterChange, onSearch, onAdd
                         onChange={(e) => onFilterChange(field.key, e.target.value)}
                     >
                         <MenuItem value="">{field.label}</MenuItem>
+                        {options && options[field.key] && options[field.key].map((opt) => (
+                            <MenuItem key={opt} value={opt}>
+                                {opt}
+                            </MenuItem>
+                        ))}
                     </Select>
                 </FormControl>
             ))}
@@ -49,15 +62,17 @@ export default function RehberFilters({ filters, onFilterChange, onSearch, onAdd
                 SORGULA
             </Button>
 
-            <Button
-                variant="contained"
-                color="secondary"
-                startIcon={<AddIcon />}
-                onClick={onAddPersonel}
-                sx={{ whiteSpace: "nowrap" }}
-            >
-                PERSONEL EKLE
-            </Button>
+            {isAdmin && (
+                <Button
+                    variant="contained"
+                    color="secondary"
+                    startIcon={<AddIcon />}
+                    onClick={onAddPersonel}
+                    sx={{ whiteSpace: "nowrap" }}
+                >
+                    PERSONEL EKLE
+                </Button>
+            )}
         </Box>
     );
 }

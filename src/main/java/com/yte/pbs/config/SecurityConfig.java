@@ -60,7 +60,7 @@ public class SecurityConfig {
                                 .requestMatchers("/api/auth/me").authenticated()
 
                                 .requestMatchers("/api/auth/**", "/api/auth/login").permitAll()
-                                .requestMatchers("/api/directory").permitAll() // Rehber
+                                .requestMatchers("/api/directory", "/api/directory/**").permitAll() // Rehber
                                 .requestMatchers("/api/news/**").permitAll()    // Haberler
                                 .requestMatchers("/api/events/**").permitAll()  // Etkinlikler
 
