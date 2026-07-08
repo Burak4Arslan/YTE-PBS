@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { Box, Paper, Typography, IconButton, Alert } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import OpenInFullIcon from "@mui/icons-material/OpenInFull";
@@ -12,6 +13,7 @@ import RehberFilters from "./components/RehberFilters";
 import { fetchRehberList } from "./services/rehberService";
 
 export default function RehberView() {
+    const router = useRouter();
     const [allRows, setAllRows] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -140,7 +142,7 @@ export default function RehberView() {
                 onFilterChange={handleFilterChange}
                 onSearch={handleSearch}
                 onAddPersonel={() => {
-                    // TODO: "Personel Ekle" modal/sayfası bağlanacak
+                    router.push('/personel/ekle');
                 }}
             />
 

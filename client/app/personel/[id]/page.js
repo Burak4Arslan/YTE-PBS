@@ -8,7 +8,9 @@ import PersonalCorporateInfo from '../../team/components/PersonalCorporateInfo';
 import PersonnelFiles from '../components/PersonnelFiles';
 import PersonnelProjectsSection from '../components/PersonnelProjectsSection';
 import PersonnelEducationSection from '../components/PersonnelEducationSection';
-import { createEducation, deleteEducation, getEducations, getPersonnelEmail, getPersonnelProjects, updateEducation } from '../services/personnelDetailService';
+import PersonnelExperienceSection from '../components/PersonnelExperienceSection';
+import PersonnelContributionsSection from '../components/PersonnelContributionsSection';
+import { createEducation, deleteEducation, getEducations, getPersonnelEmail, getPersonnelProjects, updateEducation, getExperiences, createExperience, updateExperience, deleteExperience, getContributions, createContribution, updateContribution, deleteContribution } from '../services/personnelDetailService';
 
 export default function PersonnelDetailPage() {
     const params = useParams();
@@ -16,6 +18,8 @@ export default function PersonnelDetailPage() {
     const [email, setEmail] = useState('');
     const [educations, setEducations] = useState([]);
     const [projects, setProjects] = useState([]);
+    const [experiences, setExperiences] = useState([]);
+    const [contributions, setContributions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState('');
@@ -26,9 +30,11 @@ export default function PersonnelDetailPage() {
         try {
             const resolvedEmail = await getPersonnelEmail(userId);
             setEmail(resolvedEmail);
-            const [educationData, projectData] = await Promise.all([getEducations(resolvedEmail), getPersonnelProjects(resolvedEmail)]);
+            const [educationData, projectData, experienceData, contributionData] = await Promise.all([getEducations(resolvedEmail), getPersonnelProjects(resolvedEmail), getExperiences(resolvedEmail), getContributions(resolvedEmail)]);
             setEducations(educationData);
             setProjects(projectData);
+            setExperiences(experienceData);
+            setContributions(contributionData);
         } catch (requestError) {
             setError(requestError.message || 'Personel detayları yüklenemedi.');
         } finally {
@@ -61,6 +67,55 @@ export default function PersonnelDetailPage() {
         finally { setSaving(false); }
     };
 
+    const handleExperienceSave = async (values, experienceId) => {
+        setSaving(true);
+        try {
+            if (experienceId) await updateExperience(experienceId, values);
+            else await createExperience(email, values);
+            setExperiences(await getExperiences(email));
+            toast.success(experienceId ? 'Deneyim güncellendi.' : 'Deneyim eklendi.');
+            return true;
+        } catch { return false; }
+        finally { setSaving(false); }
+    };
+
+    const handleExperienceDelete = async (experienceId) => {
+        setSaving(true);
+        try {
+            await deleteExperience(experienceId);
+            setExperiences(await getExperiences(email));
+            toast.success('Deneyim silindi.');
+            return true;
+        } catch { return false; }
+        finally { setSaving(false); }
+    };
+
+    const handleContributionSave = async (values, contributionId) => {
+        setSaving(true);
+        try {
+            // if the drawer passes an attachment FileList, ensure we send the File object
+            const payload = { ...values };
+            if (payload.attachment && payload.attachment.length) payload.attachment = payload.attachment[0];
+            if (contributionId) await updateContribution(contributionId, payload);
+            else await createContribution(email, payload);
+            setContributions(await getContributions(email));
+            toast.success(contributionId ? 'Katkı güncellendi.' : 'Katkı eklendi.');
+            return true;
+        } catch (e) { console.error(e); return false; }
+        finally { setSaving(false); }
+    };
+
+    const handleContributionDelete = async (contributionId) => {
+        setSaving(true);
+        try {
+            await deleteContribution(contributionId);
+            setContributions(await getContributions(email));
+            toast.success('Katkı silindi.');
+            return true;
+        } catch { return false; }
+        finally { setSaving(false); }
+    };
+
     return (
         <Box
             sx={{
@@ -82,7 +137,9 @@ export default function PersonnelDetailPage() {
                     <PersonalCorporateInfo />
                     <PersonnelFiles userId={userId} />
                     <PersonnelProjectsSection projects={projects} loading={loading} error={error} />
+                    <PersonnelExperienceSection experiences={experiences} loading={loading} error={error} saving={saving} onSave={handleExperienceSave} onDelete={handleExperienceDelete} />
                     <PersonnelEducationSection educations={educations} loading={loading} error={error} saving={saving} onSave={handleSave} onDelete={handleDelete} />
+                    <PersonnelContributionsSection contributions={contributions} loading={loading} error={error} saving={saving} onSave={handleContributionSave} onDelete={handleContributionDelete} />
                 </Stack>
             </Container>
         </Box>

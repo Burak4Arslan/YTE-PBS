@@ -57,11 +57,12 @@ public class SecurityConfig {
                                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
 
                         .authorizeHttpRequests(auth -> auth
-                                // Herkese açık
+                                .requestMatchers("/api/auth/me").authenticated()
+
                                 .requestMatchers("/api/auth/**", "/api/auth/login").permitAll()
                                 .requestMatchers("/api/directory").permitAll() // Rehber
-                                .requestMatchers("/api/news/**").permitAll()   // Haberler
-                                .requestMatchers("/api/events/**").permitAll() // Etkinlikler
+                                .requestMatchers("/api/news/**").permitAll()    // Haberler
+                                .requestMatchers("/api/events/**").permitAll()  // Etkinlikler
 
                                 // Admin özel
                                 .requestMatchers("/api/authorities/**").hasAuthority("ADMIN")
