@@ -16,7 +16,7 @@ import AddIcon from '@mui/icons-material/Add';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import CloseIcon from '@mui/icons-material/Close';
-import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
+import RemoveCircleOutlinedIcon from '@mui/icons-material/RemoveCircleOutlined';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
@@ -341,7 +341,7 @@ export default function EnumValueList({
                                                     onClick={() => onDeactivate(item)}
                                                     disabled={saving || !item.active}
                                                 >
-                                                    <RemoveCircleOutlineIcon fontSize="small" />
+                                                    <RemoveCircleOutlinedIcon fontSize="small" />
                                                 </IconButton>
                                             </span>
                                         </Tooltip>
