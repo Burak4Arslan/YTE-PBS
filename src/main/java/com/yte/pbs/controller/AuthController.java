@@ -57,7 +57,15 @@ public class AuthController {
                     response
             );
 
-            return ResponseEntity.ok("Login successful.");
+            java.util.Map<String, Object> responseBody = new java.util.HashMap<>();
+            responseBody.put("message", "Login successful.");
+
+            java.util.List<String> roles = authentication.getAuthorities().stream()
+                    .map(org.springframework.security.core.GrantedAuthority::getAuthority)
+                    .toList();
+            responseBody.put("authorities", roles);
+
+            return ResponseEntity.ok(responseBody);
 
         } catch (BadCredentialsException exception) {
             return ResponseEntity

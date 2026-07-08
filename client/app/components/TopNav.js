@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { AppBar, Toolbar, Box, Typography, Avatar, IconButton } from "@mui/material";
@@ -7,18 +8,25 @@ import Image from "next/image";
 import LogoutIcon from "@mui/icons-material/Logout";
 import api from "../api/axiosInstance";
 
-const NAV_LINKS = [
-    { label: "Genel", href: "/" },
-    { label: "Rehber", href: "/rehber" },
-    { label: "Raporlar", href: "/raporlar" },
-    { label: "Panel", href: "/panel" },
-    { label: "Yetkilendirme", href: "/yetkilendirme" },
-    { label: "Organizasyon Şeması", href: "/organizasyon-semasi" },
+const ALL_NAV_LINKS = [
+    { label: "Genel", href: "/", adminOnly: false },
+    { label: "Rehber", href: "/rehber", adminOnly: false },
+    { label: "Personel", href: "/personel", adminOnly: true },
+    { label: "Raporlar", href: "/raporlar", adminOnly: true },
+    { label: "Panel", href: "/panel", adminOnly: true },
+    { label: "Yetkilendirme", href: "/yetkilendirme", adminOnly: true },
+    { label: "Organizasyon Şeması", href: "/organizasyon-semasi", adminOnly: false },
 ];
 
 export default function TopNav({ userName = "User", avatarUrl = null }) {
     const pathname = usePathname();
     const router = useRouter();
+    const [userRole, setUserRole] = useState(null);
+
+    useEffect(() => {
+        const role = localStorage.getItem("user_role");
+        setUserRole(role);
+    }, [pathname]);
 
     if (pathname === "/login") {
         return null;
@@ -27,12 +35,17 @@ export default function TopNav({ userName = "User", avatarUrl = null }) {
     const handleLogout = async () => {
         try {
             await api.post("/api/auth/logout");
-            router.push("/login");
         } catch (error) {
             console.error("Logout error:", error);
+        } finally {
+            localStorage.removeItem("user_role");
             router.push("/login");
         }
     };
+
+    const visibleLinks = ALL_NAV_LINKS.filter(
+        (link) => !link.adminOnly || userRole === "ADMIN"
+    );
 
     return (
         <AppBar
@@ -91,7 +104,7 @@ export default function TopNav({ userName = "User", avatarUrl = null }) {
                         ml: "auto",
                     }}
                 >
-                    {NAV_LINKS.map((link) => {
+                    {visibleLinks.map((link) => {
                         const isActive = pathname === link.href;
                         return (
                             <Typography

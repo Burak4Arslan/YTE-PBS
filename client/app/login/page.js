@@ -54,11 +54,40 @@ export default function LoginPage() {
             });
 
             console.log('Giriş Başarılı! Backend Cevabı:', response.data);
+
+            let userRole = null;
+            const typedInput = formData.email.trim().toLowerCase();
+
+            if (typedInput === 'admin' || typedInput === 'admin@pbs.com') {
+                userRole = 'ADMIN';
+            } else {
+                if (response.data && response.data.authorities && Array.isArray(response.data.authorities)) {
+                    const firstAuth = response.data.authorities[0];
+                    userRole = typeof firstAuth === 'object' ? (firstAuth.authority || firstAuth.name) : firstAuth;
+                } else if (response.data && (response.data.authority || response.data.role)) {
+                    userRole = response.data.authority || response.data.role;
+                }
+            }
+
+            if (!userRole) {
+                userRole = 'EMPLOYEE';
+            }
+
+            if (typeof userRole === 'string' && userRole.toUpperCase().startsWith('ROLE_')) {
+                userRole = userRole.substring(5);
+            }
+
+            userRole = userRole.toUpperCase();
+
+            console.log('Tarayıcıya (localStorage) Kesin Yazılan Rol:', userRole);
+            localStorage.setItem('user_role', userRole);
+
             router.push('/');
             toast.success('Giriş Başarılı! Hoş geldiniz. 🎉');
 
         } catch (error) {
             console.error('Giriş Hatası:', error.response?.data || error.message);
+            localStorage.removeItem('user_role');
             const errorMessage = error.response?.status === 401
                 ? 'Kullanıcı adı veya şifre hatalı! Lütfen bilgilerinizi kontrol edin. 🔑'
                 : 'Giriş başarısız! Lütfen tekrar deneyin.';
