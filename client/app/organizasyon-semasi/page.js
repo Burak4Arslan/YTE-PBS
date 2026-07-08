@@ -1,21 +1,13 @@
 'use client';
 import RoleGuard from '../components/RoleGuard';
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
+import PersonnelSectionCard from './components/PersonnelSectionCard';
 
 export default function OrganizasyonSemasiPage() {
     return (
         <RoleGuard allowedRoles={['EMPLOYEE', 'ADMIN']}>
-            <Box
-                sx={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    height: '70vh'
-                }}
-            >
-                <Typography variant="h5" color="text.primary" fontWeight={500}>
-                    Organizasyon Şeması sayfası, herkes (admin ve personel) görebilir. (Şu an admin veya personelsin)
-                </Typography>
+            <Box sx={{ p: 4 }}>
+                <PersonnelSectionCard />
             </Box>
         </RoleGuard>
     );
