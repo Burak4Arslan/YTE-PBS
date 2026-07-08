@@ -24,16 +24,7 @@ public class CustomEnumDataInitializer implements CommandLineRunner {
                 "Birim",
                 "GENERAL",
                 1,
-                List.of(
-                        "Yazılım Geliştirme",
-                        "Sistem Yönetimi",
-                        "İnsan Kaynakları",
-                        "Dijital Strateji",
-                        "Yönetim",
-                        "QA",
-                        "UI/UX",
-                        "DevOps"
-                )
+                List.of()
         );
 
         initializeType(
