@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CustomEnumValueRepository extends JpaRepository<CustomEnumValue, Long> {
@@ -13,5 +14,5 @@ public interface CustomEnumValueRepository extends JpaRepository<CustomEnumValue
 
     List<CustomEnumValue> findByType_IdAndActiveTrueOrderBySortOrderAscIdAsc(Long typeId);
 
-    boolean existsByType_IdAndValueIgnoreCase(Long typeId, String value);
+    Optional<CustomEnumValue> findByType_IdAndValueIgnoreCase(Long typeId, String value);
 }
