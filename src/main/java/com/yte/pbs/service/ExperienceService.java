@@ -2,9 +2,7 @@ package com.yte.pbs.service;
 
 import com.yte.pbs.dto.ExperienceDto;
 import com.yte.pbs.entity.Experience;
-import com.yte.pbs.entity.User;
 import com.yte.pbs.repository.ExperienceRepository;
-import com.yte.pbs.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,30 +14,25 @@ import java.util.stream.Collectors;
 public class ExperienceService {
 
     private final ExperienceRepository experienceRepository;
-    private final UserRepository userRepository;
 
-    public ExperienceService(ExperienceRepository experienceRepository, UserRepository userRepository) {
+    public ExperienceService(ExperienceRepository experienceRepository) {
         this.experienceRepository = experienceRepository;
-        this.userRepository = userRepository;
     }
 
     public List<ExperienceDto> getExperiencesByUser(Long userId) {
         return experienceRepository.findByUserId(userId).stream()
-                .map(exp -> new ExperienceDto(exp.getId(), exp.getWorkPlace(), exp.getRole(),
+                .map(exp -> new ExperienceDto(exp.getId(), exp.getUserId(), exp.getWorkPlace(), exp.getRole(),
                         exp.getWorkType(), exp.getStartDate(), exp.getEndDate(), exp.getReasonOfLeave()))
                 .collect(Collectors.toList());
     }
 
     public ExperienceDto addExperience(Long userId, ExperienceDto dto) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User profile not found"));
-
         Experience experience = new Experience();
         updateExperienceFields(experience, dto);
-        experience.setUser(user);
+        experience.setUserId(userId);
 
         Experience saved = experienceRepository.save(experience);
-        return new ExperienceDto(saved.getId(), saved.getWorkPlace(), saved.getRole(),
+        return new ExperienceDto(saved.getId(), saved.getUserId(), saved.getWorkPlace(), saved.getRole(),
                 saved.getWorkType(), saved.getStartDate(), saved.getEndDate(), saved.getReasonOfLeave());
     }
 
@@ -49,7 +42,7 @@ public class ExperienceService {
 
         updateExperienceFields(experience, dto);
         Experience updated = experienceRepository.save(experience);
-        return new ExperienceDto(updated.getId(), updated.getWorkPlace(), updated.getRole(),
+        return new ExperienceDto(updated.getId(), updated.getUserId(), updated.getWorkPlace(), updated.getRole(),
                 updated.getWorkType(), updated.getStartDate(), updated.getEndDate(), updated.getReasonOfLeave());
     }
 

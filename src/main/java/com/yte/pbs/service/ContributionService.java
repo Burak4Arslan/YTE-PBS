@@ -2,9 +2,7 @@ package com.yte.pbs.service;
 
 import com.yte.pbs.dto.ContributionDto;
 import com.yte.pbs.entity.Contribution;
-import com.yte.pbs.entity.User;
 import com.yte.pbs.repository.ContributionRepository;
-import com.yte.pbs.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,31 +14,40 @@ import java.util.stream.Collectors;
 public class ContributionService {
 
     private final ContributionRepository contributionRepository;
-    private final UserRepository userRepository;
 
-    public ContributionService(ContributionRepository contributionRepository, UserRepository userRepository) {
+    public ContributionService(ContributionRepository contributionRepository) {
         this.contributionRepository = contributionRepository;
-        this.userRepository = userRepository;
     }
 
     public List<ContributionDto> getContributionsByUser(Long userId) {
         return contributionRepository.findByUserId(userId).stream()
-                .map(con -> new ContributionDto(con.getId(), con.getEventType(), con.getDescription(),
-                        con.getLink(), con.getAttachedFilePath(), con.getUploadDate()))
+                .map(con -> new ContributionDto(
+                        con.getId(),
+                        con.getUserId(),
+                        con.getEventType(),
+                        con.getDescription(),
+                        con.getLink(),
+                        con.getAttachedFilePath(),
+                        con.getUploadDate()
+                ))
                 .collect(Collectors.toList());
     }
 
     public ContributionDto addContribution(Long userId, ContributionDto dto) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User profile not found"));
-
         Contribution contribution = new Contribution();
         updateContributionFields(contribution, dto);
-        contribution.setUser(user);
+        contribution.setUserId(userId);
 
         Contribution saved = contributionRepository.save(contribution);
-        return new ContributionDto(saved.getId(), saved.getEventType(), saved.getDescription(),
-                saved.getLink(), saved.getAttachedFilePath(), saved.getUploadDate());
+        return new ContributionDto(
+                saved.getId(),
+                saved.getUserId(),
+                saved.getEventType(),
+                saved.getDescription(),
+                saved.getLink(),
+                saved.getAttachedFilePath(),
+                saved.getUploadDate()
+        );
     }
 
     public ContributionDto editContribution(Long conId, ContributionDto dto) {
@@ -49,8 +56,15 @@ public class ContributionService {
 
         updateContributionFields(contribution, dto);
         Contribution updated = contributionRepository.save(contribution);
-        return new ContributionDto(updated.getId(), updated.getEventType(), updated.getDescription(),
-                updated.getLink(), updated.getAttachedFilePath(), updated.getUploadDate());
+        return new ContributionDto(
+                updated.getId(),
+                updated.getUserId(),
+                updated.getEventType(),
+                updated.getDescription(),
+                updated.getLink(),
+                updated.getAttachedFilePath(),
+                updated.getUploadDate()
+        );
     }
 
     public void deleteContribution(Long conId) {

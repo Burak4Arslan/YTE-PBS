@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 public record ContributionDto(
         Long id,
+        Long userId,
         String eventType,
         String description,
         String link,

@@ -2,14 +2,13 @@ package com.yte.pbs.controller;
 
 import com.yte.pbs.dto.ContributionDto;
 import com.yte.pbs.service.ContributionService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/contributions")
 public class ContributionController {
 
     private final ContributionService contributionService;
@@ -18,24 +17,24 @@ public class ContributionController {
         this.contributionService = contributionService;
     }
 
-    @GetMapping("/users/{userId}/contributions")
-    public ResponseEntity<List<ContributionDto>> getContributions(@PathVariable Long userId) {
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<ContributionDto>> getByUserId(@PathVariable Long userId) {
         return ResponseEntity.ok(contributionService.getContributionsByUser(userId));
     }
 
-    @PostMapping("/users/{userId}/contributions")
-    public ResponseEntity<ContributionDto> createContribution(@PathVariable Long userId, @RequestBody ContributionDto dto) {
-        return new ResponseEntity<>(contributionService.addContribution(userId, dto), HttpStatus.CREATED);
+    @PostMapping("/user/{userId}")
+    public ResponseEntity<ContributionDto> create(@PathVariable Long userId, @RequestBody ContributionDto dto) {
+        return ResponseEntity.ok(contributionService.addContribution(userId, dto));
     }
 
-    @PutMapping("/contributions/{contributionId}")
-    public ResponseEntity<ContributionDto> updateContribution(@PathVariable Long contributionId, @RequestBody ContributionDto dto) {
-        return ResponseEntity.ok(contributionService.editContribution(contributionId, dto));
+    @PutMapping("/{id}")
+    public ResponseEntity<ContributionDto> update(@PathVariable Long id, @RequestBody ContributionDto dto) {
+        return ResponseEntity.ok(contributionService.editContribution(id, dto));
     }
 
-    @DeleteMapping("/contributions/{contributionId}")
-    public ResponseEntity<Void> deleteContribution(@PathVariable Long contributionId) {
-        contributionService.deleteContribution(contributionId);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        contributionService.deleteContribution(id);
         return ResponseEntity.noContent().build();
     }
 }

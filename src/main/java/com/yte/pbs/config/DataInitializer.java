@@ -103,7 +103,7 @@ public class DataInitializer {
             exp1.setStartDate(LocalDate.of(2020, 8, 15));
             exp1.setEndDate(LocalDate.of(2023, 4, 10));
             exp1.setReasonOfLeave("Yeni bir kurumsal dijital dönüşüm projesinde yöneticilik teklifi değerlendirildi.");
-            exp1.setUser(user);
+            exp1.setUserId(user.getId());
             experienceRepository.save(exp1);
 
             Experience exp2 = new Experience();
@@ -113,7 +113,7 @@ public class DataInitializer {
             exp2.setStartDate(LocalDate.of(2018, 10, 1));
             exp2.setEndDate(LocalDate.of(2020, 7, 30));
             exp2.setReasonOfLeave("Yüksek lisans mezuniyeti sonrası tam zamanlı araştırma kadrosuna geçiş.");
-            exp2.setUser(user);
+            exp2.setUserId(user.getId());
             experienceRepository.save(exp2);
         }
 
@@ -124,7 +124,7 @@ public class DataInitializer {
             con1.setLink("https://dijitaldonusumzirvesi.org.tr/ozet/cenk-celik");
             con1.setAttachedFilePath("/uploads/contributions/kamu_yz_sunum_2025.pdf");
             con1.setUploadDate(LocalDate.of(2025, 11, 14));
-            con1.setUser(user);
+            con1.setUserId(user.getId());
             contributionRepository.save(con1);
 
             Contribution con2 = new Contribution();
@@ -133,7 +133,7 @@ public class DataInitializer {
             con2.setLink("");
             con2.setAttachedFilePath("/uploads/contributions/mgm_mimari_rapor_v2.pdf");
             con2.setUploadDate(LocalDate.of(2026, 2, 3));
-            con2.setUser(user);
+            con2.setUserId(user.getId());
             contributionRepository.save(con2);
         }
     }

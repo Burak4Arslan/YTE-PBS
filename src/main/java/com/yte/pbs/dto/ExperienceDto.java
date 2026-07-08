@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 public record ExperienceDto(
         Long id,
+        Long userId,
         String workPlace,
         String role,
         String workType,

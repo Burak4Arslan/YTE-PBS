@@ -29,9 +29,8 @@ public class Experience extends BaseEntity {
     @Column(name = "reason_of_leave", length = 500)
     private String reasonOfLeave;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
     public Experience() {}
 }
