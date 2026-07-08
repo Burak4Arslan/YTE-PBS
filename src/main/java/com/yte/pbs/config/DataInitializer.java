@@ -209,6 +209,9 @@ public class DataInitializer {
         directoryEntryRepository.save(new DirectoryEntry(
                 "İbrahim Tunç", "DevOps", "Mühendis",
                 "Sunucu Yönetimi", "İnfrastruktur", "ibrahim.tunc@yte.org", "0532 111 2240"));
+        directoryEntryRepository.save(new DirectoryEntry(
+                "Cenk Çelik", "Yazılım Geliştirme", "Uzman Araştırmacı",
+                "Ransomware Analiz Modülü", "PBS", "cenk.celil@tubitak.gov.tr", "0532 111 2241"));
     }
 
 

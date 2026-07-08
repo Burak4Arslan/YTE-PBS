@@ -30,24 +30,28 @@ public class PersonnelFileController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getUserFiles(@RequestParam Long userId) {
-        if (!userRepository.existsById(userId)) {
+    public ResponseEntity<?> getUserFiles(@RequestParam String email) {
+        var userOptional = userRepository.findByEmail(email);
+
+        if (userOptional.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
         List<PersonnelFile> files =
-                personnelFileRepository.findByUserIdOrderByCreatedAtDesc(userId);
+                personnelFileRepository.findByUserIdOrderByCreatedAtDesc(userOptional.get().getId());
 
         return ResponseEntity.ok(files);
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadFile(
-            @RequestParam Long userId,
+            @RequestParam String email,
             @RequestParam String fileType,
             @RequestPart("file") MultipartFile file
     ) {
-        if (!userRepository.existsById(userId)) {
+        var userOptional = userRepository.findByEmail(email);
+
+        if (userOptional.isEmpty()) {
             return ResponseEntity.badRequest()
                     .body("Dosya yüklenemedi: Kullanıcı bulunamadı.");
         }
@@ -65,7 +69,7 @@ public class PersonnelFileController {
         try {
             PersonnelFile personnelFile = new PersonnelFile();
 
-            personnelFile.setUserId(userId);
+            personnelFile.setUserId(userOptional.get().getId());
             personnelFile.setFileType(fileType);
             personnelFile.setFileName(file.getOriginalFilename());
             personnelFile.setContentType(file.getContentType());

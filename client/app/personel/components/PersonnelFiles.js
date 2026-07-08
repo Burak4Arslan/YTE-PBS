@@ -49,7 +49,7 @@ const formatDate = (dateValue) => {
     }).format(new Date(dateValue));
 };
 
-export default function PersonnelFiles({ userId, department = '-' }) {
+export default function PersonnelFiles({ email, department = '-' }) {
     const [files, setFiles] = useState([]);
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [fileType, setFileType] = useState('');
@@ -59,14 +59,14 @@ export default function PersonnelFiles({ userId, department = '-' }) {
     const [deletingId, setDeletingId] = useState(null);
 
     const fetchFiles = async () => {
-        if (!userId) {
+        if (!email) {
             return;
         }
 
         try {
             const response = await api.get('/api/files', {
                 params: {
-                    userId
+                    email
                 }
             });
 
@@ -80,7 +80,7 @@ export default function PersonnelFiles({ userId, department = '-' }) {
         let isActive = true;
 
         const loadFiles = async () => {
-            if (!userId) {
+            if (!email) {
                 if (isActive) {
                     setLoading(false);
                 }
@@ -91,7 +91,7 @@ export default function PersonnelFiles({ userId, department = '-' }) {
             try {
                 const response = await api.get('/api/files', {
                     params: {
-                        userId
+                        email
                     }
                 });
 
@@ -112,7 +112,7 @@ export default function PersonnelFiles({ userId, department = '-' }) {
         return () => {
             isActive = false;
         };
-    }, [userId]);
+    }, [email]);
 
     const resetUploadForm = () => {
         setFileType('');
@@ -152,7 +152,7 @@ export default function PersonnelFiles({ userId, department = '-' }) {
 
             await api.post('/api/files', formData, {
                 params: {
-                    userId,
+                    email,
                     fileType
                 }
             });
