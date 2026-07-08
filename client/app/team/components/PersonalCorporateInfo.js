@@ -1,7 +1,8 @@
 'use client';
 
-import React from 'react';
-import { useForm } from 'react-hook-form';
+import React, { useEffect, useState } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
+import { toast } from 'react-toastify';
 import {
     Avatar,
     Box,
@@ -17,6 +18,7 @@ import {
     BadgeOutlined,
     PersonOutlined
 } from '@mui/icons-material';
+import api from '../../api/axiosInstance';
 
 const bloodTypes = [
     'A+',
@@ -45,7 +47,8 @@ const cardSx = {
 };
 
 export default function PersonalCorporateInfo() {
-    const { register, handleSubmit, watch } = useForm({
+    const [saving, setSaving] = useState(false);
+    const { register, handleSubmit, reset, control } = useForm({
         defaultValues: {
             firstName: '',
             lastName: '',
@@ -73,13 +76,64 @@ export default function PersonalCorporateInfo() {
             workStatus: '',
             usesShuttleService: '',
             internalPhoneNumber: '',
-            roomNumber: ''
+            roomNumber: '',
+            profileImageUrl: ''
         }
     });
-    const lastName = watch('lastName');
+    const lastName = useWatch({ control, name: 'lastName' }) || '';
+    const profileImageUrl = useWatch({ control, name: 'profileImageUrl' }) || '';
 
-    const onSubmit = (data) => {
-        console.log(data);
+    useEffect(() => {
+        let ignore = false;
+
+        const loadProfile = async () => {
+            try {
+                const { data } = await api.get('/api/personel/hakkımda');
+
+                if (ignore) {
+                    return;
+                }
+
+                reset({
+                    ...data,
+                    birthDate: data.birthDate || '',
+                    employmentStartDate: data.employmentStartDate || '',
+                    usesShuttleService: data.usesShuttleService == null ? '' : String(data.usesShuttleService)
+                });
+            } catch (error) {
+                console.error('Profil bilgileri yüklenemedi:', error);
+                toast.error('Profil bilgileri yüklenemedi.');
+            }
+        };
+
+        loadProfile();
+
+        return () => {
+            ignore = true;
+        };
+    }, [reset]);
+
+    const onSubmit = async (data) => {
+        setSaving(true);
+        try {
+            await api.put('/api/personel/hakkımda', {
+                birthDate: data.birthDate || null,
+                bloodType: data.bloodType || null,
+                phoneNumber: data.phoneNumber || null,
+                vehiclePlate: data.vehiclePlate || null,
+                emergencyContactName: data.emergencyContactName || null,
+                emergencyContactPhone: data.emergencyContactPhone || null,
+                residentialAddress: data.residentialAddress || null,
+                internalPhoneNumber: data.internalPhoneNumber || null,
+                roomNumber: data.roomNumber || null
+            });
+            toast.success('Profil bilgileri güncellendi.');
+        } catch (error) {
+            console.error('Profil bilgileri güncellenemedi:', error);
+            toast.error('Profil bilgileri güncellenemedi.');
+        } finally {
+            setSaving(false);
+        }
     };
 
     return (
@@ -123,13 +177,14 @@ export default function PersonalCorporateInfo() {
                                 </Box>
 
                                 <Avatar
+                                    src={profileImageUrl || undefined}
                                     sx={{
                                         width: 48,
                                         height: 48,
                                         bgcolor: '#bdbdbd'
                                     }}
                                 >
-                                    <PersonOutlined />
+                                    {!profileImageUrl && <PersonOutlined />}
                                 </Avatar>
                             </Box>
 
@@ -207,9 +262,11 @@ export default function PersonalCorporateInfo() {
                                         size="small"
                                         label="Doğum Tarihi"
                                         type="date"
+                                        sx={fieldSx}
                                         slotProps={{
                                             inputLabel: { shrink: true }
                                         }}
+                                        {...register('birthDate')}
                                     />
                                 </Grid>
 
@@ -522,7 +579,7 @@ export default function PersonalCorporateInfo() {
             </Grid>
 
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
-                <Button type="submit" variant="contained">
+                <Button type="submit" variant="contained" disabled={saving}>
                     Kaydet
                 </Button>
             </Box>

@@ -75,7 +75,11 @@ export default function PersonnelDetailPage() {
             setExperiences(await getExperiences(email));
             toast.success(experienceId ? 'Deneyim güncellendi.' : 'Deneyim eklendi.');
             return true;
-        } catch { return false; }
+        } catch (requestError) {
+            console.error(requestError);
+            toast.error('Deneyim kaydedilemedi.');
+            return false;
+        }
         finally { setSaving(false); }
     };
 
@@ -101,7 +105,11 @@ export default function PersonnelDetailPage() {
             setContributions(await getContributions(email));
             toast.success(contributionId ? 'Katkı güncellendi.' : 'Katkı eklendi.');
             return true;
-        } catch (e) { console.error(e); return false; }
+        } catch (e) {
+            console.error(e);
+            toast.error('Katkı kaydedilemedi.');
+            return false;
+        }
         finally { setSaving(false); }
     };
 

@@ -22,11 +22,62 @@ export default function TopNav({ userName = "User", avatarUrl = null }) {
     const pathname = usePathname();
     const router = useRouter();
     const [userRole, setUserRole] = useState(null);
+    const [currentUser, setCurrentUser] = useState({
+        name: userName,
+        avatarUrl,
+        profileHref: null,
+    });
 
     useEffect(() => {
-        const role = localStorage.getItem("user_role");
-        setUserRole(role);
+        queueMicrotask(() => {
+            setUserRole(localStorage.getItem("user_role"));
+        });
     }, [pathname]);
+
+    useEffect(() => {
+        if (pathname === "/login") {
+            return;
+        }
+
+        let ignore = false;
+
+        const loadCurrentUser = async () => {
+            try {
+                const [{ data: me }, { data: directory }] = await Promise.all([
+                    api.get("/api/personel/hakkımda"),
+                    api.get("/api/directory"),
+                ]);
+
+                if (ignore) {
+                    return;
+                }
+
+                const directoryEntry = directory.find(
+                    (entry) => entry.email?.toLowerCase() === me.email?.toLowerCase()
+                );
+                const fullName = [me.firstName, me.lastName].filter(Boolean).join(" ");
+
+                setCurrentUser({
+                    name: fullName || me.username || userName,
+                    avatarUrl: me.profileImageUrl || avatarUrl,
+                    profileHref: directoryEntry ? `/personel/${directoryEntry.id}` : null,
+                });
+            } catch (error) {
+                console.error("Kullanıcı bilgisi yüklenemedi:", error);
+                setCurrentUser({
+                    name: userName,
+                    avatarUrl,
+                    profileHref: null,
+                });
+            }
+        };
+
+        loadCurrentUser();
+
+        return () => {
+            ignore = true;
+        };
+    }, [pathname, userName, avatarUrl]);
 
     if (pathname === "/login") {
         return null;
@@ -127,18 +178,28 @@ export default function TopNav({ userName = "User", avatarUrl = null }) {
                 </Box>
 
                 <Box
+                    component={currentUser.profileHref ? Link : "div"}
+                    href={currentUser.profileHref || undefined}
                     sx={{
                         display: "flex",
                         alignItems: "center",
                         gap: 1,
                         ml: 2,
+                        color: "text.primary",
+                        textDecoration: "none",
+                        cursor: currentUser.profileHref ? "pointer" : "default",
+                        "&:hover": currentUser.profileHref
+                            ? {
+                                color: "primary.main",
+                            }
+                            : undefined,
                     }}
                 >
-                    <Avatar src={avatarUrl || undefined} sx={{ width: 32, height: 32 }}>
-                        {!avatarUrl && userName.charAt(0)}
+                    <Avatar src={currentUser.avatarUrl || undefined} sx={{ width: 32, height: 32 }}>
+                        {!currentUser.avatarUrl && currentUser.name.charAt(0)}
                     </Avatar>
                     <Typography variant="body2" sx={{ whiteSpace: "nowrap" }}>
-                        {userName}
+                        {currentUser.name}
                     </Typography>
                 </Box>
 

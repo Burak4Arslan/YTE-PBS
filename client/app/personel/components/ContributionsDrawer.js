@@ -5,18 +5,20 @@ import { useForm } from 'react-hook-form';
 import { Box, Button, Divider, Drawer, IconButton, Stack, TextField, Typography } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 
-const emptyValues = { type: '', description: '', link: '', uploadDate: '', attachment: null };
+const emptyValues = { type: '', description: '', link: '', uploadDate: '', attachment: null, attachedFilePath: '', attachmentName: '' };
 
 export default function ContributionsDrawer({ open, contribution, loading, onClose, onSave }) {
     const { register, handleSubmit, reset, formState: { errors } } = useForm({ defaultValues: emptyValues });
 
     useEffect(() => {
         reset(contribution ? {
-            type: contribution.type || '',
+            type: contribution.type || contribution.eventType || '',
             description: contribution.description || '',
             link: contribution.link || '',
             uploadDate: contribution.uploadDate || '',
-            attachment: null
+            attachment: null,
+            attachedFilePath: contribution.attachedFilePath || '',
+            attachmentName: contribution.attachmentName || ''
         } : emptyValues);
     }, [contribution, open, reset]);
 
