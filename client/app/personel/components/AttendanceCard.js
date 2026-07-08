@@ -16,7 +16,7 @@ import {
     Typography
 } from '@mui/material';
 import PersonnelSectionCard from './PersonnelSectionCard';
-import { getMyAttendanceRecords } from '../services/personnelDetailService';
+import { getAttendanceRecordsByEmail, getMyAttendanceRecords } from '../services/personnelDetailService';
 
 const rangeOptions = [
     { value: 'week', label: 'Son 1 Hafta' },
@@ -35,7 +35,7 @@ function formatTime(value) {
     return value.slice(0, 5);
 }
 
-export default function AttendanceCard() {
+export default function AttendanceCard({ email }) {
     const [range, setRange] = useState('week');
     const [records, setRecords] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -45,7 +45,9 @@ export default function AttendanceCard() {
         setLoading(true);
         setError('');
         try {
-            const data = await getMyAttendanceRecords(range);
+            const data = email
+                ? await getAttendanceRecordsByEmail(email, range)
+                : await getMyAttendanceRecords(range);
             setRecords(data);
         } catch (requestError) {
             console.error(requestError);
@@ -53,7 +55,7 @@ export default function AttendanceCard() {
         } finally {
             setLoading(false);
         }
-    }, [range]);
+    }, [email, range]);
 
     useEffect(() => {
         queueMicrotask(loadAttendanceRecords);

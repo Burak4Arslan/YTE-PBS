@@ -26,7 +26,10 @@ public class AttendanceRecordService {
     }
 
     public List<AttendanceRecordDto> getCurrentUserAttendance(CustomUserDetails userDetails, String range) {
-        Long userId = userDetails.getUser().getId();
+        return getAttendanceByUserId(userDetails.getUser().getId(), range);
+    }
+
+    public List<AttendanceRecordDto> getAttendanceByUserId(Long userId, String range) {
         LocalDate endDate = LocalDate.now();
         LocalDate startDate = switch (range == null ? "week" : range) {
             case "month" -> endDate.minusDays(30);

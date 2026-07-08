@@ -146,3 +146,8 @@ export async function getMyAttendanceRecords(range = 'week') {
     return data;
 }
 
+export async function getAttendanceRecordsByEmail(email, range = 'week') {
+    const { data } = await axiosInstance.get('/api/attendance', { params: { email, range } });
+    return data;
+}
+

@@ -10,6 +10,7 @@ import api from "../api/axiosInstance";
 
 const ALL_NAV_LINKS = [
     { label: "Genel", href: "/", adminOnly: false },
+    { label: "Ekibim", href: "/ekibim", adminOnly: false },
     { label: "Rehber", href: "/rehber", adminOnly: false },
     { label: "Personel", href: "/personel", adminOnly: true },
     { label: "Raporlar", href: "/raporlar", adminOnly: true },
