@@ -34,7 +34,7 @@ export default function PanelPage() {
 
         try {
             const loadedValues = await getCustomEnumValues(code);
-            setValues(loadedValues);
+            setValues(loadedValues.filter((item) => item.active));
         } catch (error) {
             console.error('Custom enum değerleri yüklenemedi:', error);
             setValues([]);
@@ -69,7 +69,7 @@ export default function PanelPage() {
                         const loadedValues = await getCustomEnumValues(firstType.code);
 
                         if (!ignore) {
-                            setValues(loadedValues);
+                            setValues(loadedValues.filter((item) => item.active));
                         }
                     } finally {
                         if (!ignore) {
@@ -108,6 +108,20 @@ export default function PanelPage() {
             return false;
         }
 
+        const duplicateExists = values.some(
+            (item) =>
+                item.value.trim().localeCompare(
+                    value.trim(),
+                    'tr',
+                    { sensitivity: 'base' }
+                ) === 0
+        );
+
+        if (duplicateExists) {
+            toast.warning('Bu seçenek zaten mevcut.');
+            return false;
+        }
+
         setSaving(true);
 
         try {
@@ -133,6 +147,21 @@ export default function PanelPage() {
     };
 
     const handleUpdate = async (item, value) => {
+        const duplicateExists = values.some(
+            (currentItem) =>
+                currentItem.id !== item.id &&
+                currentItem.value.trim().localeCompare(
+                    value.trim(),
+                    'tr',
+                    { sensitivity: 'base' }
+                ) === 0
+        );
+
+        if (duplicateExists) {
+            toast.warning('Bu seçenek zaten mevcut.');
+            return false;
+        }
+
         setSaving(true);
 
         try {
@@ -165,7 +194,7 @@ export default function PanelPage() {
 
     const handleDeactivate = async (item) => {
         const confirmed = window.confirm(
-            `"${item.value}" seçeneğini pasife almak istediğinize emin misiniz?`
+            `"${item.value}" seçeneğini silmek istediğinize emin misiniz?`
         );
 
         if (!confirmed) {
@@ -178,14 +207,10 @@ export default function PanelPage() {
             await deactivateCustomEnumValue(item.id);
 
             setValues((currentValues) =>
-                currentValues.map((currentItem) =>
-                    currentItem.id === item.id
-                        ? { ...currentItem, active: false }
-                        : currentItem
-                )
+                currentValues.filter((currentItem) => currentItem.id !== item.id)
             );
 
-            toast.success('Seçenek pasife alındı.');
+            toast.success('Seçenek silindi.');
         } catch (error) {
             console.error('Custom enum değeri pasife alınamadı:', error);
         } finally {
@@ -193,24 +218,23 @@ export default function PanelPage() {
         }
     };
 
-    const handleMove = async (currentIndex, direction) => {
-        if (!selectedType) {
-            return;
-        }
-
-        const targetIndex = currentIndex + direction;
-
-        if (targetIndex < 0 || targetIndex >= values.length) {
+    const handleMove = async (currentIndex, targetIndex) => {
+        if (
+            !selectedType ||
+            currentIndex === targetIndex ||
+            currentIndex < 0 ||
+            targetIndex < 0 ||
+            currentIndex >= values.length ||
+            targetIndex >= values.length
+        ) {
             return;
         }
 
         const previousValues = values;
         const reorderedValues = [...values];
+        const [movedValue] = reorderedValues.splice(currentIndex, 1);
 
-        [reorderedValues[currentIndex], reorderedValues[targetIndex]] = [
-            reorderedValues[targetIndex],
-            reorderedValues[currentIndex]
-        ];
+        reorderedValues.splice(targetIndex, 0, movedValue);
 
         setValues(reorderedValues);
         setSaving(true);
@@ -262,9 +286,10 @@ export default function PanelPage() {
         <RoleGuard allowedRoles={['ADMIN']}>
             <Box
                 sx={{
-                    maxWidth: 1480,
+                    width: '100%',
+                    maxWidth: 'none',
                     mx: 'auto',
-                    px: { xs: 2, md: 4 },
+                    px: { xs: 2, md: 5, xl: 7 },
                     py: 5
                 }}
             >
@@ -302,7 +327,7 @@ export default function PanelPage() {
                             display: 'grid',
                             gridTemplateColumns: {
                                 xs: '1fr',
-                                md: '340px minmax(0, 1fr)'
+                                md: '380px minmax(0, 1fr)'
                             },
                             gap: 4,
                             alignItems: 'start'

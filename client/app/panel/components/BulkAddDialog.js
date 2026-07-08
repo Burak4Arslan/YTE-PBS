@@ -55,11 +55,11 @@ export default function BulkAddDialog({
             fullWidth
             maxWidth="sm"
         >
-            <DialogTitle>Hızlı Ekle</DialogTitle>
+            <DialogTitle>Toplu Ekle</DialogTitle>
 
             <DialogContent>
                 <DialogContentText sx={{ mb: 2 }}>
-                    {fieldName || 'Seçili alan'} için her satıra bir seçenek yazın.
+                    Excel&apos;deki bir sütunu kopyalayıp buraya yapıştırabilirsiniz. Her satır ayrı bir yanıt seçeneği olarak eklenecektir.
                 </DialogContentText>
 
                 <TextField
@@ -67,7 +67,7 @@ export default function BulkAddDialog({
                     fullWidth
                     multiline
                     minRows={8}
-                    placeholder={'Örnek seçenek 1\nÖrnek seçenek 2\nÖrnek seçenek 3'}
+                    placeholder="Seçenekleri buraya yazın veya yapıştırın"
                     value={text}
                     onChange={(event) => setText(event.target.value)}
                     disabled={saving}

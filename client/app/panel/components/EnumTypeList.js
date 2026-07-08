@@ -36,22 +36,6 @@ const NON_ENUM_FIELDS = [
         sortOrder: 5.5,
         editable: false
     },
-    {
-        id: 'file-name-field',
-        code: 'FILE_NAME_FIELD',
-        displayName: 'Dosya Adı',
-        category: 'FILE',
-        sortOrder: 14.1,
-        editable: false
-    },
-    {
-        id: 'upload-date-field',
-        code: 'UPLOAD_DATE_FIELD',
-        displayName: 'Yükleme Tarihi',
-        category: 'FILE',
-        sortOrder: 14.2,
-        editable: false
-    }
 ];
 
 export default function EnumTypeList({

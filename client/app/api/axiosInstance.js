@@ -41,7 +41,21 @@ axiosInstance.interceptors.response.use(
             return Promise.reject(error);
         }
 
-        // 3. Diğer Genel Hatalar (Örn: 500, 404, 400 vs.)
+        // 3. Custom enum çakışmaları
+        const isCustomEnumRequest =
+            currentUrl.includes('/api/panel/custom-enums');
+
+        if (status === 409 && isCustomEnumRequest) {
+            const backendMessage =
+                error.response.data?.message ||
+                error.response.data?.detail ||
+                'Bu seçenek zaten mevcut.';
+
+            toast.warning(backendMessage);
+            return Promise.reject(error);
+        }
+
+        // 4. Diğer genel hatalar
         if (!isLoginRequest) {
             toast.error(`Hata (${status}): İşlem gerçekleştirilemedi! ❌`);
         }

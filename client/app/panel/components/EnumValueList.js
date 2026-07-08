@@ -4,7 +4,6 @@ import { useState } from 'react';
 import {
     Box,
     Button,
-    Chip,
     CircularProgress,
     IconButton,
     Paper,
@@ -17,8 +16,7 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import CloseIcon from '@mui/icons-material/Close';
 import RemoveCircleOutlinedIcon from '@mui/icons-material/RemoveCircleOutlined';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 
 export default function EnumValueList({
     selectedType,
@@ -34,6 +32,8 @@ export default function EnumValueList({
     const [newValue, setNewValue] = useState('');
     const [editingId, setEditingId] = useState(null);
     const [editingValue, setEditingValue] = useState('');
+    const [draggedIndex, setDraggedIndex] = useState(null);
+    const [dragOverIndex, setDragOverIndex] = useState(null);
 
     const handleCreate = async () => {
         const normalizedValue = newValue.trim();
@@ -94,6 +94,11 @@ export default function EnumValueList({
     }
 
     if (selectedType.editable === false) {
+        const descriptions = {
+            PROJECT_FIELD:
+                'Çalışılan projeler proje bilgileri üzerinden yönetilir.'
+        };
+
         return (
             <Paper
                 variant="outlined"
@@ -110,7 +115,7 @@ export default function EnumValueList({
                         {selectedType.displayName}
                     </Typography>
                     <Typography color="text.secondary">
-                        Bu alan custom enum değildir ve kendi veri yapısı üzerinden yönetilir.
+                        {descriptions[selectedType.code]}
                     </Typography>
                 </Box>
             </Paper>
@@ -150,7 +155,7 @@ export default function EnumValueList({
                     onClick={onOpenBulkAdd}
                     disabled={saving}
                 >
-                    Hızlı Ekle
+                    Toplu Ekle
                 </Button>
             </Box>
 
@@ -235,48 +240,94 @@ export default function EnumValueList({
                         return (
                             <Box
                                 key={item.id}
+                                onDragOver={(event) => {
+                                    event.preventDefault();
+
+                                    if (draggedIndex !== null && draggedIndex !== index) {
+                                        setDragOverIndex(index);
+                                    }
+                                }}
+                                onDrop={(event) => {
+                                    event.preventDefault();
+
+                                    if (
+                                        draggedIndex !== null &&
+                                        draggedIndex !== index
+                                    ) {
+                                        onMove(draggedIndex, index);
+                                    }
+
+                                    setDraggedIndex(null);
+                                    setDragOverIndex(null);
+                                }}
                                 sx={{
-                                    display: 'flex',
+                                    width: '100%',
+                                    minHeight: 72,
+                                    boxSizing: 'border-box',
+                                    display: 'grid',
+                                    gridTemplateColumns: '44px minmax(0, 1fr) 88px',
                                     alignItems: 'center',
-                                    gap: 1,
+                                    columnGap: 1,
                                     p: 1,
                                     border: '1px solid',
-                                    borderColor: item.active ? 'divider' : '#E0E0E0',
+                                    borderColor:
+                                        dragOverIndex === index
+                                            ? 'primary.main'
+                                            : item.active
+                                                ? 'divider'
+                                                : '#E0E0E0',
                                     borderRadius: 1,
-                                    backgroundColor: item.active ? '#FFFFFF' : '#F7F7F7',
-                                    opacity: item.active ? 1 : 0.72
+                                    backgroundColor:
+                                        draggedIndex === index
+                                            ? 'action.hover'
+                                            : item.active
+                                                ? '#FFFFFF'
+                                                : '#F7F7F7',
+                                    opacity:
+                                        draggedIndex === index
+                                            ? 0.55
+                                            : item.active
+                                                ? 1
+                                                : 0.72,
+                                    transition:
+                                        'border-color 120ms ease, background-color 120ms ease, opacity 120ms ease'
                                 }}
                             >
-                                <Box
-                                    sx={{
-                                        display: 'flex',
-                                        flexDirection: 'column'
-                                    }}
-                                >
-                                    <Tooltip title="Yukarı taşı">
-                                        <span>
-                                            <IconButton
-                                                size="small"
-                                                onClick={() => onMove(index, -1)}
-                                                disabled={saving || index === 0}
-                                            >
-                                                <KeyboardArrowUpIcon fontSize="small" />
-                                            </IconButton>
-                                        </span>
-                                    </Tooltip>
-
-                                    <Tooltip title="Aşağı taşı">
-                                        <span>
-                                            <IconButton
-                                                size="small"
-                                                onClick={() => onMove(index, 1)}
-                                                disabled={saving || index === values.length - 1}
-                                            >
-                                                <KeyboardArrowDownIcon fontSize="small" />
-                                            </IconButton>
-                                        </span>
-                                    </Tooltip>
-                                </Box>
+                                <Tooltip title="Sıralamak için sürükleyin">
+                                    <Box
+                                        draggable={!saving && !isEditing}
+                                        onDragStart={(event) => {
+                                            event.dataTransfer.effectAllowed = 'move';
+                                            event.dataTransfer.setData(
+                                                'text/plain',
+                                                String(item.id)
+                                            );
+                                            setDraggedIndex(index);
+                                        }}
+                                        onDragEnd={() => {
+                                            setDraggedIndex(null);
+                                            setDragOverIndex(null);
+                                        }}
+                                        sx={{
+                                            width: 44,
+                                            height: 44,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            cursor:
+                                                saving || isEditing
+                                                    ? 'not-allowed'
+                                                    : 'grab',
+                                            color: 'text.secondary',
+                                            userSelect: 'none',
+                                            '&:active': {
+                                                cursor: 'grabbing'
+                                            }
+                                        }}
+                                    >
+                                        <DragIndicatorIcon />
+                                    </Box>
+                                </Tooltip>
 
                                 {isEditing ? (
                                     <TextField
@@ -296,6 +347,7 @@ export default function EnumValueList({
                                         }}
                                         autoFocus
                                         disabled={saving}
+                                        sx={{ minWidth: 0 }}
                                         slotProps={{
                                             htmlInput: {
                                                 maxLength: 200
@@ -305,7 +357,7 @@ export default function EnumValueList({
                                 ) : (
                                     <Typography
                                         sx={{
-                                            flex: 1,
+                                            minWidth: 0,
                                             fontSize: '0.95rem',
                                             wordBreak: 'break-word'
                                         }}
@@ -314,63 +366,64 @@ export default function EnumValueList({
                                     </Typography>
                                 )}
 
-                                {!item.active && (
-                                    <Chip
-                                        label="Pasif"
-                                        size="small"
-                                        variant="outlined"
-                                    />
-                                )}
+                                <Box
+                                    sx={{
+                                        width: 88,
+                                        display: 'flex',
+                                        justifyContent: 'flex-end',
+                                        alignItems: 'center'
+                                    }}
+                                >
+                                    {isEditing ? (
+                                        <>
+                                            <Tooltip title="Kaydet">
+                                                <span>
+                                                    <IconButton
+                                                        color="success"
+                                                        onClick={() => handleUpdate(item)}
+                                                        disabled={saving || !editingValue.trim()}
+                                                    >
+                                                        <SaveOutlinedIcon fontSize="small" />
+                                                    </IconButton>
+                                                </span>
+                                            </Tooltip>
 
-                                {isEditing ? (
-                                    <>
-                                        <Tooltip title="Kaydet">
-                                            <span>
+                                            <Tooltip title="Vazgeç">
                                                 <IconButton
-                                                    color="success"
-                                                    onClick={() => handleUpdate(item)}
-                                                    disabled={saving || !editingValue.trim()}
+                                                    onClick={cancelEditing}
+                                                    disabled={saving}
                                                 >
-                                                    <SaveOutlinedIcon fontSize="small" />
+                                                    <CloseIcon fontSize="small" />
                                                 </IconButton>
-                                            </span>
-                                        </Tooltip>
+                                            </Tooltip>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Tooltip title="Düzenle">
+                                                <span>
+                                                    <IconButton
+                                                        onClick={() => startEditing(item)}
+                                                        disabled={saving || !item.active}
+                                                    >
+                                                        <EditOutlinedIcon fontSize="small" />
+                                                    </IconButton>
+                                                </span>
+                                            </Tooltip>
 
-                                        <Tooltip title="Vazgeç">
-                                            <IconButton
-                                                onClick={cancelEditing}
-                                                disabled={saving}
-                                            >
-                                                <CloseIcon fontSize="small" />
-                                            </IconButton>
-                                        </Tooltip>
-                                    </>
-                                ) : (
-                                    <>
-                                        <Tooltip title="Düzenle">
-                                            <span>
-                                                <IconButton
-                                                    onClick={() => startEditing(item)}
-                                                    disabled={saving || !item.active}
-                                                >
-                                                    <EditOutlinedIcon fontSize="small" />
-                                                </IconButton>
-                                            </span>
-                                        </Tooltip>
-
-                                        <Tooltip title="Pasife al">
-                                            <span>
-                                                <IconButton
-                                                    color="error"
-                                                    onClick={() => onDeactivate(item)}
-                                                    disabled={saving || !item.active}
-                                                >
-                                                    <RemoveCircleOutlinedIcon fontSize="small" />
-                                                </IconButton>
-                                            </span>
-                                        </Tooltip>
-                                    </>
-                                )}
+                                            <Tooltip title="Sil">
+                                                <span>
+                                                    <IconButton
+                                                        color="error"
+                                                        onClick={() => onDeactivate(item)}
+                                                        disabled={saving || !item.active}
+                                                    >
+                                                        <RemoveCircleOutlinedIcon fontSize="small" />
+                                                    </IconButton>
+                                                </span>
+                                            </Tooltip>
+                                        </>
+                                    )}
+                                </Box>
                             </Box>
                         );
                     })}
