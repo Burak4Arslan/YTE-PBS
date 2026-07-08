@@ -64,8 +64,12 @@ public class Personnel {
 
     private String team; // Takım
     private String projectWorkedOn; // Çalışılan Proje
+    private String educationType; // Eğitim Türü
+    private String graduationDepartment; // Mezuniyet Bölümü
+    private String contribution; // Katkı
     private String mentor; // Mentor
     private String shuttleUsage; // Servis Kullanımı
+    private LocalDate leaveDate; // Ayrılış Tarihi
 
     // --- DİĞER BÖLÜMÜ ---
     private String residentialAddress; // İkametgah Adresi

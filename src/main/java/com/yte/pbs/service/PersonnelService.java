@@ -5,11 +5,19 @@ import com.yte.pbs.repository.PersonnelRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import com.yte.pbs.dto.PersonnelFilterDto;
+import com.yte.pbs.repository.specification.PersonnelSpecification;
+import org.springframework.data.jpa.domain.Specification;
+
+import java.io.ByteArrayInputStream;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class PersonnelService {
 
     private final PersonnelRepository personnelRepository;
+    private final ExcelExportService excelExportService;
 
     public Personnel addPersonnel(Personnel personnel) {
         // T.C. Kimlik numarası sistemde var mı kontrolü eklenebilir
@@ -17,5 +25,15 @@ public class PersonnelService {
             throw new RuntimeException("Bu T.C. Kimlik Numarası ile zaten bir personel kayıtlı!");
         }
         return personnelRepository.save(personnel);
+    }
+
+    public List<Personnel> searchPersonnel(PersonnelFilterDto filter) {
+        Specification<Personnel> spec = PersonnelSpecification.filterBy(filter);
+        return personnelRepository.findAll(spec);
+    }
+
+    public ByteArrayInputStream exportToExcel(PersonnelFilterDto filter) {
+        List<Personnel> personnelList = searchPersonnel(filter);
+        return excelExportService.exportPersonnelToExcel(personnelList);
     }
 }
