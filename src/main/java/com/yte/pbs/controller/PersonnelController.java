@@ -49,4 +49,11 @@ public class PersonnelController {
                 .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                 .body(file);
     }
+
+    @GetMapping
+    public ResponseEntity<Personnel> getPersonnelByEmail(@RequestParam String email) {
+        return personnelService.getByEmail(email)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.noContent().build());
+    }
 }

@@ -71,7 +71,7 @@ public class SecurityConfig {
                                 .requestMatchers("/api/panel/**").hasAuthority("ADMIN")
 
                                 // Admin + personel
-                                .requestMatchers("/api/personnel/**").hasAnyAuthority("ADMIN", "EMPLOYEE", "MANAGER", "HR")
+                                .requestMatchers("/api/personnel", "/api/personnel/**").hasAnyRole("ADMIN", "EMPLOYEE", "MANAGER", "HR")
 
                                 .anyRequest().authenticated())
 

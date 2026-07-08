@@ -12,6 +12,8 @@ import org.springframework.data.jpa.domain.Specification;
 import java.io.ByteArrayInputStream;
 import java.util.List;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class PersonnelService {
@@ -35,5 +37,9 @@ public class PersonnelService {
     public ByteArrayInputStream exportToExcel(PersonnelFilterDto filter) {
         List<Personnel> personnelList = searchPersonnel(filter);
         return excelExportService.exportPersonnelToExcel(personnelList);
+    }
+
+    public Optional<Personnel> getByEmail(String email) {
+        return personnelRepository.findByEmail(email);
     }
 }
