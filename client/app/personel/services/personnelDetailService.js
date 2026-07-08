@@ -1,5 +1,63 @@
 import axiosInstance from '../../api/axiosInstance';
 
+function mapExperienceFromApi(experience) {
+    return {
+        ...experience,
+        company: experience.company || experience.workPlace || '',
+        position: experience.position || experience.role || '',
+        employmentType: experience.employmentType || experience.workType || '',
+        leavingReason: experience.leavingReason || experience.reasonOfLeave || ''
+    };
+}
+
+function mapExperienceToApi(experience) {
+    return {
+        id: experience.id,
+        userId: experience.userId,
+        workPlace: experience.workPlace || experience.company || '',
+        role: experience.role || experience.position || '',
+        workType: experience.workType || experience.employmentType || '',
+        startDate: experience.startDate || null,
+        endDate: experience.endDate || null,
+        reasonOfLeave: experience.reasonOfLeave || experience.leavingReason || ''
+    };
+}
+
+function getFileName(filePath) {
+    if (!filePath) return '';
+    return String(filePath).split(/[\\/]/).pop();
+}
+
+function resolveAttachmentPath(contribution) {
+    const attachment = contribution.attachment;
+    const fileConstructorAvailable = typeof File !== 'undefined';
+
+    if (fileConstructorAvailable && attachment instanceof File) return attachment.name;
+    if (fileConstructorAvailable && attachment?.length && attachment[0] instanceof File) return attachment[0].name;
+
+    return contribution.attachedFilePath || contribution.attachmentName || '';
+}
+
+function mapContributionFromApi(contribution) {
+    return {
+        ...contribution,
+        type: contribution.type || contribution.eventType || '',
+        attachmentName: contribution.attachmentName || getFileName(contribution.attachedFilePath)
+    };
+}
+
+function mapContributionToApi(contribution) {
+    return {
+        id: contribution.id,
+        userId: contribution.userId,
+        eventType: contribution.eventType || contribution.type || '',
+        description: contribution.description || '',
+        link: contribution.link || '',
+        attachedFilePath: resolveAttachmentPath(contribution),
+        uploadDate: contribution.uploadDate || null
+    };
+}
+
 export async function getPersonnelEmail(personnelId) {
     const { data } = await axiosInstance.get('/api/directory');
     const personnel = data.find((entry) => String(entry.id) === String(personnelId));
@@ -47,17 +105,17 @@ export async function getPersonnelProjects(email) {
 
 export async function getExperiences(email) {
     const { data } = await axiosInstance.get('/api/experiences', { params: { email } });
-    return data;
+    return data.map(mapExperienceFromApi);
 }
 
 export async function createExperience(email, experience) {
-    const { data } = await axiosInstance.post('/api/experiences', experience, { params: { email } });
-    return data;
+    const { data } = await axiosInstance.post('/api/experiences', mapExperienceToApi(experience), { params: { email } });
+    return mapExperienceFromApi(data);
 }
 
 export async function updateExperience(experienceId, experience) {
-    const { data } = await axiosInstance.put(`/api/experiences/${experienceId}`, experience);
-    return data;
+    const { data } = await axiosInstance.put(`/api/experiences/${experienceId}`, mapExperienceToApi(experience));
+    return mapExperienceFromApi(data);
 }
 
 export async function deleteExperience(experienceId) {
@@ -66,43 +124,17 @@ export async function deleteExperience(experienceId) {
 
 export async function getContributions(email) {
     const { data } = await axiosInstance.get('/api/contributions', { params: { email } });
-    return data;
+    return data.map(mapContributionFromApi);
 }
 
 export async function createContribution(email, contribution) {
-    // Support file upload when contribution.attachment is provided
-    if (contribution && (contribution.attachment instanceof File || (Array.isArray(contribution.attachment) && contribution.attachment[0] instanceof File))) {
-        const fd = new FormData();
-        fd.append('type', contribution.type || '');
-        fd.append('description', contribution.description || '');
-        fd.append('link', contribution.link || '');
-        if (contribution.uploadDate) fd.append('uploadDate', contribution.uploadDate);
-        const file = contribution.attachment instanceof File ? contribution.attachment : contribution.attachment[0];
-        if (file) fd.append('attachment', file);
-        const { data } = await axiosInstance.post('/api/contributions', fd, { params: { email }, headers: { 'Content-Type': 'multipart/form-data' } });
-        return data;
-    }
-
-    const { data } = await axiosInstance.post('/api/contributions', contribution, { params: { email } });
-    return data;
+    const { data } = await axiosInstance.post('/api/contributions', mapContributionToApi(contribution), { params: { email } });
+    return mapContributionFromApi(data);
 }
 
 export async function updateContribution(contributionId, contribution) {
-    // Support updating with optional file upload
-    if (contribution && (contribution.attachment instanceof File || (Array.isArray(contribution.attachment) && contribution.attachment[0] instanceof File))) {
-        const fd = new FormData();
-        fd.append('type', contribution.type || '');
-        fd.append('description', contribution.description || '');
-        fd.append('link', contribution.link || '');
-        if (contribution.uploadDate) fd.append('uploadDate', contribution.uploadDate);
-        const file = contribution.attachment instanceof File ? contribution.attachment : contribution.attachment[0];
-        if (file) fd.append('attachment', file);
-        const { data } = await axiosInstance.put(`/api/contributions/${contributionId}`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
-        return data;
-    }
-
-    const { data } = await axiosInstance.put(`/api/contributions/${contributionId}`, contribution);
-    return data;
+    const { data } = await axiosInstance.put(`/api/contributions/${contributionId}`, mapContributionToApi(contribution));
+    return mapContributionFromApi(data);
 }
 
 export async function deleteContribution(contributionId) {
@@ -111,6 +143,11 @@ export async function deleteContribution(contributionId) {
 
 export async function getMyAttendanceRecords(range = 'week') {
     const { data } = await axiosInstance.get('/api/attendance/me', { params: { range } });
+    return data;
+}
+
+export async function getAttendanceRecordsByEmail(email, range = 'week') {
+    const { data } = await axiosInstance.get('/api/attendance', { params: { email, range } });
     return data;
 }
 

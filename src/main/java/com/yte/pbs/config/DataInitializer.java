@@ -42,6 +42,7 @@ public class DataInitializer {
                     "Ahmet",
                     "Yilmaz",
                     "admin@pbs.com",
+                    LocalDate.of(2019, 3, 4),
                     adminAuthority);
 
             User cenkUser = findOrCreateUser(
@@ -51,6 +52,7 @@ public class DataInitializer {
                     "Cenk",
                     "Çelik",
                     "cenk.celil@tubitak.gov.tr",
+                    LocalDate.of(2023, 5, 15),
                     employeeAuthority);
 
             initializeAttendanceRecords(adminUser, cenkUser, attendanceRecordRepository);
@@ -80,6 +82,7 @@ public class DataInitializer {
             String firstName,
             String lastName,
             String email,
+            LocalDate employmentStartDate,
             Authority authority) {
         User user = userRepository.findByUsername(username).orElseGet(User::new);
         if (user.getId() == null) {
@@ -88,6 +91,9 @@ public class DataInitializer {
             user.setLastName(lastName);
             user.setEmail(email);
             user.setPassword(passwordEncoder.encode("1"));
+        }
+        if (user.getEmploymentStartDate() == null) {
+            user.setEmploymentStartDate(employmentStartDate);
         }
         if (!user.getAuthorities().contains(authority)) {
             user.getAuthorities().add(authority);
@@ -303,8 +309,7 @@ public class DataInitializer {
 
 
     private void initializePersonnel(PersonnelRepository personnelRepository) {
-        // Rehber detay ekranındaki "Genel" bölümü için örnek personel verisi.
-        // E-posta, rehberdeki (DirectoryEntry) "Ahmet Yılmaz" kaydıyla eşleşiyor.
+
         if (personnelRepository.findByEmail("admin@pbs.com").isEmpty()) {
             Personnel personnel = Personnel.builder()
                     .firstName("Ahmet")

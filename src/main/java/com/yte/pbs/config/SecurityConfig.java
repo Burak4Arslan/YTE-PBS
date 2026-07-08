@@ -60,7 +60,7 @@ public class SecurityConfig {
                                 .requestMatchers("/api/auth/me").authenticated()
 
                                 .requestMatchers("/api/auth/**", "/api/auth/login").permitAll()
-                                .requestMatchers("/api/directory").permitAll() // Rehber
+                                .requestMatchers("/api/directory", "/api/directory/**").permitAll() // Rehber
                                 .requestMatchers("/api/news/**").permitAll()    // Haberler
                                 .requestMatchers("/api/events/**").permitAll()  // Etkinlikler
 
@@ -68,7 +68,7 @@ public class SecurityConfig {
                                 .requestMatchers("/api/authorities/**").hasAuthority("ADMIN")
                                 .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
                                 .requestMatchers("/api/reports/**").hasAuthority("ADMIN")
-                                .requestMatchers("/api/panel/**").hasAuthority("ADMIN")
+                                .requestMatchers("/api/panel/**").hasRole("ADMIN")
 
                                 // Admin + personel
                                 .requestMatchers("/api/personnel", "/api/personnel/**").hasAnyRole("ADMIN", "EMPLOYEE", "MANAGER", "HR")
