@@ -1,7 +1,6 @@
 package com.yte.pbs.entity;
 
 import com.yte.pbs.entity.BaseEntity;
-import com.yte.pbs.entity.PersonnelFile;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -37,10 +36,6 @@ public class PersonnelHierarchy extends BaseEntity {
 
     @OneToMany(mappedBy = "superiorPersonnel")
     private List<PersonnelHierarchy> subordinates;
-
-
-
-
 
 
 }

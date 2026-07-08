@@ -25,7 +25,8 @@ public class DataInitializer {
             ProjectRepository projectRepository,
             PersonnelRepository personnelRepository,
             UserProjectRepository userProjectRepository,
-            EducationRepository educationRepository) {
+            EducationRepository educationRepository,
+            PersonnelHierarchyRepository personnelHierarchyRepository) {
         return args -> {
             Authority adminAuthority = findOrCreateAuthority(
                     authorityRepository, "ADMIN", "System administrator");
@@ -60,6 +61,7 @@ public class DataInitializer {
             initializeDirectoryEntries(directoryEntryRepository);
             initializeUserProjects(cenkUser, projectRepository, userProjectRepository);
             initializePersonnel(personnelRepository);
+            initializePersonnelHierarchy(personnelHierarchyRepository);
         };
     }
 
@@ -327,5 +329,49 @@ public class DataInitializer {
                     .build();
             personnelRepository.save(personnel);
         }
+    }
+
+    private static final long HIERARCHY_DIRECTOR_USER_ID = 9001L;
+
+    private void initializePersonnelHierarchy(PersonnelHierarchyRepository personnelHierarchyRepository) {
+        if (personnelHierarchyRepository.existsByUserId(HIERARCHY_DIRECTOR_USER_ID)) {
+            return;
+        }
+
+        PersonnelHierarchy director = new PersonnelHierarchy();
+        director.setUserId(HIERARCHY_DIRECTOR_USER_ID);
+        director.setPersonnelName("Erkan");
+        director.setPersonnelSurname("DİLAVEROĞLU");
+        director.setPersonnelJobTitle("Enstitü Müdürü");
+        personnelHierarchyRepository.save(director);
+
+        createHierarchySubordinate(personnelHierarchyRepository, director, 9002L,
+                "Osman", "DÖNER", "Yazılım Geliştirme Teknolojileri EMY");
+        createHierarchySubordinate(personnelHierarchyRepository, director, 9003L,
+                "Ufuk Veysel", "DEDEOĞLU", "Dijital Dönüşüm Çözümleri EMY");
+        createHierarchySubordinate(personnelHierarchyRepository, director, 9004L,
+                "Sabriye", "KAYA", "Tesis Yönetimi");
+        createHierarchySubordinate(personnelHierarchyRepository, director, 9005L,
+                "Şali", "YILDIRIM", "Kalite ve Strateji Yönetimi");
+        createHierarchySubordinate(personnelHierarchyRepository, director, 9006L,
+                "Ad", "Soyad", "İş Geliştirme ve Sözleşme Yönetimi");
+        createHierarchySubordinate(personnelHierarchyRepository, director, 9007L,
+                "Ad", "Soyad", "PYO");
+    }
+
+    private void createHierarchySubordinate(
+            PersonnelHierarchyRepository personnelHierarchyRepository,
+            PersonnelHierarchy superior,
+            Long userId,
+            String name,
+            String surname,
+            String jobTitle) {
+        PersonnelHierarchy subordinate = new PersonnelHierarchy();
+        subordinate.setUserId(userId);
+        subordinate.setPersonnelName(name);
+        subordinate.setPersonnelSurname(surname);
+        subordinate.setPersonnelJobTitle(jobTitle);
+        subordinate.setSuperiorPersonnel(superior);
+        personnelHierarchyRepository.save(subordinate);
     }
 }
