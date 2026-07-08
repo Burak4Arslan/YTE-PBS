@@ -47,14 +47,4 @@ public class UserProjectController {
         return ResponseEntity.ok(projects);
     }
 
-    @GetMapping
-    public ResponseEntity<List<UserProject>> getUserProjectsByEmail(@RequestParam String email) {
-        var user = userRepository.findByEmail(email);
-        List<UserProject> projects = null;
-        if (user.isPresent()) {
-            projects = userProjectRepository.findByUserId(user.get().getId());
-        }
-        return ResponseEntity.ok(projects);
-    }
-
 }
