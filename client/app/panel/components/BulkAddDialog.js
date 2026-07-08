@@ -51,6 +51,7 @@ export default function BulkAddDialog({
         <Dialog
             open={open}
             onClose={handleClose}
+            disableScrollLock
             fullWidth
             maxWidth="sm"
         >

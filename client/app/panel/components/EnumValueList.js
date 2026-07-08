@@ -93,6 +93,30 @@ export default function EnumValueList({
         );
     }
 
+    if (selectedType.editable === false) {
+        return (
+            <Paper
+                variant="outlined"
+                sx={{
+                    minHeight: 500,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    p: 5
+                }}
+            >
+                <Box sx={{ textAlign: 'center', maxWidth: 520 }}>
+                    <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>
+                        {selectedType.displayName}
+                    </Typography>
+                    <Typography color="text.secondary">
+                        Bu alan custom enum değildir ve kendi veri yapısı üzerinden yönetilir.
+                    </Typography>
+                </Box>
+            </Paper>
+        );
+    }
+
     return (
         <Paper
             variant="outlined"

@@ -27,6 +27,33 @@ const CATEGORY_ORDER = [
     'FILE'
 ];
 
+const NON_ENUM_FIELDS = [
+    {
+        id: 'project-field',
+        code: 'PROJECT_FIELD',
+        displayName: 'Çalışılan Proje',
+        category: 'GENERAL',
+        sortOrder: 5.5,
+        editable: false
+    },
+    {
+        id: 'file-name-field',
+        code: 'FILE_NAME_FIELD',
+        displayName: 'Dosya Adı',
+        category: 'FILE',
+        sortOrder: 14.1,
+        editable: false
+    },
+    {
+        id: 'upload-date-field',
+        code: 'UPLOAD_DATE_FIELD',
+        displayName: 'Yükleme Tarihi',
+        category: 'FILE',
+        sortOrder: 14.2,
+        editable: false
+    }
+];
+
 export default function EnumTypeList({
     types,
     selectedCode,
@@ -47,10 +74,15 @@ export default function EnumTypeList({
         );
     }
 
+    const allFields = [
+        ...types.map((type) => ({ ...type, editable: true })),
+        ...NON_ENUM_FIELDS
+    ];
+
     const groupedTypes = CATEGORY_ORDER.map((category) => ({
         category,
         label: CATEGORY_LABELS[category],
-        types: types
+        types: allFields
             .filter((type) => type.category === category)
             .sort((a, b) => a.sortOrder - b.sortOrder)
     })).filter((group) => group.types.length > 0);

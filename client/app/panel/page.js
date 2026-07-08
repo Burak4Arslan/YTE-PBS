@@ -97,7 +97,10 @@ export default function PanelPage() {
         setBulkAddOpen(false);
         setValues([]);
         setSelectedType(type);
-        await loadValues(type.code);
+
+        if (type.editable !== false) {
+            await loadValues(type.code);
+        }
     };
 
     const handleCreate = async (value) => {
@@ -259,10 +262,10 @@ export default function PanelPage() {
         <RoleGuard allowedRoles={['ADMIN']}>
             <Box
                 sx={{
-                    maxWidth: 1280,
+                    maxWidth: 1480,
                     mx: 'auto',
-                    px: { xs: 2, md: 3 },
-                    py: 4
+                    px: { xs: 2, md: 4 },
+                    py: 5
                 }}
             >
                 <Box sx={{ mb: 3 }}>
@@ -299,9 +302,9 @@ export default function PanelPage() {
                             display: 'grid',
                             gridTemplateColumns: {
                                 xs: '1fr',
-                                md: '300px minmax(0, 1fr)'
+                                md: '340px minmax(0, 1fr)'
                             },
-                            gap: 3,
+                            gap: 4,
                             alignItems: 'start'
                         }}
                     >
