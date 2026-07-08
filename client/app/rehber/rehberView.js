@@ -12,12 +12,17 @@ import { EmailCell, PhoneCell } from "./components/ContactCell";
 import RehberFilters from "./components/RehberFilters";
 import { fetchRehberList } from "./services/rehberService";
 
+import RehberDetayModal from "./components/RehberDetayModal";
+
 export default function RehberView() {
     const router = useRouter();
     const [allRows, setAllRows] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [filters, setFilters] = useState({});
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedPersonelId, setSelectedPersonelId] = useState(null);
 
     // Sayfa ilk açıldığında backend'den veriyi çek.
     useEffect(() => {
@@ -58,6 +63,11 @@ export default function RehberView() {
     const handleSearch = () => {
         // filteredRows zaten useMemo ile otomatik güncelleniyor;
         // bu fonksiyon ileride backend'e gerçek sorgu atmak için yer tutucu.
+    };
+
+    const handleOpenDetail = (id) => {
+        setSelectedPersonelId(id);
+        setIsModalOpen(true);
     };
 
     const columns = useMemo(
@@ -110,8 +120,11 @@ export default function RehberView() {
                 sortable: false,
                 filterable: false,
                 disableColumnMenu: true,
-                renderCell: () => (
-                    <IconButton size="small">
+                renderCell: (params) => (
+                    <IconButton
+                        size="small"
+                        onClick={() => handleOpenDetail(params.row.id)} // Satırın id değerini gönderiyoruz
+                    >
                         <OpenInFullIcon fontSize="small" />
                     </IconButton>
                 ),
@@ -182,6 +195,13 @@ export default function RehberView() {
                         outline: "none",
                     },
                 }}
+            />
+
+            {/* REHBER DETAY MODALI */}
+            <RehberDetayModal
+                personelId={selectedPersonelId}
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
             />
         </Paper>
     );

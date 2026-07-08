@@ -1,17 +1,7 @@
 package com.yte.pbs.config;
 
-import com.yte.pbs.entity.Authority;
-import com.yte.pbs.entity.AttendanceRecord;
-import com.yte.pbs.entity.DirectoryEntry;
-import com.yte.pbs.entity.User;
-import com.yte.pbs.entity.Experience;
-import com.yte.pbs.entity.Contribution;
-import com.yte.pbs.repository.AttendanceRecordRepository;
-import com.yte.pbs.repository.AuthorityRepository;
-import com.yte.pbs.repository.DirectoryEntryRepository;
-import com.yte.pbs.repository.UserRepository;
-import com.yte.pbs.repository.ExperienceRepository;
-import com.yte.pbs.repository.ContributionRepository;
+import com.yte.pbs.entity.*;
+import com.yte.pbs.repository.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,7 +21,11 @@ public class DataInitializer {
             ExperienceRepository experienceRepository,
             ContributionRepository contributionRepository,
             AttendanceRecordRepository attendanceRecordRepository,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+            ProjectRepository projectRepository,
+            PersonnelRepository personnelRepository,
+            UserProjectRepository userProjectRepository,
+            EducationRepository educationRepository) {
         return args -> {
             Authority adminAuthority = findOrCreateAuthority(
                     authorityRepository, "ADMIN", "System administrator");
@@ -61,7 +55,11 @@ public class DataInitializer {
             initializeAttendanceRecords(adminUser, cenkUser, attendanceRecordRepository);
             initializeExperiencesAndContributions(cenkUser, experienceRepository, contributionRepository);
 
+            initializeEducations(cenkUser, educationRepository);
+
             initializeDirectoryEntries(directoryEntryRepository);
+            initializeUserProjects(cenkUser, projectRepository, userProjectRepository);
+            initializePersonnel(personnelRepository);
         };
     }
 
@@ -211,5 +209,119 @@ public class DataInitializer {
         directoryEntryRepository.save(new DirectoryEntry(
                 "İbrahim Tunç", "DevOps", "Mühendis",
                 "Sunucu Yönetimi", "İnfrastruktur", "ibrahim.tunc@yte.org", "0532 111 2240"));
+    }
+
+    private void initializeEducations(
+            User user,
+            EducationRepository educationRepository) {
+
+        if (educationRepository.findByUserId(user.getId()).isEmpty()) {
+            Education edu1 = new Education();
+            edu1.setUserId(user.getId());
+            edu1.setEducationType("Doktora");
+            edu1.setSchoolName("Hacettepe Üniversitesi");
+            edu1.setDepartment("Yazılım Mühendisliği");
+            edu1.setStartDate(LocalDate.of(2020, 9, 12));
+            edu1.setGraduationDate(LocalDate.of(2024, 6, 15));
+            edu1.setDescription("Mikro Servisler, Prof.Dr.Yasemin Yıldız");
+            educationRepository.save(edu1);
+
+            Education edu2 = new Education();
+            edu2.setUserId(user.getId());
+            edu2.setEducationType("Lisans");
+            edu2.setSchoolName("Hacettepe Üniversitesi");
+            edu2.setDepartment("Yazılım Mühendisliği");
+            edu2.setStartDate(LocalDate.of(2023, 1, 12));
+            edu2.setGraduationDate(null);
+            edu2.setDescription("Genel Akademik Not Ortalaması takibi");
+            educationRepository.save(edu2);
+        }
+    }
+
+    private Project findOrCreateProject(
+            ProjectRepository projectRepository,
+            String projectName,
+            LocalDate beginDate,
+            LocalDate endDate) {
+        return projectRepository.findByProjectName(projectName)
+                .orElseGet(() -> {
+                    Project project = new Project();
+                    project.setProjectName(projectName);
+                    project.setBeginDate(beginDate);
+                    project.setEndDate(endDate);
+                    return projectRepository.save(project);
+                });
+    }
+
+    private void initializeUserProjects(
+            User user,
+            ProjectRepository projectRepository,
+            UserProjectRepository userProjectRepository) {
+
+        Project eTedarik = findOrCreateProject(
+                projectRepository, "E-Tedarik",
+                LocalDate.of(2023, 1, 1), LocalDate.of(2023, 12, 31));
+        Project pbs = findOrCreateProject(
+                projectRepository, "Personel Bilgi Sistemi",
+                LocalDate.of(2023, 1, 1), null);
+        Project ransomware = findOrCreateProject(
+                projectRepository, "Ransomware Analiz Modülü",
+                LocalDate.of(2023, 1, 1), null);
+
+        if (userProjectRepository.findByUserId(user.getId()).isEmpty()) {
+            UserProject up1 = new UserProject();
+            up1.setUserId(user.getId());
+            up1.setProject(eTedarik);
+            up1.setDuty("Backend Geliştirici");
+            up1.setBeginDate(LocalDate.of(2023, 1, 1));
+            up1.setEndDate(LocalDate.of(2023, 12, 31));
+            userProjectRepository.save(up1);
+
+            UserProject up2 = new UserProject();
+            up2.setUserId(user.getId());
+            up2.setProject(pbs);
+            up2.setDuty("Takım Lideri");
+            up2.setBeginDate(LocalDate.of(2024, 1, 15));
+            up2.setEndDate(LocalDate.of(2025, 6, 30));
+            userProjectRepository.save(up2);
+
+            UserProject up3 = new UserProject();
+            up3.setUserId(user.getId());
+            up3.setProject(ransomware);
+            up3.setDuty("Uzman Araştırmacı");
+            up3.setBeginDate(LocalDate.of(2025, 7, 1));
+            up3.setEndDate(LocalDate.of(2026, 3, 31));
+            userProjectRepository.save(up3);
+        }
+    }
+
+
+    private void initializePersonnel(PersonnelRepository personnelRepository) {
+        // Rehber detay ekranındaki "Genel" bölümü için örnek personel verisi.
+        // E-posta, rehberdeki (DirectoryEntry) "Ahmet Yılmaz" kaydıyla eşleşiyor.
+        if (personnelRepository.findByEmail("admin@pbs.com").isEmpty()) {
+            Personnel personnel = Personnel.builder()
+                    .firstName("Ahmet")
+                    .lastName("Yılmaz")
+                    .tcIdentityNumber("10000000146")
+                    .email("admin@pbs.com")
+                    .gender("Erkek")
+                    .academicTitle("Dr.")
+                    .hireDate(LocalDate.of(2023, 4, 12))
+                    .registrationNumber("PBS-0001")
+                    .cadre("AG")
+                    .title("Kıdemli Mühendis")
+                    .personnelType("MARTEK")
+                    .workType("Tam Zamanlı")
+                    .workStatus("Aktif")
+                    .department("Yazılım Geliştirme")
+                    .duty("Backend Geliştirme")
+                    .team("MDP-GE1")
+                    .phoneNumber("0532 111 2233")
+                    .birthDate(LocalDate.of(1995, 5, 12))
+                    .roomNumber("216")
+                    .build();
+            personnelRepository.save(personnel);
+        }
     }
 }

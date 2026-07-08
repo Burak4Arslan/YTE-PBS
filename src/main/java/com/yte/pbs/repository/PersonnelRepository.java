@@ -10,4 +10,6 @@ import java.util.Optional;
 @Repository
 public interface PersonnelRepository extends JpaRepository<Personnel, Long>, JpaSpecificationExecutor<Personnel> {
     Optional<Personnel> findByTcIdentityNumber(String tcIdentityNumber);
+
+    Optional<Personnel> findByEmail(String email);
 }

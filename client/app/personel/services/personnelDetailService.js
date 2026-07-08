@@ -8,6 +8,19 @@ export async function getPersonnelEmail(personnelId) {
     return personnel.email;
 }
 
+export async function getPersonnelDirectoryEntry(personnelId) {
+    const { data } = await axiosInstance.get('/api/directory');
+    const personnel = data.find((entry) => String(entry.id) === String(personnelId));
+
+    if (!personnel) throw new Error('Personel bilgisi bulunamadı.');
+    return personnel;
+}
+
+export async function getPersonnelInfo(email) {
+    const { data } = await axiosInstance.get('/api/personnel', { params: { email } });
+    return data || null;
+}
+
 export async function getEducations(email) {
     const { data } = await axiosInstance.get('/api/educations', { params: { email } });
     return data;
