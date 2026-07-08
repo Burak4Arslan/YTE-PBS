@@ -57,8 +57,10 @@ public class SecurityConfig {
                                                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
 
                                 .authorizeHttpRequests(auth -> auth
+                                                // /api/auth/me yalnızca giriş yapmış kullanıcılar erişebilsin
+                                                .requestMatchers("/api/auth/me").authenticated()
                                                 // Ortak İzinler (Giriş ve Rehber Sayfası)
-                                                .requestMatchers("/api/auth/**", "/api/auth/login").permitAll()
+                                                .requestMatchers("/api/auth/**").permitAll()
                                                 .requestMatchers("/api/directory").permitAll()
 
                                                 // Senin Eklediğin İzinler (Haberler ve Etkinlikler)
