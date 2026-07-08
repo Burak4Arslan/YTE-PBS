@@ -32,13 +32,7 @@ public class CustomEnumDataInitializer implements CommandLineRunner {
                 "Ünvan",
                 "GENERAL",
                 2,
-                List.of(
-                        "Aday Mühendis",
-                        "Mühendis",
-                        "Uzman Mühendis",
-                        "Araştırmacı",
-                        "Uzman"
-                )
+                List.of()
         );
 
         initializeType(
@@ -46,11 +40,7 @@ public class CustomEnumDataInitializer implements CommandLineRunner {
                 "Personel Türü",
                 "GENERAL",
                 3,
-                List.of(
-                        "Kamu",
-                        "MARTEK",
-                        "Stajyer"
-                )
+                List.of()
         );
 
         initializeType(
@@ -58,11 +48,7 @@ public class CustomEnumDataInitializer implements CommandLineRunner {
                 "Akademik Ünvan",
                 "GENERAL",
                 4,
-                List.of(
-                        "Dr.",
-                        "Doç. Dr.",
-                        "Prof. Dr."
-                )
+                List.of()
         );
 
         initializeType(
@@ -70,12 +56,7 @@ public class CustomEnumDataInitializer implements CommandLineRunner {
                 "Kadro",
                 "GENERAL",
                 5,
-                List.of(
-                        "AG",
-                        "Mühendis",
-                        "İdari Personel",
-                        "Uzman Yardımcısı"
-                )
+                List.of()
         );
 
         initializeType(
@@ -83,13 +64,7 @@ public class CustomEnumDataInitializer implements CommandLineRunner {
                 "Çalışma Türü",
                 "GENERAL",
                 6,
-                List.of(
-                        "Tam Zamanlı",
-                        "Yarı Zamanlı",
-                        "Ofis",
-                        "Uzaktan",
-                        "Hibrit"
-                )
+                List.of()
         );
 
         initializeType(
@@ -97,11 +72,7 @@ public class CustomEnumDataInitializer implements CommandLineRunner {
                 "Çalışma Durumu",
                 "GENERAL",
                 7,
-                List.of(
-                        "Aktif",
-                        "İzinli",
-                        "Ayrıldı"
-                )
+                List.of()
         );
 
         initializeType(
@@ -109,19 +80,7 @@ public class CustomEnumDataInitializer implements CommandLineRunner {
                 "Görevi",
                 "GENERAL",
                 8,
-                List.of(
-                        "Backend Geliştirme",
-                        "Frontend Geliştirme",
-                        "API Geliştirme",
-                        "Yazılım Geliştirici",
-                        "İş Analisti",
-                        "Proje Yönetimi",
-                        "Kalite Kontrol",
-                        "Arayüz Tasarımı",
-                        "Sunucu Yönetimi",
-                        "Veritabanı Yönetimi",
-                        "İK Uzmanı"
-                )
+                List.of()
         );
 
         initializeType(
@@ -129,10 +88,7 @@ public class CustomEnumDataInitializer implements CommandLineRunner {
                 "Servis Kullanımı",
                 "GENERAL",
                 9,
-                List.of(
-                        "Evet",
-                        "Hayır"
-                )
+                List.of()
         );
 
         initializeType(
@@ -140,13 +96,7 @@ public class CustomEnumDataInitializer implements CommandLineRunner {
                 "Eğitim Türü",
                 "EDUCATION",
                 10,
-                List.of(
-                        "Lise",
-                        "Ön Lisans",
-                        "Lisans",
-                        "Yüksek Lisans",
-                        "Doktora"
-                )
+                List.of()
         );
 
         initializeType(
@@ -162,12 +112,7 @@ public class CustomEnumDataInitializer implements CommandLineRunner {
                 "Bölüm",
                 "EDUCATION",
                 12,
-                List.of(
-                        "Bilgisayar Mühendisliği",
-                        "Yazılım Mühendisliği",
-                        "Elektrik-Elektronik Mühendisliği",
-                        "İşletme"
-                )
+                List.of()
         );
 
         initializeType(
@@ -175,12 +120,7 @@ public class CustomEnumDataInitializer implements CommandLineRunner {
                 "Etkinlik Türü",
                 "CONTRIBUTION",
                 13,
-                List.of(
-                        "Konferans Sunumu",
-                        "Teknik Rapor / Whitepaper",
-                        "Makale",
-                        "Proje"
-                )
+                List.of()
         );
 
         initializeType(
@@ -188,13 +128,7 @@ public class CustomEnumDataInitializer implements CommandLineRunner {
                 "Dosya Türü",
                 "FILE",
                 14,
-                List.of(
-                        "Sertifika",
-                        "Diploma",
-                        "Özgeçmiş",
-                        "Kimlik Belgesi",
-                        "Diğer"
-                )
+                List.of()
         );
     }
 

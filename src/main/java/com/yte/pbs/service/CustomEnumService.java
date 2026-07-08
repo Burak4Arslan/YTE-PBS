@@ -142,7 +142,7 @@ public class CustomEnumService {
     public List<CustomEnumValueDto> reorderValues(String code, List<Long> valueIds) {
         CustomEnumType type = getTypeByCode(code);
         List<CustomEnumValue> currentValues =
-                valueRepository.findByType_IdOrderBySortOrderAscIdAsc(type.getId());
+                valueRepository.findByType_IdAndActiveTrueOrderBySortOrderAscIdAsc(type.getId());
 
         if (valueIds == null || valueIds.size() != currentValues.size()) {
             throw new ResponseStatusException(
