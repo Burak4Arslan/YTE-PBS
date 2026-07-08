@@ -26,6 +26,13 @@ public class UserProjectController {
 
 
 
+    @GetMapping
+    public ResponseEntity<List<UserProject>> getUserProjectsByEmail(@RequestParam String email) {
+        return userRepository.findByEmail(email)
+                .map(user -> ResponseEntity.ok(userProjectRepository.findByUserId(user.getId())))
+                .orElse(ResponseEntity.ok(List.of()));
+    }
+
     @GetMapping("/{personelId}")
     public ResponseEntity<List<UserProject>> getUserProjects(@PathVariable Long personelId) {
 

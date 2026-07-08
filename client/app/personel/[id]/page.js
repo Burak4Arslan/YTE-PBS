@@ -75,7 +75,11 @@ export default function PersonnelDetailPage() {
             setExperiences(await getExperiences(email));
             toast.success(experienceId ? 'Deneyim güncellendi.' : 'Deneyim eklendi.');
             return true;
-        } catch { return false; }
+        } catch (requestError) {
+            console.error(requestError);
+            toast.error('Deneyim kaydedilemedi.');
+            return false;
+        }
         finally { setSaving(false); }
     };
 
@@ -101,7 +105,11 @@ export default function PersonnelDetailPage() {
             setContributions(await getContributions(email));
             toast.success(contributionId ? 'Katkı güncellendi.' : 'Katkı eklendi.');
             return true;
-        } catch (e) { console.error(e); return false; }
+        } catch (e) {
+            console.error(e);
+            toast.error('Katkı kaydedilemedi.');
+            return false;
+        }
         finally { setSaving(false); }
     };
 
@@ -135,7 +143,7 @@ export default function PersonnelDetailPage() {
             >
                 <Stack spacing={2}>
                     <PersonalCorporateInfo />
-                    <PersonnelFiles userId={userId} />
+                    <PersonnelFiles email={email} />
                     <PersonnelProjectsSection projects={projects} loading={loading} error={error} />
                     <PersonnelExperienceSection experiences={experiences} loading={loading} error={error} saving={saving} onSave={handleExperienceSave} onDelete={handleExperienceDelete} />
                     <PersonnelEducationSection educations={educations} loading={loading} error={error} saving={saving} onSave={handleSave} onDelete={handleDelete} />

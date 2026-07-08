@@ -25,7 +25,7 @@ export default function ExperienceDrawer({ open, experience, loading, onClose, o
     return (
         <Drawer anchor="right" open={open} onClose={loading ? undefined : onClose}>
             <Box component="form" onSubmit={handleSubmit(onSave)} sx={{ width: { xs: '100vw', sm: 520 }, p: 3 }}>
-                <Stack direction="row" alignItems="center" justifyContent="space-between">
+                <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
                     <Typography variant="h6" fontWeight={700}>{experience ? 'Deneyimi Düzenle' : 'Deneyim Ekle'}</Typography>
                     <IconButton onClick={onClose} disabled={loading} aria-label="Kapat"><CloseIcon /></IconButton>
                 </Stack>
@@ -37,9 +37,9 @@ export default function ExperienceDrawer({ open, experience, loading, onClose, o
                     <TextField label="İşe Başlama Tarihi" type="date" size="small" fullWidth slotProps={{ inputLabel: { shrink: true } }} error={Boolean(errors.startDate)} helperText={errors.startDate?.message} {...register('startDate', { required: 'İşe başlama tarihi zorunludur.' })} />
                     <TextField label="İşten Çıkış Tarihi" type="date" size="small" fullWidth slotProps={{ inputLabel: { shrink: true } }} {...register('endDate')} />
                     <TextField label="İşten Ayrılış Nedeni" size="small" fullWidth error={Boolean(errors.leavingReason)} helperText={errors.leavingReason?.message} {...register('leavingReason')} />
-                    <TextField label="Açıklama" size="small" fullWidth multiline minRows={3} inputProps={{ maxLength: 500 }} {...register('description')} />
+                    <TextField label="Açıklama" size="small" fullWidth multiline minRows={3} slotProps={{ htmlInput: { maxLength: 500 } }} {...register('description')} />
                 </Stack>
-                <Stack direction="row" justifyContent="flex-end" spacing={1.5} sx={{ mt: 3 }}>
+                <Stack direction="row" spacing={1.5} sx={{ justifyContent: 'flex-end', mt: 3 }}>
                     <Button onClick={onClose} disabled={loading}>İptal</Button>
                     <Button type="submit" variant="contained" disabled={loading}>{loading ? 'Kaydediliyor...' : 'Kaydet'}</Button>
                 </Stack>

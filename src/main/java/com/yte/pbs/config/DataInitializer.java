@@ -25,7 +25,8 @@ public class DataInitializer {
             ProjectRepository projectRepository,
             PersonnelRepository personnelRepository,
             UserProjectRepository userProjectRepository,
-            EducationRepository educationRepository) {
+            EducationRepository educationRepository,
+            PersonnelHierarchyRepository personnelHierarchyRepository) {
         return args -> {
             Authority adminAuthority = findOrCreateAuthority(
                     authorityRepository, "ADMIN", "System administrator");
@@ -41,6 +42,7 @@ public class DataInitializer {
                     "Ahmet",
                     "Yilmaz",
                     "admin@pbs.com",
+                    LocalDate.of(2019, 3, 4),
                     adminAuthority);
 
             User cenkUser = findOrCreateUser(
@@ -50,6 +52,7 @@ public class DataInitializer {
                     "Cenk",
                     "Çelik",
                     "cenk.celil@tubitak.gov.tr",
+                    LocalDate.of(2023, 5, 15),
                     employeeAuthority);
 
             initializeAttendanceRecords(adminUser, cenkUser, attendanceRecordRepository);
@@ -60,6 +63,7 @@ public class DataInitializer {
             initializeDirectoryEntries(directoryEntryRepository);
             initializeUserProjects(cenkUser, projectRepository, userProjectRepository);
             initializePersonnel(personnelRepository);
+            initializePersonnelHierarchy(personnelHierarchyRepository);
         };
     }
 
@@ -78,6 +82,7 @@ public class DataInitializer {
             String firstName,
             String lastName,
             String email,
+            LocalDate employmentStartDate,
             Authority authority) {
         User user = userRepository.findByUsername(username).orElseGet(User::new);
         if (user.getId() == null) {
@@ -86,6 +91,9 @@ public class DataInitializer {
             user.setLastName(lastName);
             user.setEmail(email);
             user.setPassword(passwordEncoder.encode("1"));
+        }
+        if (user.getEmploymentStartDate() == null) {
+            user.setEmploymentStartDate(employmentStartDate);
         }
         if (!user.getAuthorities().contains(authority)) {
             user.getAuthorities().add(authority);
@@ -209,6 +217,9 @@ public class DataInitializer {
         directoryEntryRepository.save(new DirectoryEntry(
                 "İbrahim Tunç", "DevOps", "Mühendis",
                 "Sunucu Yönetimi", "İnfrastruktur", "ibrahim.tunc@yte.org", "0532 111 2240"));
+        directoryEntryRepository.save(new DirectoryEntry(
+                "Cenk Çelik", "Yazılım Geliştirme", "Uzman Araştırmacı",
+                "Ransomware Analiz Modülü", "PBS", "cenk.celil@tubitak.gov.tr", "0532 111 2241"));
     }
 
 
@@ -298,8 +309,7 @@ public class DataInitializer {
 
 
     private void initializePersonnel(PersonnelRepository personnelRepository) {
-        // Rehber detay ekranındaki "Genel" bölümü için örnek personel verisi.
-        // E-posta, rehberdeki (DirectoryEntry) "Ahmet Yılmaz" kaydıyla eşleşiyor.
+
         if (personnelRepository.findByEmail("admin@pbs.com").isEmpty()) {
             Personnel personnel = Personnel.builder()
                     .firstName("Ahmet")
@@ -324,5 +334,49 @@ public class DataInitializer {
                     .build();
             personnelRepository.save(personnel);
         }
+    }
+
+    private static final long HIERARCHY_DIRECTOR_USER_ID = 9001L;
+
+    private void initializePersonnelHierarchy(PersonnelHierarchyRepository personnelHierarchyRepository) {
+        if (personnelHierarchyRepository.existsByUserId(HIERARCHY_DIRECTOR_USER_ID)) {
+            return;
+        }
+
+        PersonnelHierarchy director = new PersonnelHierarchy();
+        director.setUserId(HIERARCHY_DIRECTOR_USER_ID);
+        director.setPersonnelName("Erkan");
+        director.setPersonnelSurname("DİLAVEROĞLU");
+        director.setPersonnelJobTitle("Enstitü Müdürü");
+        personnelHierarchyRepository.save(director);
+
+        createHierarchySubordinate(personnelHierarchyRepository, director, 9002L,
+                "Osman", "DÖNER", "Yazılım Geliştirme Teknolojileri EMY");
+        createHierarchySubordinate(personnelHierarchyRepository, director, 9003L,
+                "Ufuk Veysel", "DEDEOĞLU", "Dijital Dönüşüm Çözümleri EMY");
+        createHierarchySubordinate(personnelHierarchyRepository, director, 9004L,
+                "Sabriye", "KAYA", "Tesis Yönetimi");
+        createHierarchySubordinate(personnelHierarchyRepository, director, 9005L,
+                "Şali", "YILDIRIM", "Kalite ve Strateji Yönetimi");
+        createHierarchySubordinate(personnelHierarchyRepository, director, 9006L,
+                "Ad", "Soyad", "İş Geliştirme ve Sözleşme Yönetimi");
+        createHierarchySubordinate(personnelHierarchyRepository, director, 9007L,
+                "Ad", "Soyad", "PYO");
+    }
+
+    private void createHierarchySubordinate(
+            PersonnelHierarchyRepository personnelHierarchyRepository,
+            PersonnelHierarchy superior,
+            Long userId,
+            String name,
+            String surname,
+            String jobTitle) {
+        PersonnelHierarchy subordinate = new PersonnelHierarchy();
+        subordinate.setUserId(userId);
+        subordinate.setPersonnelName(name);
+        subordinate.setPersonnelSurname(surname);
+        subordinate.setPersonnelJobTitle(jobTitle);
+        subordinate.setSuperiorPersonnel(superior);
+        personnelHierarchyRepository.save(subordinate);
     }
 }
