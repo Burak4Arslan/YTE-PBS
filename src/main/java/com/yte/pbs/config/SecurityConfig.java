@@ -46,32 +46,38 @@ public class SecurityConfig {
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 http
-                                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-                                .csrf(csrf -> csrf
-                                                .ignoringRequestMatchers("/api/auth/login", "/api/auth/logout", "/api/personnel")
-                                                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                                                .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()))
+                        .csrf(csrf -> csrf
+                                .ignoringRequestMatchers("/api/auth/login", "/api/auth/logout", "/api/personnel")
+                                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                                .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()))
 
-                                .sessionManagement(session -> session
-                                                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                        .sessionManagement(session -> session
+                                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
 
-                                .authorizeHttpRequests(auth -> auth
-                                                // /api/auth/me yalnızca giriş yapmış kullanıcılar erişebilsin
-                                                .requestMatchers("/api/auth/me").authenticated()
-                                                // Ortak İzinler (Giriş ve Rehber Sayfası)
-                                                .requestMatchers("/api/auth/**").permitAll()
-                                                .requestMatchers("/api/directory").permitAll()
+                        .authorizeHttpRequests(auth -> auth
+                                .requestMatchers("/api/auth/me").authenticated()
 
-                                                // Senin Eklediğin İzinler (Haberler ve Etkinlikler)
-                                                .requestMatchers("/api/news/**").permitAll()
-                                                .requestMatchers("/api/events/**").permitAll()
+                                .requestMatchers("/api/auth/**", "/api/auth/login").permitAll()
+                                .requestMatchers("/api/directory").permitAll() // Rehber
+                                .requestMatchers("/api/news/**").permitAll()    // Haberler
+                                .requestMatchers("/api/events/**").permitAll()  // Etkinlikler
 
-                                                .anyRequest().authenticated())
+                                // Admin özel
+                                .requestMatchers("/api/authorities/**").hasAuthority("ADMIN")
+                                .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
+                                .requestMatchers("/api/reports/**").hasAuthority("ADMIN")
+                                .requestMatchers("/api/panel/**").hasAuthority("ADMIN")
 
-                                .addFilterAfter(
-                                                new CsrfCookieFilter(),
-                                                BasicAuthenticationFilter.class);
+                                // Admin + personel
+                                .requestMatchers("/api/personnel/**").hasAnyAuthority("ADMIN", "EMPLOYEE", "MANAGER", "HR")
+
+                                .anyRequest().authenticated())
+
+                        .addFilterAfter(
+                                new CsrfCookieFilter(),
+                                BasicAuthenticationFilter.class);
 
                 return http.build();
         }

@@ -81,7 +81,7 @@ public class DataInitializer {
             String lastName,
             String email,
             Authority authority) {
-        User user = userRepository.findByEmail(email).orElseGet(User::new);
+        User user = userRepository.findByUsername(username).orElseGet(User::new);
         if (user.getId() == null) {
             user.setUsername(username);
             user.setFirstName(firstName);
