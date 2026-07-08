@@ -1,7 +1,10 @@
 package com.yte.pbs.controller;
 
 import com.yte.pbs.dto.LoginRequest;
+import com.yte.pbs.entity.User;
+import com.yte.pbs.repository.UserRepository;
 import com.yte.pbs.security.CustomUserDetails;
+import com.yte.pbs.service.AttendanceRecordService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,6 +31,8 @@ import java.util.stream.Collectors;
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
+    private final AttendanceRecordService attendanceRecordService;
+    private final UserRepository userRepository;
 
     private final SecurityContextRepository securityContextRepository =
             new HttpSessionSecurityContextRepository();
@@ -51,6 +56,11 @@ public class AuthController {
                     SecurityContextHolder.createEmptyContext();
 
             securityContext.setAuthentication(authentication);
+
+            if (authentication.getPrincipal() instanceof CustomUserDetails userDetails) {
+                attendanceRecordService.recordLogin(userDetails.getUser());
+            }
+
             SecurityContextHolder.setContext(securityContext);
 
             securityContextRepository.saveContext(
@@ -70,6 +80,10 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request) throws ServletException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        resolveAuthenticatedUser(authentication).ifPresent(attendanceRecordService::recordLogout);
+
         request.logout();
         return ResponseEntity.ok("Logout successful.");
     }
@@ -93,5 +107,18 @@ public class AuthController {
                 "username", username,
                 "roles", roles
         ));
+    }
+
+    private java.util.Optional<User> resolveAuthenticatedUser(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()
+                || "anonymousUser".equals(authentication.getPrincipal())) {
+            return java.util.Optional.empty();
+        }
+
+        if (authentication.getPrincipal() instanceof CustomUserDetails userDetails) {
+            return java.util.Optional.of(userDetails.getUser());
+        }
+
+        return userRepository.findByUsernameOrEmail(authentication.getName(), authentication.getName());
     }
 }

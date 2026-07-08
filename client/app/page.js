@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import axiosInstance from "./api/axiosInstance";
 import { Grid, Card, CardContent, Typography, Avatar, Box, CircularProgress } from "@mui/material";
+import AttendanceCard from "./personel/components/AttendanceCard";
 
 // .env dosyasındaki URL'yi alıyoruz, yoksa yedeği kullanıyoruz
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
@@ -216,6 +217,10 @@ export default function Home() {
                             )}
                         </CardContent>
                     </Card>
+                </Grid>
+
+                <Grid size={{ xs: 12, md: 3 }} sx={{ ml: { md: 'auto' } }}>
+                    <AttendanceCard />
                 </Grid>
 
             </Grid>

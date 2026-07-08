@@ -1,10 +1,12 @@
 package com.yte.pbs.config;
 
 import com.yte.pbs.entity.Authority;
+import com.yte.pbs.entity.AttendanceRecord;
 import com.yte.pbs.entity.DirectoryEntry;
 import com.yte.pbs.entity.User;
 import com.yte.pbs.entity.Experience;
 import com.yte.pbs.entity.Contribution;
+import com.yte.pbs.repository.AttendanceRecordRepository;
 import com.yte.pbs.repository.AuthorityRepository;
 import com.yte.pbs.repository.DirectoryEntryRepository;
 import com.yte.pbs.repository.UserRepository;
@@ -16,6 +18,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Configuration
 public class DataInitializer {
@@ -27,6 +30,7 @@ public class DataInitializer {
             DirectoryEntryRepository directoryEntryRepository,
             ExperienceRepository experienceRepository,
             ContributionRepository contributionRepository,
+            AttendanceRecordRepository attendanceRecordRepository,
             PasswordEncoder passwordEncoder) {
         return args -> {
             Authority adminAuthority = findOrCreateAuthority(
@@ -36,7 +40,7 @@ public class DataInitializer {
             Authority employeeAuthority = findOrCreateAuthority(
                     authorityRepository, "EMPLOYEE", "Employee");
 
-            findOrCreateUser(
+            User adminUser = findOrCreateUser(
                     userRepository,
                     passwordEncoder,
                     "admin",
@@ -54,6 +58,7 @@ public class DataInitializer {
                     "cenk.celil@tubitak.gov.tr",
                     employeeAuthority);
 
+            initializeAttendanceRecords(adminUser, cenkUser, attendanceRecordRepository);
             initializeExperiencesAndContributions(cenkUser, experienceRepository, contributionRepository);
 
             initializeDirectoryEntries(directoryEntryRepository);
@@ -136,6 +141,48 @@ public class DataInitializer {
             con2.setUserId(user.getId());
             contributionRepository.save(con2);
         }
+    }
+
+    private void initializeAttendanceRecords(
+            User adminUser,
+            User cenkUser,
+            AttendanceRecordRepository attendanceRecordRepository) {
+
+        if (attendanceRecordRepository.findByUserIdOrderByAttendanceDateDescCheckInTimeDescIdDesc(adminUser.getId()).isEmpty()) {
+            saveAttendanceRecord(attendanceRecordRepository, adminUser,
+                    LocalDate.of(2023, 5, 15), LocalTime.of(9, 0), LocalTime.of(18, 0));
+            saveAttendanceRecord(attendanceRecordRepository, adminUser,
+                    LocalDate.of(2023, 5, 16), LocalTime.of(9, 10), LocalTime.of(18, 5));
+            saveAttendanceRecord(attendanceRecordRepository, adminUser,
+                    LocalDate.now().minusDays(1), LocalTime.of(9, 0), LocalTime.of(18, 0));
+        }
+
+        if (attendanceRecordRepository.findByUserIdOrderByAttendanceDateDescCheckInTimeDescIdDesc(cenkUser.getId()).isEmpty()) {
+            saveAttendanceRecord(attendanceRecordRepository, cenkUser,
+                    LocalDate.of(2023, 5, 15), LocalTime.of(8, 30), LocalTime.of(17, 30));
+            saveAttendanceRecord(attendanceRecordRepository, cenkUser,
+                    LocalDate.of(2023, 5, 16), LocalTime.of(8, 45), LocalTime.of(17, 40));
+            saveAttendanceRecord(attendanceRecordRepository, cenkUser,
+                    LocalDate.of(2023, 5, 17), LocalTime.of(8, 25), LocalTime.of(17, 20));
+            saveAttendanceRecord(attendanceRecordRepository, cenkUser,
+                    LocalDate.now().minusDays(1), LocalTime.of(8, 35), LocalTime.of(17, 35));
+            saveAttendanceRecord(attendanceRecordRepository, cenkUser,
+                    LocalDate.now().minusDays(2), LocalTime.of(8, 40), LocalTime.of(17, 30));
+        }
+    }
+
+    private void saveAttendanceRecord(
+            AttendanceRecordRepository attendanceRecordRepository,
+            User user,
+            LocalDate attendanceDate,
+            LocalTime checkInTime,
+            LocalTime checkOutTime) {
+        AttendanceRecord attendanceRecord = new AttendanceRecord();
+        attendanceRecord.setUser(user);
+        attendanceRecord.setAttendanceDate(attendanceDate);
+        attendanceRecord.setCheckInTime(checkInTime);
+        attendanceRecord.setCheckOutTime(checkOutTime);
+        attendanceRecordRepository.save(attendanceRecord);
     }
 
     private void initializeDirectoryEntries(DirectoryEntryRepository directoryEntryRepository) {

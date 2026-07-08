@@ -96,3 +96,8 @@ export async function deleteContribution(contributionId) {
     await axiosInstance.delete(`/api/contributions/${contributionId}`);
 }
 
+export async function getMyAttendanceRecords(range = 'week') {
+    const { data } = await axiosInstance.get('/api/attendance/me', { params: { range } });
+    return data;
+}
+
