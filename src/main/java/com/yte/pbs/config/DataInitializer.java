@@ -211,6 +211,7 @@ public class DataInitializer {
                 "Sunucu Yönetimi", "İnfrastruktur", "ibrahim.tunc@yte.org", "0532 111 2240"));
     }
 
+
     private void initializeEducations(
             User user,
             EducationRepository educationRepository) {
