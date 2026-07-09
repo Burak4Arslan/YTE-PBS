@@ -18,8 +18,10 @@ import {
     getPersonnelDirectoryEntry,
     getPersonnelInfo,
     getEducations,
+    getPersonnelProjects,
+    getExperiences,
+    getContributions,
 } from '../../personel/services/personnelDetailService';
-import axiosInstance from '../../api/axiosInstance';
 
 const formatDate = (value) => value ? new Intl.DateTimeFormat('tr-TR').format(new Date(`${value}T00:00:00`)) : 'Devam Ediyor';
 const fmtDate = (value) => value ? new Intl.DateTimeFormat('tr-TR').format(new Date(`${value}T00:00:00`)) : '—';
@@ -40,25 +42,9 @@ export default function RehberDetayModal({ personelId, isOpen, onClose }) {
     useEffect(() => {
         if (!isOpen || !personelId) return;
 
-        // Dahil olunan projeler (bu bölüm tamamlandı, dokunulmuyor)
         setLoading(true);
         setProjectsLoading(true);
         setProjectsError('');
-
-        axiosInstance
-            .get(`/api/user-projects/${personelId}`)
-            .then(async (response) => {
-            const data = response.data || [];
-            setProjects(data);
-                setLoading(false);
-            })
-            .catch((err) => {
-                console.error(err);
-                setLoading(false);
-            })
-            .finally(() => {
-                setProjectsLoading(false);
-            });
 
         let isMounted = true;
         setDetailsLoading(true);
@@ -72,7 +58,9 @@ export default function RehberDetayModal({ personelId, isOpen, onClose }) {
                 console.error(err);
                 if (isMounted) {
                     setDetailsError('Personel bilgisi bulunamadı.');
+                    setLoading(false);
                     setDetailsLoading(false);
+                    setProjectsLoading(false);
                 }
                 return;
             }
@@ -80,19 +68,23 @@ export default function RehberDetayModal({ personelId, isOpen, onClose }) {
             if (!isMounted) return;
             setUser(entry);
 
-            const [personnelRes, educationRes, experienceRes, contributionRes] = await Promise.allSettled([
+            const [projectsRes, personnelRes, educationRes, experienceRes, contributionRes] = await Promise.allSettled([
+                getPersonnelProjects(entry.email),
                 getPersonnelInfo(entry.email),
                 getEducations(entry.email),
-                axiosInstance.get(`/api/experiences/user/${personelId}`).then((r) => r.data),
-                axiosInstance.get(`/api/contributions/user/${personelId}`).then((r) => r.data),
+                getExperiences(entry.email),
+                getContributions(entry.email),
             ]);
             if (!isMounted) return;
 
+            setProjects(projectsRes.status === 'fulfilled' ? (projectsRes.value || []) : []);
             setPersonnel(personnelRes.status === 'fulfilled' ? (personnelRes.value || null) : null);
             setEducations(educationRes.status === 'fulfilled' ? (educationRes.value || []) : []);
             setExperiences(experienceRes.status === 'fulfilled' ? (experienceRes.value || []) : []);
             setContributions(contributionRes.status === 'fulfilled' ? (contributionRes.value || []) : []);
+            setLoading(false);
             setDetailsLoading(false);
+            setProjectsLoading(false);
         })();
 
         return () => {

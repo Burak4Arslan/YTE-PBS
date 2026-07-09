@@ -46,7 +46,24 @@ const cardSx = {
     overflow: 'hidden'
 };
 
-export default function PersonalCorporateInfo() {
+function splitFullName(fullName = '') {
+    const parts = String(fullName).trim().split(/\s+/).filter(Boolean);
+
+    if (parts.length === 0) {
+        return { firstName: '', lastName: '' };
+    }
+
+    if (parts.length === 1) {
+        return { firstName: parts[0], lastName: '' };
+    }
+
+    return {
+        firstName: parts.slice(0, -1).join(' '),
+        lastName: parts.at(-1)
+    };
+}
+
+export default function PersonalCorporateInfo({ email = '', readOnly = false }) {
     const [saving, setSaving] = useState(false);
     const { register, handleSubmit, reset, control } = useForm({
         defaultValues: {
@@ -88,6 +105,59 @@ export default function PersonalCorporateInfo() {
 
         const loadProfile = async () => {
             try {
+                if (readOnly && !email) {
+                    reset();
+                    return;
+                }
+
+                if (readOnly) {
+                    const [{ data: directory }, personnelResponse] = await Promise.all([
+                        api.get('/api/directory'),
+                        api.get('/api/personnel', { params: { email } })
+                    ]);
+
+                    if (ignore) {
+                        return;
+                    }
+
+                    const directoryEntry = directory.find(
+                        (entry) => entry.email?.toLowerCase() === email.toLowerCase()
+                    );
+                    const personnel = personnelResponse.data || {};
+                    const nameParts = splitFullName(directoryEntry?.fullName);
+
+                    reset({
+                        firstName: personnel.firstName || nameParts.firstName,
+                        lastName: personnel.lastName || nameParts.lastName,
+                        nationalIdentityNumber: personnel.tcIdentityNumber || '',
+                        gender: personnel.gender || '',
+                        academicTitle: personnel.academicTitle || '',
+                        email: personnel.email || directoryEntry?.email || email,
+                        birthDate: personnel.birthDate || '',
+                        bloodType: personnel.bloodType || '',
+                        phoneNumber: personnel.phoneNumber || directoryEntry?.phoneNumber || '',
+                        vehiclePlate: personnel.licensePlate || '',
+                        emergencyContactName: personnel.emergencyContactPerson || '',
+                        emergencyContactPhone: personnel.emergencyContactPhone || '',
+                        residentialAddress: personnel.residentialAddress || '',
+                        employmentStartDate: personnel.hireDate || '',
+                        registrationNumber: personnel.registrationNumber || '',
+                        cadre: personnel.cadre || '',
+                        title: personnel.title || directoryEntry?.title || '',
+                        unit: personnel.department || directoryEntry?.unit || '',
+                        currentProject: personnel.projectWorkedOn || directoryEntry?.project || '',
+                        duty: personnel.duty || directoryEntry?.duty || '',
+                        personnelType: personnel.personnelType || '',
+                        workType: personnel.workType || '',
+                        workStatus: personnel.workStatus || '',
+                        usesShuttleService: personnel.shuttleUsage || '',
+                        internalPhoneNumber: personnel.extensionNumber || '',
+                        roomNumber: personnel.roomNumber || '',
+                        profileImageUrl: personnel.photoUrl || ''
+                    });
+                    return;
+                }
+
                 const { data } = await api.get('/api/personel/hakkımda');
 
                 if (ignore) {
@@ -111,9 +181,13 @@ export default function PersonalCorporateInfo() {
         return () => {
             ignore = true;
         };
-    }, [reset]);
+    }, [email, readOnly, reset]);
 
     const onSubmit = async (data) => {
+        if (readOnly) {
+            return;
+        }
+
         setSaving(true);
         try {
             await api.put('/api/personel/hakkımda', {
@@ -142,6 +216,10 @@ export default function PersonalCorporateInfo() {
             onSubmit={handleSubmit(onSubmit)}
             sx={{ width: '100%' }}
         >
+            <fieldset
+                disabled={readOnly || saving}
+                style={{ border: 0, margin: 0, minWidth: 0, padding: 0 }}
+            >
             <Grid container spacing={2}>
                 <Grid size={{ xs: 12, md: 6 }}>
                     <Card sx={cardSx}>
@@ -577,12 +655,15 @@ export default function PersonalCorporateInfo() {
                     </Card>
                 </Grid>
             </Grid>
+            </fieldset>
 
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
-                <Button type="submit" variant="contained" disabled={saving}>
-                    Kaydet
-                </Button>
-            </Box>
+            {!readOnly && (
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
+                    <Button type="submit" variant="contained" disabled={saving}>
+                        Kaydet
+                    </Button>
+                </Box>
+            )}
 
         </Box>
     );

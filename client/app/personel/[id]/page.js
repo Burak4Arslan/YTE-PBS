@@ -142,7 +142,7 @@ export default function PersonnelDetailPage() {
                 }}
             >
                 <Stack spacing={2}>
-                    <PersonalCorporateInfo />
+                    <PersonalCorporateInfo email={email} readOnly />
                     <PersonnelFiles email={email} />
                     <PersonnelProjectsSection projects={projects} loading={loading} error={error} />
                     <PersonnelExperienceSection experiences={experiences} loading={loading} error={error} saving={saving} onSave={handleExperienceSave} onDelete={handleExperienceDelete} />
