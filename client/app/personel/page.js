@@ -82,21 +82,21 @@ export default function PersonelPage() {
             const payload = {
                 ...filters
             };
-            // Map the searchName to something the backend might support, 
+            // Map the searchName to something the backend might support,
             // the DTO doesn't explicitly have 'name' but we can pass it if supported
-            // If there's no name search in DTO, we might just filter on frontend 
+            // If there's no name search in DTO, we might just filter on frontend
             // or backend might need an update later. We send it as is for now.
             const { data } = await axiosInstance.post('/api/personnel/search', payload);
             let results = data || [];
-            
+
             // Client side name filter as fallback in case backend DTO doesn't support 'name'
             if (searchName.trim()) {
                 const searchLower = searchName.toLowerCase();
-                results = results.filter(p => 
+                results = results.filter(p =>
                     (p.firstName + ' ' + p.lastName).toLowerCase().includes(searchLower)
                 );
             }
-            
+
             setPersonnelList(results);
         } catch (error) {
             console.error("Personeller getirilemedi", error);
@@ -123,10 +123,10 @@ export default function PersonelPage() {
 
     return (
         <Box sx={{ maxWidth: '1400px', margin: '0 auto', mt: 4, px: 3 }}>
-            
+
             {/* Filters Row */}
             <Box sx={{ display: 'flex', gap: 1.5, mb: 4, flexWrap: 'wrap', alignItems: 'center' }}>
-                <TextField 
+                <TextField
                     size="small"
                     placeholder="İsim Soyisim"
                     value={searchName}
@@ -162,12 +162,12 @@ export default function PersonelPage() {
                     </FormControl>
                 ))}
 
-                <Button 
-                    variant="contained" 
+                <Button
+                    variant="contained"
                     onClick={fetchPersonnel}
-                    sx={{ 
-                        bgcolor: '#000', 
-                        color: '#fff', 
+                    sx={{
+                        bgcolor: '#000',
+                        color: '#fff',
                         '&:hover': { bgcolor: '#333' },
                         borderRadius: '20px',
                         px: 3,
@@ -179,12 +179,12 @@ export default function PersonelPage() {
                     SORGULA
                 </Button>
 
-                <Button 
-                    variant="contained" 
+                <Button
+                    variant="contained"
                     onClick={() => router.push('/personel/ekle')}
-                    sx={{ 
-                        bgcolor: '#000', 
-                        color: '#fff', 
+                    sx={{
+                        bgcolor: '#000',
+                        color: '#fff',
                         '&:hover': { bgcolor: '#333' },
                         borderRadius: '20px',
                         px: 3,
@@ -218,11 +218,11 @@ export default function PersonelPage() {
                                 </TableCell>
                             </TableRow>
                         ) : personnelList.map((row) => (
-                            <TableRow 
-                                key={row.id} 
-                                hover 
+                            <TableRow
+                                key={row.id}
+                                hover
                                 onClick={() => handleRowClick(row.id)}
-                                sx={{ 
+                                sx={{
                                     cursor: 'pointer',
                                     '&:last-child td, &:last-child th': { borderBottom: '2px solid #000' }
                                 }}
