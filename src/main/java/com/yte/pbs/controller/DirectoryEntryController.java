@@ -4,10 +4,8 @@ import com.yte.pbs.entity.DirectoryEntry;
 import com.yte.pbs.repository.DirectoryEntryRepository;
 import com.yte.pbs.repository.specification.DirectoryEntrySpecification;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -19,6 +17,13 @@ public class DirectoryEntryController {
 
     public DirectoryEntryController(DirectoryEntryRepository directoryEntryRepository) {
         this.directoryEntryRepository = directoryEntryRepository;
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<DirectoryEntry> getEntryById(@PathVariable Long id) {
+        return directoryEntryRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping

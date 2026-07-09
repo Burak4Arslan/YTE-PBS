@@ -58,6 +58,11 @@ function mapContributionToApi(contribution) {
     };
 }
 
+export async function getPersonnelDirectoryEntryById(personnelId) {
+    const { data } = await axiosInstance.get(`/api/directory/${personnelId}`);
+    return data;
+}
+
 export async function getPersonnelEmail(personnelId) {
     const { data } = await axiosInstance.get('/api/directory');
     const personnel = data.find((entry) => String(entry.id) === String(personnelId));

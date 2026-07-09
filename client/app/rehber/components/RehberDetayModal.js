@@ -42,13 +42,20 @@ export default function RehberDetayModal({ personelId, isOpen, onClose }) {
     useEffect(() => {
         if (!isOpen || !personelId) return;
 
+        setUser(null);
+        setPersonnel(null);
+        setProjects([]);
+        setEducations([]);
+        setExperiences([]);
+        setContributions([]);
+
         setLoading(true);
         setProjectsLoading(true);
         setProjectsError('');
-
-        let isMounted = true;
         setDetailsLoading(true);
         setDetailsError('');
+
+        let isMounted = true;
 
         (async () => {
             let entry;
