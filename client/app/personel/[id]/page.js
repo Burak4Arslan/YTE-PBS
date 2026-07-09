@@ -10,27 +10,11 @@ import PersonnelProjectsSection from '../components/PersonnelProjectsSection';
 import PersonnelEducationSection from '../components/PersonnelEducationSection';
 import PersonnelExperienceSection from '../components/PersonnelExperienceSection';
 import PersonnelContributionsSection from '../components/PersonnelContributionsSection';
-import {
-    createEducation,
-    deleteEducation,
-    getEducations,
-    getPersonnelEmail,
-    getPersonnelProjects,
-    updateEducation,
-    getExperiences,
-    createExperience,
-    updateExperience,
-    deleteExperience,
-    getContributions,
-    createContribution,
-    updateContribution,
-    deleteContribution
-} from '../services/personnelDetailService';
+import { createEducation, deleteEducation, getEducations, getPersonnelEmail, getPersonnelProjects, updateEducation, getExperiences, createExperience, updateExperience, deleteExperience, getContributions, createContribution, updateContribution, deleteContribution } from '../services/personnelDetailService';
 
 export default function PersonnelDetailPage() {
     const params = useParams();
-    const userId = params.id; // Next.js dynamic routing parameter [id]
-
+    const userId = params.id;
     const [email, setEmail] = useState('');
     const [educations, setEducations] = useState([]);
     const [projects, setProjects] = useState([]);
@@ -41,22 +25,13 @@ export default function PersonnelDetailPage() {
     const [error, setError] = useState('');
 
     const loadDetails = useCallback(async () => {
-        if (!userId) return;
-
         setLoading(true);
         setError('');
         try {
-            // 1. Resolve the email from directory entries via the user ID
             const resolvedEmail = await getPersonnelEmail(userId);
             setEmail(resolvedEmail);
 
-            // 2. Fetch all related details in parallel using that email string
-            const [educationData, projectData, experienceData, contributionData] = await Promise.all([
-                getEducations(resolvedEmail),
-                getPersonnelProjects(resolvedEmail),
-                getExperiences(resolvedEmail),
-                getContributions(resolvedEmail)
-            ]);
+            const [educationData, projectData, experienceData, contributionData] = await Promise.all([getEducations(resolvedEmail), getPersonnelProjects(resolvedEmail), getExperiences(resolvedEmail), getContributions(resolvedEmail)]);
 
             setEducations(educationData);
             setProjects(projectData);
@@ -70,10 +45,7 @@ export default function PersonnelDetailPage() {
         }
     }, [userId]);
 
-    // Single unified useEffect initialization hook
-    useEffect(() => {
-        loadDetails();
-    }, [loadDetails]);
+    useEffect(() => { queueMicrotask(loadDetails); }, [loadDetails]);
 
     const handleSave = async (values, educationId) => {
         setSaving(true);
@@ -155,8 +127,22 @@ export default function PersonnelDetailPage() {
     };
 
     return (
-        <Box sx={{ minHeight: '100vh', backgroundColor: '#f5f5f5', py: 2 }}>
-            <Container maxWidth={false} sx={{ px: { xs: 2, md: 3 } }}>
+        <Box
+            sx={{
+                minHeight: '100vh',
+                backgroundColor: '#f5f5f5',
+                py: 2
+            }}
+        >
+            <Container
+                maxWidth={false}
+                sx={{
+                    px: {
+                        xs: 2,
+                        md: 3
+                    }
+                }}
+            >
                 <Stack spacing={2}>
                     <PersonalCorporateInfo email={email} readOnly />
                     <PersonnelFiles email={email} />

@@ -57,11 +57,11 @@ public class DataInitializer {
 
             initializeAttendanceRecords(adminUser, cenkUser, attendanceRecordRepository);
             initializeExperiencesAndContributions(cenkUser, experienceRepository, contributionRepository);
-
             initializeEducations(cenkUser, educationRepository);
-
-            initializeDirectoryEntries(directoryEntryRepository);
             initializeUserProjects(cenkUser, projectRepository, userProjectRepository);
+
+            //General
+            initializeDirectoryEntries(directoryEntryRepository);
             initializePersonnel(personnelRepository);
             initializePersonnelHierarchy(personnelHierarchyRepository);
         };
