@@ -42,4 +42,11 @@ public class PersonnelService {
     public Optional<Personnel> getByEmail(String email) {
         return personnelRepository.findByEmail(email);
     }
+
+    public List<String> getDistinctTitles() { return personnelRepository.findDistinctTitles(); }
+    public List<String> getDistinctDuties() { return personnelRepository.findDistinctDuties(); }
+    public List<String> getDistinctDepartments() { return personnelRepository.findDistinctDepartments(); }
+    public List<String> getDistinctProjects() { return personnelRepository.findDistinctProjects(); }
+    public List<String> getDistinctTeams() { return personnelRepository.findDistinctTeams(); }
+    public List<String> getDistinctContributions() { return personnelRepository.findDistinctContributions(); }
 }

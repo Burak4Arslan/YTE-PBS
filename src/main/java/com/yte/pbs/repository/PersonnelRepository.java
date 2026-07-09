@@ -28,4 +28,10 @@ public interface PersonnelRepository extends JpaRepository<Personnel, Long>, Jpa
 
     @Query("SELECT DISTINCT p.projectWorkedOn FROM Personnel p WHERE p.projectWorkedOn IS NOT NULL")
     List<String> findDistinctProjects();
+
+    @Query("SELECT DISTINCT p.team FROM Personnel p WHERE p.team IS NOT NULL")
+    List<String> findDistinctTeams();
+
+    @Query("SELECT DISTINCT p.contribution FROM Personnel p WHERE p.contribution IS NOT NULL")
+    List<String> findDistinctContributions();
 }

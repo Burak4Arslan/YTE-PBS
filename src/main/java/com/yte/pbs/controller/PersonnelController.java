@@ -56,4 +56,22 @@ public class PersonnelController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.noContent().build());
     }
+
+    @GetMapping("/options/titles")
+    public ResponseEntity<List<String>> getTitles() { return ResponseEntity.ok(personnelService.getDistinctTitles()); }
+    
+    @GetMapping("/options/duties")
+    public ResponseEntity<List<String>> getDuties() { return ResponseEntity.ok(personnelService.getDistinctDuties()); }
+
+    @GetMapping("/options/departments")
+    public ResponseEntity<List<String>> getDepartments() { return ResponseEntity.ok(personnelService.getDistinctDepartments()); }
+
+    @GetMapping("/options/projects")
+    public ResponseEntity<List<String>> getProjects() { return ResponseEntity.ok(personnelService.getDistinctProjects()); }
+
+    @GetMapping("/options/teams")
+    public ResponseEntity<List<String>> getTeams() { return ResponseEntity.ok(personnelService.getDistinctTeams()); }
+
+    @GetMapping("/options/contributions")
+    public ResponseEntity<List<String>> getContributions() { return ResponseEntity.ok(personnelService.getDistinctContributions()); }
 }

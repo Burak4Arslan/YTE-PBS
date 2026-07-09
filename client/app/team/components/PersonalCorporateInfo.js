@@ -11,9 +11,22 @@ import {
     CardContent,
     Grid,
     MenuItem,
-    TextField,
+    TextField as MuiTextField,
     Typography
 } from '@mui/material';
+
+const TextField = (props) => (
+    <MuiTextField 
+        {...props} 
+        slotProps={{
+            ...props.slotProps,
+            inputLabel: {
+                shrink: true,
+                ...props.slotProps?.inputLabel
+            }
+        }} 
+    />
+);
 import {
     BadgeOutlined,
     PersonOutlined
