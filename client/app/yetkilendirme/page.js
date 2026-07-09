@@ -24,23 +24,23 @@ import { toast } from 'react-toastify';
 
 const ROLES = ['Standart Kullanıcı', 'Yetkili Kullanıcı', 'Süper Kullanıcı', 'Admin'];
 
-// Mock initial data based on the screenshot
-const initialUsers = [
-    { id: 1, name: 'Cemre Çelik', roles: ['Standart Kullanıcı'] },
-    { id: 2, name: 'Çağatay Yamak', roles: ['Standart Kullanıcı', 'Yetkili Kullanıcı'] },
-    { id: 3, name: 'Ufuk Veysel Dedeoğlu', roles: ['Standart Kullanıcı', 'Yetkili Kullanıcı', 'Süper Kullanıcı'] },
-    { id: 4, name: 'Elif Martel', roles: ['Standart Kullanıcı', 'Yetkili Kullanıcı', 'Süper Kullanıcı', 'Admin'] }
-];
-
 export default function YetkilendirmePage() {
     const [isEditing, setIsEditing] = useState(false);
-    const [users, setUsers] = useState(initialUsers);
+    const [users, setUsers] = useState([]);
     const [newUserSearch, setNewUserSearch] = useState('');
 
-    // If there is an actual endpoint to fetch users and their roles, we would call it here.
-    // useEffect(() => {
-    //     axiosInstance.get('/api/users/roles').then(res => setUsers(res.data));
-    // }, []);
+    useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                const response = await axiosInstance.get('/api/yetkilendirme');
+                setUsers(response.data || []);
+            } catch (error) {
+                console.error("Yetkiler alınamadı", error);
+                toast.error("Yetkiler alınırken bir hata oluştu");
+            }
+        };
+        fetchUsers();
+    }, []);
 
     const handleEditClick = () => {
         setIsEditing(true);
