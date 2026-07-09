@@ -2,23 +2,66 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Alert, Box, CircularProgress } from '@mui/material';
+import { useRouter } from 'next/navigation';
+import { Alert, Box, CircularProgress, Typography } from '@mui/material';
 import PersonnelNode from './PersonnelNode';
-import { buildPersonnelHierarchyTree, fetchPersonnelHierarchy } from '../services/organizasyonSemasiService';
+import {
+    buildPersonnelHierarchyTree,
+    fetchDirectoryIdByFullName,
+    fetchPersonnelHierarchy
+} from '../services/organizasyonSemasiService';
 
 const STEM_WIDTH = 28;
 
-function HierarchyBranch({ node }) {
+function HierarchyBranch({ node, parentDepartment }) {
+    const router = useRouter();
     const hasChildren = node.children.length > 0;
+    const showDepartmentLabel = Boolean(node.department) && node.department !== parentDepartment;
+    const isClickable = Boolean(node.directoryEntryId);
+
+    const handleClick = () => {
+        if (isClickable) router.push(`/rehber?personelId=${node.directoryEntryId}`);
+    };
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-            <PersonnelNode
-                personnelName={node.personnelName}
-                personnelSurname={node.personnelSurname}
-                personnelJobTitle={node.personnelJobTitle}
-                avatarUrl={node.avatarUrl}
-            />
+            <Box sx={{ position: 'relative' }}>
+                {showDepartmentLabel && (
+                    <Typography
+                        variant="caption"
+                        color="primary.main"
+                        fontWeight={700}
+                        sx={{
+                            position: 'absolute',
+                            bottom: '100%',
+                            left: 0,
+                            right: 0,
+                            textAlign: 'center',
+                            whiteSpace: 'nowrap',
+                            textTransform: 'uppercase',
+                            letterSpacing: 0.5,
+                            mb: 0.5
+                        }}
+                    >
+                        {node.department}
+                    </Typography>
+                )}
+                <Box
+                    onClick={handleClick}
+                    sx={{
+                        cursor: isClickable ? 'pointer' : 'default',
+                        transition: 'opacity 0.15s ease',
+                        '&:hover': isClickable ? { opacity: 0.8 } : undefined
+                    }}
+                >
+                    <PersonnelNode
+                        personnelName={node.personnelName}
+                        personnelSurname={node.personnelSurname}
+                        personnelJobTitle={node.personnelJobTitle}
+                        avatarUrl={node.avatarUrl}
+                    />
+                </Box>
+            </Box>
             {hasChildren && (
                 <>
                     <Box sx={{ width: STEM_WIDTH, height: '2px', bgcolor: 'divider', flexShrink: 0 }} />
@@ -51,7 +94,7 @@ function HierarchyBranch({ node }) {
                                         }
                                     }}
                                 />
-                                <HierarchyBranch node={child} />
+                                <HierarchyBranch node={child} parentDepartment={node.department} />
                             </Box>
                         ))}
                     </Box>
@@ -68,9 +111,18 @@ export default function PersonnelSectionCard() {
 
     useEffect(() => {
         let active = true;
-        fetchPersonnelHierarchy()
-            .then((personnelList) => {
-                if (active) setRoots(buildPersonnelHierarchyTree(personnelList));
+        Promise.all([fetchPersonnelHierarchy(), fetchDirectoryIdByFullName()])
+            .then(([personnelList, directoryIdByFullName]) => {
+                if (!active) return;
+                const enriched = personnelList.map((person) => {
+                    const fullName = [person.personnelName, person.personnelSurname]
+                        .filter(Boolean)
+                        .join(' ')
+                        .trim()
+                        .toLowerCase();
+                    return { ...person, directoryEntryId: directoryIdByFullName.get(fullName) ?? null };
+                });
+                setRoots(buildPersonnelHierarchyTree(enriched));
             })
             .catch(() => {
                 if (active) setError('Organizasyon şeması yüklenirken bir hata oluştu.');

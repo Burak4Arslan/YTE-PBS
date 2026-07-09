@@ -30,6 +30,9 @@ public class PersonnelHierarchy extends BaseEntity {
     @Column(name = "personnel_job_title", nullable = false)
     private String personnelJobTitle;
 
+    @Column(name = "department")
+    private String department;
+
     @ManyToOne
     @JoinColumn(name = "superior_personnel_id")
     private PersonnelHierarchy superiorPersonnel;

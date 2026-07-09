@@ -8,5 +8,6 @@ PersonnelHierarchyDto(
          String personnelName,
          String personnelSurname,
          String personnelJobTitle,
+         String department,
          Long superiorPersonnelId
 ){}

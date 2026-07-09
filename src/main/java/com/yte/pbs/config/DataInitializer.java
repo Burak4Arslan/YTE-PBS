@@ -334,6 +334,75 @@ public class DataInitializer {
                     .build();
             personnelRepository.save(personnel);
         }
+
+        // Rehber ve organizasyon şemasında görünen diğer kişilerin admin
+        // Personel listesinde de tutarlı biçimde görünmesi için personnel
+        // tablosuna karşılık gelen kayıtlarını ekliyoruz.
+        createPersonnelIfAbsent(personnelRepository, "Fatima", "Demir", "10000000202",
+                "fatima.demir@yte.org", "Kadın", LocalDate.of(2023, 6, 1), "PBS-0002", "Mühendis",
+                "Mühendis", "Tam Zamanlı", "Ofis", "Aktif", "Yazılım Geliştirme", "Frontend Geliştirme",
+                "PBS", "0532 111 2234", LocalDate.of(1997, 3, 22));
+        createPersonnelIfAbsent(personnelRepository, "Mehmet", "Kaya", "10000000203",
+                "mehmet.kaya@yte.org", "Erkek", LocalDate.of(2022, 2, 14), "PBS-0003", "Mühendis",
+                "Sistem Yöneticisi", "Tam Zamanlı", "Ofis", "Aktif", "Sistem Yönetimi", "Veritabanı Yönetimi",
+                "İnfrastruktur", "0532 111 2235", LocalDate.of(1990, 11, 8));
+        createPersonnelIfAbsent(personnelRepository, "Ayşe", "Şimşek", "10000000204",
+                "ayse.simsek@yte.org", "Kadın", LocalDate.of(2019, 9, 1), "PBS-0004", "İdari Personel",
+                "Müdür", "Tam Zamanlı", "Ofis", "Aktif", "Yönetim", "Proje Yönetimi",
+                "PBS", "0532 111 2236", LocalDate.of(1985, 4, 30));
+        createPersonnelIfAbsent(personnelRepository, "Elif", "Özkan", "10000000205",
+                "elif.ozkan@yte.org", "Kadın", LocalDate.of(2023, 1, 16), "PBS-0005", "Mühendis",
+                "Test Mühendisi", "Tam Zamanlı", "Ofis", "Aktif", "QA", "Kalite Kontrol",
+                "PBS", "0532 111 2237", LocalDate.of(1998, 7, 19));
+        createPersonnelIfAbsent(personnelRepository, "Cem", "Aydın", "10000000206",
+                "cem.aydin@yte.org", "Erkek", LocalDate.of(2023, 8, 21), "PBS-0006", "Mühendis",
+                "Mühendis", "Tam Zamanlı", "Ofis", "Aktif", "Yazılım Geliştirme", "API Geliştirme",
+                "PBS", "0532 111 2238", LocalDate.of(1999, 1, 5));
+        createPersonnelIfAbsent(personnelRepository, "Zeynep", "Koç", "10000000207",
+                "zeynep.koc@yte.org", "Kadın", LocalDate.of(2022, 11, 3), "PBS-0007", "Mühendis",
+                "Tasarımcı", "Tam Zamanlı", "Ofis", "Aktif", "UI/UX", "Arayüz Tasarımı",
+                "PBS", "0532 111 2239", LocalDate.of(1996, 9, 14));
+        createPersonnelIfAbsent(personnelRepository, "İbrahim", "Tunç", "10000000208",
+                "ibrahim.tunc@yte.org", "Erkek", LocalDate.of(2021, 5, 10), "PBS-0008", "Mühendis",
+                "Mühendis", "Tam Zamanlı", "Ofis", "Aktif", "DevOps", "Sunucu Yönetimi",
+                "İnfrastruktur", "0532 111 2240", LocalDate.of(1993, 12, 2));
+        createPersonnelIfAbsent(personnelRepository, "Cenk", "Çelik", "10000000209",
+                "cenk.celil@tubitak.gov.tr", "Erkek", LocalDate.of(2024, 3, 4), "PBS-0009", "Mühendis",
+                "Uzman Araştırmacı", "Tam Zamanlı", "Ofis", "Aktif", "Yazılım Geliştirme", "Ransomware Analiz Modülü",
+                "PBS", "0532 111 2241", LocalDate.of(1994, 6, 25));
+    }
+
+    private void createPersonnelIfAbsent(
+            PersonnelRepository personnelRepository,
+            String firstName, String lastName, String tcIdentityNumber,
+            String email, String gender, LocalDate hireDate, String registrationNumber, String cadre,
+            String title, String personnelType, String workType, String workStatus,
+            String department, String duty, String projectWorkedOn, String phoneNumber, LocalDate birthDate) {
+
+        if (personnelRepository.findByEmail(email).isPresent()) {
+            return;
+        }
+
+        Personnel personnel = Personnel.builder()
+                .firstName(firstName)
+                .lastName(lastName)
+                .tcIdentityNumber(tcIdentityNumber)
+                .email(email)
+                .gender(gender)
+                .hireDate(hireDate)
+                .registrationNumber(registrationNumber)
+                .cadre(cadre)
+                .title(title)
+                .personnelType(personnelType)
+                .workType(workType)
+                .workStatus(workStatus)
+                .department(department)
+                .duty(duty)
+                .projectWorkedOn(projectWorkedOn)
+                .phoneNumber(phoneNumber)
+                .birthDate(birthDate)
+                .build();
+        personnelRepository.save(personnel);
     }
 
     private static final long HIERARCHY_DIRECTOR_USER_ID = 9001L;
@@ -345,38 +414,45 @@ public class DataInitializer {
 
         PersonnelHierarchy director = new PersonnelHierarchy();
         director.setUserId(HIERARCHY_DIRECTOR_USER_ID);
-        director.setPersonnelName("Erkan");
-        director.setPersonnelSurname("DİLAVEROĞLU");
-        director.setPersonnelJobTitle("Enstitü Müdürü");
+        director.setPersonnelName("Ayşe");
+        director.setPersonnelSurname("Şimşek");
+        director.setPersonnelJobTitle("Müdür (Yönetim / Proje Yönetimi)");
         personnelHierarchyRepository.save(director);
 
-        createHierarchySubordinate(personnelHierarchyRepository, director, 9002L,
-                "Osman", "DÖNER", "Yazılım Geliştirme Teknolojileri EMY");
-        createHierarchySubordinate(personnelHierarchyRepository, director, 9003L,
-                "Ufuk Veysel", "DEDEOĞLU", "Dijital Dönüşüm Çözümleri EMY");
-        createHierarchySubordinate(personnelHierarchyRepository, director, 9004L,
-                "Sabriye", "KAYA", "Tesis Yönetimi");
-        createHierarchySubordinate(personnelHierarchyRepository, director, 9005L,
-                "Şali", "YILDIRIM", "Kalite ve Strateji Yönetimi");
+        PersonnelHierarchy yazilimGelistirmeLead = createHierarchySubordinate(personnelHierarchyRepository, director, 9002L,
+                "Ahmet", "Yılmaz", "Kıdemli Mühendis (Backend)", "Yazılım Geliştirme");
+        createHierarchySubordinate(personnelHierarchyRepository, yazilimGelistirmeLead, 9003L,
+                "Fatima", "Demir", "Mühendis (Frontend)", "Yazılım Geliştirme");
+        createHierarchySubordinate(personnelHierarchyRepository, yazilimGelistirmeLead, 9004L,
+                "Cem", "Aydın", "Mühendis (API Geliştirme)", "Yazılım Geliştirme");
+        createHierarchySubordinate(personnelHierarchyRepository, yazilimGelistirmeLead, 9005L,
+                "Cenk", "Çelik", "Uzman Araştırmacı (Ransomware Analiz Modülü)", "Yazılım Geliştirme");
+
         createHierarchySubordinate(personnelHierarchyRepository, director, 9006L,
-                "Ad", "Soyad", "İş Geliştirme ve Sözleşme Yönetimi");
+                "Mehmet", "Kaya", "Sistem Yöneticisi (Veritabanı Yönetimi / İnfrastruktur)", "Sistem Yönetimi");
         createHierarchySubordinate(personnelHierarchyRepository, director, 9007L,
-                "Ad", "Soyad", "PYO");
+                "Elif", "Özkan", "Test Mühendisi (Kalite Kontrol)", "QA");
+        createHierarchySubordinate(personnelHierarchyRepository, director, 9008L,
+                "Zeynep", "Koç", "Tasarımcı (Arayüz Tasarımı)", "UI/UX");
+        createHierarchySubordinate(personnelHierarchyRepository, director, 9009L,
+                "İbrahim", "Tunç", "Mühendis (Sunucu Yönetimi / İnfrastruktur)", "DevOps");
     }
 
-    private void createHierarchySubordinate(
+    private PersonnelHierarchy createHierarchySubordinate(
             PersonnelHierarchyRepository personnelHierarchyRepository,
             PersonnelHierarchy superior,
             Long userId,
             String name,
             String surname,
-            String jobTitle) {
+            String jobTitle,
+            String department) {
         PersonnelHierarchy subordinate = new PersonnelHierarchy();
         subordinate.setUserId(userId);
         subordinate.setPersonnelName(name);
         subordinate.setPersonnelSurname(surname);
         subordinate.setPersonnelJobTitle(jobTitle);
+        subordinate.setDepartment(department);
         subordinate.setSuperiorPersonnel(superior);
-        personnelHierarchyRepository.save(subordinate);
+        return personnelHierarchyRepository.save(subordinate);
     }
 }

@@ -33,6 +33,7 @@ public class PersonnelHierarchyService {
                 entity.getPersonnelName(),
                 entity.getPersonnelSurname(),
                 entity.getPersonnelJobTitle(),
+                entity.getDepartment(),
                 superior != null ? superior.getId() : null
         );
     }

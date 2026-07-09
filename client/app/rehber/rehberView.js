@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Box, Paper, Typography, IconButton, Alert } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import OpenInFullIcon from "@mui/icons-material/OpenInFull";
@@ -16,14 +16,17 @@ import RehberDetayModal from "./components/RehberDetayModal";
 
 export default function RehberView() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const [rows, setRows] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [filters, setFilters] = useState({});
     const [options, setOptions] = useState({ unvan: [], gorev: [], birim: [], proje: [] });
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedPersonelId, setSelectedPersonelId] = useState(null);
+    // Organizasyon şemasından "/rehber?personelId=..." ile gelindiğinde
+    // ilgili kişinin detay modalı sayfa ilk yüklendiğinde otomatik açılır.
+    const [isModalOpen, setIsModalOpen] = useState(() => Boolean(searchParams.get('personelId')));
+    const [selectedPersonelId, setSelectedPersonelId] = useState(() => searchParams.get('personelId'));
 
     // Sayfa ilk açıldığında backend'den veriyi çek ve seçenekleri yükle.
     useEffect(() => {
