@@ -247,7 +247,7 @@ export default function MyTeamPage() {
                         />
                     </Grid>
 
-                    <Grid size={{ xs: 12, md: 7 }}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                         <Stack spacing={2}>
                             <EmployeeSummaryCard
                                 directoryEntry={selectedDirectoryEntry}
@@ -260,7 +260,7 @@ export default function MyTeamPage() {
                         </Stack>
                     </Grid>
 
-                    <Grid size={{ xs: 12, md: 2 }}>
+                    <Grid size={{ xs: 12, md: 3 }}>
                         <AttendanceCard email={selectedEmail} />
                     </Grid>
                 </Grid>

@@ -102,6 +102,7 @@ export default function RehberDetayModal({ personelId, isOpen, onClose }) {
 
     return (
         <Dialog
+            disableScrollLock
             open={isOpen}
             onClose={onClose}
             maxWidth="md"

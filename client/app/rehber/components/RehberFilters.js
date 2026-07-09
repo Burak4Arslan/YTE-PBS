@@ -47,7 +47,11 @@ export default function RehberFilters({ filters, options, onFilterChange, onSear
                         displayEmpty
                         value={filters[field.key] || ""}
                         onChange={(e) => onFilterChange(field.key, e.target.value)}
+                        MenuProps={{
+                            disableScrollLock: true,
+                        }}
                     >
+
                         <MenuItem value="">{field.label}</MenuItem>
                         {options && options[field.key] && options[field.key].map((opt) => (
                             <MenuItem key={opt} value={opt}>
