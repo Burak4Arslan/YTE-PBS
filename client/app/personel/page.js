@@ -108,8 +108,19 @@ export default function PersonelPage() {
         setFilters({ ...filters, [field]: event.target.value });
     };
 
-    const handleRowClick = (id) => {
-        router.push(`/personel/${id}`);
+    const handleRowClick = async (row) => {
+        try {
+            const { data } = await axiosInstance.get('/api/directory');
+            const entry = data.find(e => e.email === row.email);
+            if (entry) {
+                router.push(`/personel/${entry.id}`);
+            } else {
+                toast.error("Personelin rehber kaydı bulunamadı.");
+            }
+        } catch (error) {
+            console.error("Rehber kaydı kontrol edilirken hata oluştu", error);
+            toast.error("Personel detayına gidilirken bir hata oluştu.");
+        }
     };
 
     const filterLabels = [
@@ -218,11 +229,11 @@ export default function PersonelPage() {
                                 </TableCell>
                             </TableRow>
                         ) : personnelList.map((row) => (
-                            <TableRow
-                                key={row.id}
-                                hover
-                                onClick={() => handleRowClick(row.id)}
-                                sx={{
+                            <TableRow 
+                                key={row.id} 
+                                hover 
+                                onClick={() => handleRowClick(row)}
+                                sx={{ 
                                     cursor: 'pointer',
                                     '&:last-child td, &:last-child th': { borderBottom: '2px solid #000' }
                                 }}
