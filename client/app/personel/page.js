@@ -73,8 +73,12 @@ export default function PersonelPage() {
                 console.error("Filtre seçenekleri alınamadı", error);
             }
         };
+
         fetchOptions();
-        fetchPersonnel(); // Initial load
+    }, []);
+
+    useEffect(() => {
+        fetchPersonnel();
     }, []);
 
     const fetchPersonnel = async () => {
