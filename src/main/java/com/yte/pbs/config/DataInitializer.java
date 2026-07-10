@@ -192,34 +192,41 @@ public class DataInitializer {
     }
 
     private void initializeDirectoryEntries(DirectoryEntryRepository directoryEntryRepository) {
-        directoryEntryRepository.deleteAll();
-        directoryEntryRepository.save(new DirectoryEntry(
-                "Ahmet Yılmaz", "Yazılım Geliştirme", "Kıdemli Mühendis",
-                "Backend Geliştirme", "PBS", "admin@pbs.com", "0532 111 2233"));
-        directoryEntryRepository.save(new DirectoryEntry(
-                "Fatima Demir", "Yazılım Geliştirme", "Mühendis",
-                "Frontend Geliştirme", "PBS", "fatima.demir@yte.org", "0532 111 2234"));
-        directoryEntryRepository.save(new DirectoryEntry(
-                "Mehmet Kaya", "Sistem Yönetimi", "Sistem Yöneticisi",
-                "Veritabanı Yönetimi", "İnfrastruktur", "mehmet.kaya@yte.org", "0532 111 2235"));
-        directoryEntryRepository.save(new DirectoryEntry(
-                "Ayşe Şimşek", "Yönetim", "Müdür",
-                "Proje Yönetimi", "PBS", "ayse.simsek@yte.org", "0532 111 2236"));
-        directoryEntryRepository.save(new DirectoryEntry(
-                "Elif Özkan", "QA", "Test Mühendisi",
-                "Kalite Kontrol", "PBS", "elif.ozkan@yte.org", "0532 111 2237"));
-        directoryEntryRepository.save(new DirectoryEntry(
-                "Cem Aydın", "Yazılım Geliştirme", "Mühendis",
-                "API Geliştirme", "PBS", "cem.aydin@yte.org", "0532 111 2238"));
-        directoryEntryRepository.save(new DirectoryEntry(
-                "Zeynep Koç", "UI/UX", "Tasarımcı",
-                "Arayüz Tasarımı", "PBS", "zeynep.koc@yte.org", "0532 111 2239"));
-        directoryEntryRepository.save(new DirectoryEntry(
-                "İbrahim Tunç", "DevOps", "Mühendis",
-                "Sunucu Yönetimi", "İnfrastruktur", "ibrahim.tunc@yte.org", "0532 111 2240"));
-        directoryEntryRepository.save(new DirectoryEntry(
-                "Cenk Çelik", "Yazılım Geliştirme", "Uzman Araştırmacı",
-                "Ransomware Analiz Modülü", "PBS", "cenk.celil@tubitak.gov.tr", "0532 111 2241"));
+        // NOT: Burada eskiden koşulsuz bir deleteAll() vardı; bu, uygulama her
+        // yeniden başlatıldığında admin panelinden eklenen gerçek personelin
+        // rehber kayıtlarını da siliyordu. Diğer seed metodlarında olduğu gibi
+        // artık her kayıt yalnızca daha önce yoksa ekleniyor.
+        createDirectoryEntryIfAbsent(directoryEntryRepository, "Ahmet Yılmaz", "Yazılım Geliştirme", "Kıdemli Mühendis",
+                "Backend Geliştirme", "PBS", "admin@pbs.com", "0532 111 2233");
+        createDirectoryEntryIfAbsent(directoryEntryRepository, "Fatima Demir", "Yazılım Geliştirme", "Mühendis",
+                "Frontend Geliştirme", "PBS", "fatima.demir@yte.org", "0532 111 2234");
+        createDirectoryEntryIfAbsent(directoryEntryRepository, "Mehmet Kaya", "Sistem Yönetimi", "Sistem Yöneticisi",
+                "Veritabanı Yönetimi", "İnfrastruktur", "mehmet.kaya@yte.org", "0532 111 2235");
+        createDirectoryEntryIfAbsent(directoryEntryRepository, "Ayşe Şimşek", "Yönetim", "Müdür",
+                "Proje Yönetimi", "PBS", "ayse.simsek@yte.org", "0532 111 2236");
+        createDirectoryEntryIfAbsent(directoryEntryRepository, "Elif Özkan", "QA", "Test Mühendisi",
+                "Kalite Kontrol", "PBS", "elif.ozkan@yte.org", "0532 111 2237");
+        createDirectoryEntryIfAbsent(directoryEntryRepository, "Cem Aydın", "Yazılım Geliştirme", "Mühendis",
+                "API Geliştirme", "PBS", "cem.aydin@yte.org", "0532 111 2238");
+        createDirectoryEntryIfAbsent(directoryEntryRepository, "Zeynep Koç", "UI/UX", "Tasarımcı",
+                "Arayüz Tasarımı", "PBS", "zeynep.koc@yte.org", "0532 111 2239");
+        createDirectoryEntryIfAbsent(directoryEntryRepository, "İbrahim Tunç", "DevOps", "Mühendis",
+                "Sunucu Yönetimi", "İnfrastruktur", "ibrahim.tunc@yte.org", "0532 111 2240");
+        createDirectoryEntryIfAbsent(directoryEntryRepository, "Cenk Çelik", "Yazılım Geliştirme", "Uzman Araştırmacı",
+                "Ransomware Analiz Modülü", "PBS", "cenk.celil@tubitak.gov.tr", "0532 111 2241");
+        // Admin panelinden eklendiği sırada rehber kaydı oluşturulamamış (eski
+        // deleteAll() tarafından silinmiş) personelin kaydını geri ekliyoruz.
+        createDirectoryEntryIfAbsent(directoryEntryRepository, "Elif Yildiz", "Yazılım Geliştirme", "Mühendis",
+                "Backend Geliştirme", "PBS", "elif.yildiz@tubitak.yte.org", null);
+    }
+
+    private void createDirectoryEntryIfAbsent(
+            DirectoryEntryRepository directoryEntryRepository,
+            String fullName, String unit, String title, String duty, String project, String email, String phoneNumber) {
+        if (directoryEntryRepository.findByEmail(email).isPresent()) {
+            return;
+        }
+        directoryEntryRepository.save(new DirectoryEntry(fullName, unit, title, duty, project, email, phoneNumber));
     }
 
 

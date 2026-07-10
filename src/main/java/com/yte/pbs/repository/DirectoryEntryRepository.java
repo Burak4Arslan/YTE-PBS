@@ -2,6 +2,7 @@ package com.yte.pbs.repository;
 
 import com.yte.pbs.entity.DirectoryEntry;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -9,6 +10,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DirectoryEntryRepository extends JpaRepository<DirectoryEntry, Long>, JpaSpecificationExecutor<DirectoryEntry> {
+
+    Optional<DirectoryEntry> findByEmail(String email);
 
     @Query("SELECT DISTINCT d.title FROM DirectoryEntry d WHERE d.title IS NOT NULL")
     List<String> findDistinctTitles();
