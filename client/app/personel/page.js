@@ -126,7 +126,9 @@ export default function PersonelPage() {
             toast.error("Personel detayına gidilirken bir hata oluştu.");
         }
     };
-
+    const menuProps = {
+        disableScrollLock: true,
+    };
     const filterLabels = [
         { key: 'title', label: 'Unvan' },
         { key: 'duty', label: 'Görev' },
@@ -164,6 +166,7 @@ export default function PersonelPage() {
                             value={filters[key]}
                             onChange={handleFilterChange(key)}
                             displayEmpty
+                            MenuProps={menuProps}
                             sx={{ borderRadius: '20px', bgcolor: '#fff', height: '40px', color: filters[key] ? 'inherit' : '#aaa' }}
                         >
                             <MenuItem value="" disabled sx={{ display: 'none' }}>

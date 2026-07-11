@@ -132,7 +132,6 @@ export default function PersonnelAddPage() {
             </Box>
         );
     }
-
     return (
         <Box sx={{ maxWidth: 1200, mx: 'auto', py: 4, px: 3 }}>
             <Box
@@ -173,7 +172,7 @@ export default function PersonnelAddPage() {
                             <TextField fullWidth size="small" name="email" type="email" value={formData.email} onChange={handleChange} sx={inputSx} />
                         </FormRow>
                         <FormRow label="Cinsiyet" required>
-                            <Select fullWidth size="small" name="gender" value={formData.gender} onChange={handleSelectChange('gender')} displayEmpty sx={selectSx}>
+                            <Select fullWidth size="small" name="gender" value={formData.gender} onChange={handleSelectChange('gender')} displayEmpty sx={selectSx} MenuProps={{ disableScrollLock: true }}>
                                 <MenuItem value="" disabled><em>Seçiniz</em></MenuItem>
                                 <MenuItem value="Erkek">Erkek</MenuItem>
                                 <MenuItem value="Kadın">Kadın</MenuItem>
@@ -193,35 +192,35 @@ export default function PersonnelAddPage() {
                             <TextField fullWidth size="small" name="registrationNumber" value={formData.registrationNumber} onChange={handleChange} sx={inputSx} />
                         </FormRow>
                         <FormRow label="Kadro" required>
-                            <Select fullWidth size="small" value={formData.cadre} onChange={handleSelectChange('cadre')} displayEmpty sx={selectSx}>
+                            <Select fullWidth size="small" value={formData.cadre} onChange={handleSelectChange('cadre')} displayEmpty sx={selectSx} MenuProps={{ disableScrollLock: true }}>
                                 <MenuItem value="" disabled><em>Seçiniz</em></MenuItem>
                                 <MenuItem value="Mühendis">Mühendis</MenuItem>
                                 <MenuItem value="İdari Personel">İdari Personel</MenuItem>
                             </Select>
                         </FormRow>
                         <FormRow label="Unvan" required>
-                            <Select fullWidth size="small" value={formData.title} onChange={handleSelectChange('title')} displayEmpty sx={selectSx}>
+                            <Select fullWidth size="small" value={formData.title} onChange={handleSelectChange('title')} displayEmpty sx={selectSx} MenuProps={{ disableScrollLock: true }}>
                                 <MenuItem value="" disabled><em>Seçiniz</em></MenuItem>
                                 <MenuItem value="Aday Mühendis">Aday Mühendis</MenuItem>
                                 <MenuItem value="Uzman Mühendis">Uzman Mühendis</MenuItem>
                             </Select>
                         </FormRow>
                         <FormRow label="Personel Türü" required>
-                            <Select fullWidth size="small" value={formData.personnelType} onChange={handleSelectChange('personnelType')} displayEmpty sx={selectSx}>
+                            <Select fullWidth size="small" value={formData.personnelType} onChange={handleSelectChange('personnelType')} displayEmpty sx={selectSx} MenuProps={{ disableScrollLock: true }}>
                                 <MenuItem value="" disabled><em>Seçiniz</em></MenuItem>
                                 <MenuItem value="Tam Zamanlı">Tam Zamanlı</MenuItem>
                                 <MenuItem value="Stajyer">Stajyer</MenuItem>
                             </Select>
                         </FormRow>
                         <FormRow label="Çalışma Türü" required>
-                            <Select fullWidth size="small" value={formData.workType} onChange={handleSelectChange('workType')} displayEmpty sx={selectSx}>
+                            <Select fullWidth size="small" value={formData.workType} onChange={handleSelectChange('workType')} displayEmpty sx={selectSx} MenuProps={{ disableScrollLock: true }}>
                                 <MenuItem value="" disabled><em>Seçiniz</em></MenuItem>
                                 <MenuItem value="Ofis">Ofis</MenuItem>
                                 <MenuItem value="Uzaktan">Uzaktan</MenuItem>
                             </Select>
                         </FormRow>
                         <FormRow label="Çalışma Durumu" required>
-                            <Select fullWidth size="small" value={formData.workStatus} onChange={handleSelectChange('workStatus')} displayEmpty sx={selectSx}>
+                            <Select fullWidth size="small" value={formData.workStatus} onChange={handleSelectChange('workStatus')} displayEmpty sx={selectSx} MenuProps={{ disableScrollLock: true }}>
                                 <MenuItem value="" disabled><em>Seçiniz</em></MenuItem>
                                 <MenuItem value="Aktif">Aktif</MenuItem>
                                 <MenuItem value="İzinli">İzinli</MenuItem>
@@ -232,7 +231,7 @@ export default function PersonnelAddPage() {
 
                         {/* Bölüm 3: Birim / Görev */}
                         <FormRow label="Birim" required>
-                            <Select fullWidth size="small" value={formData.department} onChange={handleSelectChange('department')} displayEmpty sx={selectSx}>
+                            <Select fullWidth size="small" value={formData.department} onChange={handleSelectChange('department')} displayEmpty sx={selectSx} MenuProps={{ disableScrollLock: true }}>
                                 <MenuItem value="" disabled><em>Seçiniz</em></MenuItem>
                                 <MenuItem value="Yazılım Geliştirme">Yazılım Geliştirme</MenuItem>
                                 <MenuItem value="Sistem Yönetimi">Sistem Yönetimi</MenuItem>
@@ -243,7 +242,7 @@ export default function PersonnelAddPage() {
                             </Select>
                         </FormRow>
                         <FormRow label="Görevi" required>
-                            <Select fullWidth size="small" value={formData.duty} onChange={handleSelectChange('duty')} displayEmpty sx={selectSx}>
+                            <Select fullWidth size="small" value={formData.duty} onChange={handleSelectChange('duty')} displayEmpty sx={selectSx} MenuProps={{ disableScrollLock: true }}>
                                 <MenuItem value="" disabled><em>Seçiniz</em></MenuItem>
                                 <MenuItem value="Backend Geliştirme">Backend Geliştirme</MenuItem>
                                 <MenuItem value="Frontend Geliştirme">Frontend Geliştirme</MenuItem>
@@ -259,7 +258,7 @@ export default function PersonnelAddPage() {
                             <TextField fullWidth size="small" name="team" value={formData.team} onChange={handleChange} sx={inputSx} />
                         </FormRow>
                         <FormRow label="Çalışılan Proje">
-                            <Select fullWidth size="small" value={formData.projectWorkedOn} onChange={handleSelectChange('projectWorkedOn')} displayEmpty sx={selectSx}>
+                            <Select fullWidth size="small" value={formData.projectWorkedOn} onChange={handleSelectChange('projectWorkedOn')} displayEmpty sx={selectSx} MenuProps={{ disableScrollLock: true }}>
                                 <MenuItem value="" disabled><em>Seçiniz</em></MenuItem>
                                 <MenuItem value="PBS">PBS</MenuItem>
                                 <MenuItem value="İnfrastruktur">İnfrastruktur</MenuItem>
@@ -269,7 +268,7 @@ export default function PersonnelAddPage() {
                             <TextField fullWidth size="small" name="mentor" value={formData.mentor} onChange={handleChange} sx={inputSx} />
                         </FormRow>
                         <FormRow label="Servis Kullanımı">
-                            <Select fullWidth size="small" value={formData.shuttleUsage} onChange={handleSelectChange('shuttleUsage')} displayEmpty sx={selectSx}>
+                            <Select fullWidth size="small" value={formData.shuttleUsage} onChange={handleSelectChange('shuttleUsage')} displayEmpty sx={selectSx} MenuProps={{ disableScrollLock: true }}>
                                 <MenuItem value="" disabled><em>Seçiniz</em></MenuItem>
                                 <MenuItem value="Evet">Evet</MenuItem>
                                 <MenuItem value="Hayır">Hayır</MenuItem>
@@ -318,7 +317,7 @@ export default function PersonnelAddPage() {
                             <TextField fullWidth size="small" name="licensePlate" value={formData.licensePlate} onChange={handleChange} sx={inputSx} />
                         </FormRow>
                         <FormRow label="Kan Grubu">
-                            <Select fullWidth size="small" value={formData.bloodType} onChange={handleSelectChange('bloodType')} displayEmpty sx={selectSx}>
+                            <Select fullWidth size="small" value={formData.bloodType} onChange={handleSelectChange('bloodType')} displayEmpty sx={selectSx} MenuProps={{ disableScrollLock: true }}>
                                 <MenuItem value="" disabled><em>Seçiniz</em></MenuItem>
                                 <MenuItem value="A+">A Rh(+)</MenuItem>
                                 <MenuItem value="A-">A Rh(-)</MenuItem>

@@ -23,7 +23,7 @@ export default function ContributionsDrawer({ open, contribution, loading, onClo
     }, [contribution, open, reset]);
 
     return (
-        <Drawer anchor="right" open={open} onClose={loading ? undefined : onClose}>
+        <Drawer anchor="right" open={open} onClose={loading ? undefined : onClose} disableScrollLock>
             <Box component="form" onSubmit={handleSubmit(onSave)} sx={{ width: { xs: '100vw', sm: 520 }, p: 3 }}>
                 <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
                     <Typography variant="h6" fontWeight={700}>{contribution ? 'Katkıyı Düzenle' : 'Katkı Ekle'}</Typography>
