@@ -268,10 +268,11 @@ export default function PersonnelFiles({ email, department = '-' }) {
 
                     <Button
                         variant="contained"
+                        color="success"
+                        size="small"
                         startIcon={<Add />}
                         onClick={() => setDrawerOpen(true)}
                         sx={{
-                            minWidth: 100,
                             boxShadow: 'none',
                             fontWeight: 700,
                             '&:hover': {

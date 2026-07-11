@@ -246,6 +246,7 @@ export default function ReportsPage() {
           slotProps={{
             basePagination: {
               material: {
+                labelRowsPerPage: 'Sayfa başına satır:',
                 slotProps: {
                   select: {
                     MenuProps: {

@@ -209,6 +209,7 @@ export default function RehberView() {
                 slotProps={{
                     basePagination: {
                         material: {
+                            labelRowsPerPage: 'Sayfa başına satır:',
                             slotProps: {
                                 select: {
                                     MenuProps: {
