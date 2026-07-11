@@ -65,6 +65,11 @@ export default function ReportsPage() {
   };
 
   const handleExport = async () => {
+    if (rows.length === 0) {
+      toast.warning("Excel raporu oluşturmak için önce sorgulama yapmalısınız.");
+      return;
+    }
+
     try {
       const response = await api.post('/api/personnel/export', cleanPayload(), {
         responseType: 'blob' // Important for file download
@@ -221,7 +226,13 @@ export default function ReportsPage() {
           <Button variant="outlined" startIcon={<SearchIcon />} onClick={handleSearch} disabled={loading}>
             Sorgula
           </Button>
-          <Button variant="outlined" color="success" startIcon={<FileDownloadIcon />} onClick={handleExport}>
+          <Button
+            variant="outlined"
+            color="success"
+            startIcon={<FileDownloadIcon />}
+            onClick={handleExport}
+            disabled={loading || rows.length === 0}
+          >
             Excel Raporla
           </Button>
           <Button variant="outlined" color="error" startIcon={<ClearIcon />} onClick={handleClear}>
