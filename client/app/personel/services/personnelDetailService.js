@@ -10,6 +10,28 @@ function mapExperienceFromApi(experience) {
     };
 }
 
+function mapEducationFromApi(education) {
+    return {
+        ...education,
+        institution: education.institution || education.school || '',
+        degree: education.degree || education.fieldOfStudy || '',
+        fieldOfStudy: education.fieldOfStudy || education.degree || ''
+    };
+}
+
+function mapEducationToApi(education) {
+    return {
+        id: education.id,
+        userId: education.userId,
+        educationType: education.educationType || '',
+        schoolName: education.schoolName || education.institution || '',
+        department: education.department || education.degree || '',
+        startDate: education.startDate || '',
+        graduationDate: education.graduationDate || '',
+        description: education.description || '',
+    };
+}
+
 function mapExperienceToApi(experience) {
     return {
         id: experience.id,
@@ -59,7 +81,7 @@ function mapContributionToApi(contribution) {
 }
 
 export async function getPersonnelEmail(personnelId) {
-    const { data } = await axiosInstance.get('/api/directory');
+    const {data} = await axiosInstance.get('/api/directory');
     const personnel = data.find((entry) => String(entry.id) === String(personnelId));
 
     if (!personnel?.email) throw new Error('Personel bilgisi bulunamadı.');
@@ -67,7 +89,7 @@ export async function getPersonnelEmail(personnelId) {
 }
 
 export async function getPersonnelDirectoryEntry(personnelId) {
-    const { data } = await axiosInstance.get('/api/directory');
+    const {data} = await axiosInstance.get('/api/directory');
     const personnel = data.find((entry) => String(entry.id) === String(personnelId));
 
     if (!personnel) throw new Error('Personel bilgisi bulunamadı.');
@@ -75,23 +97,23 @@ export async function getPersonnelDirectoryEntry(personnelId) {
 }
 
 export async function getPersonnelInfo(email) {
-    const { data } = await axiosInstance.get('/api/personnel', { params: { email } });
+    const {data} = await axiosInstance.get('/api/personnel', {params: {email}});
     return data || null;
 }
 
 export async function getEducations(email) {
-    const { data } = await axiosInstance.get('/api/educations', { params: { email } });
-    return data;
+    const {data} = await axiosInstance.get('/api/educations', {params: {email}});
+    return data.map(mapEducationFromApi);
 }
 
 export async function createEducation(email, education) {
-    const { data } = await axiosInstance.post('/api/educations', education, { params: { email } });
-    return data;
+    const {data} = await axiosInstance.post('/api/educations', mapEducationToApi(education), {params: {email}});
+    return mapEducationFromApi(data);
 }
 
 export async function updateEducation(educationId, education) {
-    const { data } = await axiosInstance.put(`/api/educations/${educationId}`, education);
-    return data;
+    const {data} = await axiosInstance.put(`/api/educations/${educationId}`, mapEducationToApi(education));
+    return mapEducationFromApi(data);
 }
 
 export async function deleteEducation(educationId) {
@@ -99,22 +121,22 @@ export async function deleteEducation(educationId) {
 }
 
 export async function getPersonnelProjects(email) {
-    const { data } = await axiosInstance.get('/api/user-projects', { params: { email } });
+    const {data} = await axiosInstance.get('/api/user-projects', {params: {email}});
     return data;
 }
 
 export async function getExperiences(email) {
-    const { data } = await axiosInstance.get('/api/experiences', { params: { email } });
+    const {data} = await axiosInstance.get('/api/experiences', {params: {email}});
     return data.map(mapExperienceFromApi);
 }
 
 export async function createExperience(email, experience) {
-    const { data } = await axiosInstance.post('/api/experiences', mapExperienceToApi(experience), { params: { email } });
+    const {data} = await axiosInstance.post('/api/experiences', mapExperienceToApi(experience), {params: {email}});
     return mapExperienceFromApi(data);
 }
 
 export async function updateExperience(experienceId, experience) {
-    const { data } = await axiosInstance.put(`/api/experiences/${experienceId}`, mapExperienceToApi(experience));
+    const {data} = await axiosInstance.put(`/api/experiences/${experienceId}`, mapExperienceToApi(experience));
     return mapExperienceFromApi(data);
 }
 
@@ -123,17 +145,17 @@ export async function deleteExperience(experienceId) {
 }
 
 export async function getContributions(email) {
-    const { data } = await axiosInstance.get('/api/contributions', { params: { email } });
+    const {data} = await axiosInstance.get('/api/contributions', {params: {email}});
     return data.map(mapContributionFromApi);
 }
 
 export async function createContribution(email, contribution) {
-    const { data } = await axiosInstance.post('/api/contributions', mapContributionToApi(contribution), { params: { email } });
+    const {data} = await axiosInstance.post('/api/contributions', mapContributionToApi(contribution), {params: {email}});
     return mapContributionFromApi(data);
 }
 
 export async function updateContribution(contributionId, contribution) {
-    const { data } = await axiosInstance.put(`/api/contributions/${contributionId}`, mapContributionToApi(contribution));
+    const {data} = await axiosInstance.put(`/api/contributions/${contributionId}`, mapContributionToApi(contribution));
     return mapContributionFromApi(data);
 }
 
@@ -142,12 +164,12 @@ export async function deleteContribution(contributionId) {
 }
 
 export async function getMyAttendanceRecords(range = 'week') {
-    const { data } = await axiosInstance.get('/api/attendance/me', { params: { range } });
+    const {data} = await axiosInstance.get('/api/attendance/me', {params: {range}});
     return data;
 }
 
 export async function getAttendanceRecordsByEmail(email, range = 'week') {
-    const { data } = await axiosInstance.get('/api/attendance', { params: { email, range } });
+    const {data} = await axiosInstance.get('/api/attendance', {params: {email, range}});
     return data;
 }
 

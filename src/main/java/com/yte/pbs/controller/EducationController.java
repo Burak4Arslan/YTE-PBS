@@ -47,6 +47,12 @@ public class EducationController {
     public ResponseEntity<?> updateEducation(@PathVariable Long id, @RequestBody Education educationInput) {
         return educationRepository.findById(id)
                 .map(existingEducation -> {
+                    existingEducation.setEducationType(educationInput.getEducationType());
+                    existingEducation.setSchoolName(educationInput.getSchoolName());
+                    existingEducation.setDepartment(educationInput.getDepartment());
+                    existingEducation.setStartDate(educationInput.getStartDate());
+                    existingEducation.setGraduationDate(educationInput.getGraduationDate());
+                    existingEducation.setDescription(educationInput.getDescription());
 
                     Education updatedEducation = educationRepository.save(existingEducation);
                     return ResponseEntity.ok(updatedEducation);
