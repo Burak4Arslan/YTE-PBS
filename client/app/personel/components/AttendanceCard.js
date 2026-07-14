@@ -66,6 +66,11 @@ export default function AttendanceCard({ email }) {
             size="small"
             value={range}
             onChange={(event) => setRange(event.target.value)}
+            MenuProps={{
+
+                disableScrollLock: true,
+
+            }}
             sx={{ minWidth: 150, fontSize: 13 }}
         >
             {rangeOptions.map((option) => (

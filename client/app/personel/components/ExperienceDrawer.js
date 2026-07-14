@@ -23,7 +23,7 @@ export default function ExperienceDrawer({ open, experience, loading, onClose, o
     }, [experience, open, reset]);
 
     return (
-        <Drawer anchor="right" open={open} onClose={loading ? undefined : onClose}>
+        <Drawer anchor="right" open={open} onClose={loading ? undefined : onClose} disableScrollLock>
             <Box component="form" onSubmit={handleSubmit(onSave)} sx={{ width: { xs: '100vw', sm: 520 }, p: 3 }}>
                 <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
                     <Typography variant="h6" fontWeight={700}>{experience ? 'Deneyimi Düzenle' : 'Deneyim Ekle'}</Typography>

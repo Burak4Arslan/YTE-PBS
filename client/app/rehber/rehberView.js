@@ -206,6 +206,20 @@ export default function RehberView() {
                 initialState={{
                     pagination: { paginationModel: { pageSize: 10 } },
                 }}
+                slotProps={{
+                    basePagination: {
+                        material: {
+                            labelRowsPerPage: 'Sayfa başına satır:',
+                            slotProps: {
+                                select: {
+                                    MenuProps: {
+                                        disableScrollLock: true,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                }}
                 sx={{
                     border: "none",
                     "& .MuiDataGrid-columnHeaders": {

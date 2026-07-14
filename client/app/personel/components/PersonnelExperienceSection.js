@@ -22,7 +22,7 @@ export default function PersonnelExperienceSection({ experiences = [], loading, 
 
     return (
         <>
-            <PersonnelSectionCard title="DENEYİM" icon={<BusinessCenterOutlinedIcon color="primary" fontSize="small" />} action={<Button variant="contained" color="secondary" size="small" startIcon={<AddIcon />} onClick={() => openDrawer()}>Ekle</Button>}>
+            <PersonnelSectionCard title="DENEYİM" icon={<BusinessCenterOutlinedIcon color="primary" fontSize="small" />} action={<Button variant="contained" color="success" size="small" startIcon={<AddIcon />} onClick={() => openDrawer()}>Ekle</Button>}>
                 {loading ? <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}><CircularProgress size={28} /></Box> : error ? <Alert severity="error">{error}</Alert> : (
                     <TableContainer><Table size="small" sx={{ minWidth: 1050 }}>
                         <TableHead>
