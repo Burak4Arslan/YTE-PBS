@@ -107,6 +107,9 @@ public class User extends BaseEntity {
     @Column(name = "room_number")
     private String roomNumber;
 
+    @Column(name = "personnel_id")
+    private Long personnelId;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_authorities",

@@ -27,6 +27,7 @@ public class PersonnelService {
     private final ExcelExportService excelExportService;
     private final DirectoryEntryRepository directoryEntryRepository;
     private final PersonnelHierarchyRepository personnelHierarchyRepository;
+    private final UserProvisioningService userProvisioningService;
 
     public Personnel addPersonnel(Personnel personnel) {
         // T.C. Kimlik numarası sistemde var mı kontrolü eklenebilir
@@ -36,6 +37,7 @@ public class PersonnelService {
         Personnel savedPersonnel = personnelRepository.save(personnel);
         createDirectoryEntry(savedPersonnel);
         createPersonnelHierarchyEntry(savedPersonnel);
+        userProvisioningService.provisionForPersonnel(savedPersonnel);
         return savedPersonnel;
     }
 

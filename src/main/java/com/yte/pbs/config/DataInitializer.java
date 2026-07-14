@@ -2,6 +2,7 @@ package com.yte.pbs.config;
 
 import com.yte.pbs.entity.*;
 import com.yte.pbs.repository.*;
+import com.yte.pbs.service.UserProvisioningService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,7 +27,8 @@ public class DataInitializer {
             PersonnelRepository personnelRepository,
             UserProjectRepository userProjectRepository,
             EducationRepository educationRepository,
-            PersonnelHierarchyRepository personnelHierarchyRepository) {
+            PersonnelHierarchyRepository personnelHierarchyRepository,
+            UserProvisioningService userProvisioningService) {
         return args -> {
             Authority adminAuthority = findOrCreateAuthority(
                     authorityRepository, "ADMIN", "System administrator");
@@ -62,7 +64,7 @@ public class DataInitializer {
 
             //General
             initializeDirectoryEntries(directoryEntryRepository);
-            initializePersonnel(personnelRepository);
+            initializePersonnel(personnelRepository, userProvisioningService);
             initializePersonnelHierarchy(personnelHierarchyRepository);
         };
     }
@@ -315,9 +317,11 @@ public class DataInitializer {
     }
 
 
-    private void initializePersonnel(PersonnelRepository personnelRepository) {
+    private void initializePersonnel(
+            PersonnelRepository personnelRepository, UserProvisioningService userProvisioningService) {
 
-        if (personnelRepository.findByEmail("admin@pbs.com").isEmpty()) {
+        Personnel adminPersonnel = personnelRepository.findByEmail("admin@pbs.com").orElse(null);
+        if (adminPersonnel == null) {
             Personnel personnel = Personnel.builder()
                     .firstName("Ahmet")
                     .lastName("Yılmaz")
@@ -339,41 +343,45 @@ public class DataInitializer {
                     .birthDate(LocalDate.of(1995, 5, 12))
                     .roomNumber("216")
                     .build();
-            personnelRepository.save(personnel);
+            adminPersonnel = personnelRepository.save(personnel);
         }
+        // admin ve personel (Cenk) kullanıcıları zaten üstte findOrCreateUser ile
+        // oluşturuldu; provisionForPersonnel aynı e-postayı görünce no-op yapar.
+        userProvisioningService.provisionForPersonnel(adminPersonnel);
 
         // Rehber ve organizasyon şemasında görünen diğer kişilerin admin
         // Personel listesinde de tutarlı biçimde görünmesi için personnel
-        // tablosuna karşılık gelen kayıtlarını ekliyoruz.
-        createPersonnelIfAbsent(personnelRepository, "Fatima", "Demir", "10000000202",
+        // tablosuna karşılık gelen kayıtlarını ekliyoruz. Her biri için ayrıca
+        // giriş yapabilecekleri bir kullanıcı hesabı da oluşturuluyor.
+        createPersonnelIfAbsent(personnelRepository, userProvisioningService, "Fatima", "Demir", "10000000202",
                 "fatima.demir@yte.org", "Kadın", LocalDate.of(2023, 6, 1), "PBS-0002", "Mühendis",
                 "Mühendis", "Tam Zamanlı", "Ofis", "Aktif", "Yazılım Geliştirme", "Frontend Geliştirme",
                 "PBS", "0532 111 2234", LocalDate.of(1997, 3, 22));
-        createPersonnelIfAbsent(personnelRepository, "Mehmet", "Kaya", "10000000203",
+        createPersonnelIfAbsent(personnelRepository, userProvisioningService, "Mehmet", "Kaya", "10000000203",
                 "mehmet.kaya@yte.org", "Erkek", LocalDate.of(2022, 2, 14), "PBS-0003", "Mühendis",
                 "Sistem Yöneticisi", "Tam Zamanlı", "Ofis", "Aktif", "Sistem Yönetimi", "Veritabanı Yönetimi",
                 "İnfrastruktur", "0532 111 2235", LocalDate.of(1990, 11, 8));
-        createPersonnelIfAbsent(personnelRepository, "Ayşe", "Şimşek", "10000000204",
+        createPersonnelIfAbsent(personnelRepository, userProvisioningService, "Ayşe", "Şimşek", "10000000204",
                 "ayse.simsek@yte.org", "Kadın", LocalDate.of(2019, 9, 1), "PBS-0004", "İdari Personel",
                 "Müdür", "Tam Zamanlı", "Ofis", "Aktif", "Yönetim", "Proje Yönetimi",
                 "PBS", "0532 111 2236", LocalDate.of(1985, 4, 30));
-        createPersonnelIfAbsent(personnelRepository, "Elif", "Özkan", "10000000205",
+        createPersonnelIfAbsent(personnelRepository, userProvisioningService, "Elif", "Özkan", "10000000205",
                 "elif.ozkan@yte.org", "Kadın", LocalDate.of(2023, 1, 16), "PBS-0005", "Mühendis",
                 "Test Mühendisi", "Tam Zamanlı", "Ofis", "Aktif", "QA", "Kalite Kontrol",
                 "PBS", "0532 111 2237", LocalDate.of(1998, 7, 19));
-        createPersonnelIfAbsent(personnelRepository, "Cem", "Aydın", "10000000206",
+        createPersonnelIfAbsent(personnelRepository, userProvisioningService, "Cem", "Aydın", "10000000206",
                 "cem.aydin@yte.org", "Erkek", LocalDate.of(2023, 8, 21), "PBS-0006", "Mühendis",
                 "Mühendis", "Tam Zamanlı", "Ofis", "Aktif", "Yazılım Geliştirme", "API Geliştirme",
                 "PBS", "0532 111 2238", LocalDate.of(1999, 1, 5));
-        createPersonnelIfAbsent(personnelRepository, "Zeynep", "Koç", "10000000207",
+        createPersonnelIfAbsent(personnelRepository, userProvisioningService, "Zeynep", "Koç", "10000000207",
                 "zeynep.koc@yte.org", "Kadın", LocalDate.of(2022, 11, 3), "PBS-0007", "Mühendis",
                 "Tasarımcı", "Tam Zamanlı", "Ofis", "Aktif", "UI/UX", "Arayüz Tasarımı",
                 "PBS", "0532 111 2239", LocalDate.of(1996, 9, 14));
-        createPersonnelIfAbsent(personnelRepository, "İbrahim", "Tunç", "10000000208",
+        createPersonnelIfAbsent(personnelRepository, userProvisioningService, "İbrahim", "Tunç", "10000000208",
                 "ibrahim.tunc@yte.org", "Erkek", LocalDate.of(2021, 5, 10), "PBS-0008", "Mühendis",
                 "Mühendis", "Tam Zamanlı", "Ofis", "Aktif", "DevOps", "Sunucu Yönetimi",
                 "İnfrastruktur", "0532 111 2240", LocalDate.of(1993, 12, 2));
-        createPersonnelIfAbsent(personnelRepository, "Cenk", "Çelik", "10000000209",
+        createPersonnelIfAbsent(personnelRepository, userProvisioningService, "Cenk", "Çelik", "10000000209",
                 "cenk.celil@tubitak.gov.tr", "Erkek", LocalDate.of(2024, 3, 4), "PBS-0009", "Mühendis",
                 "Uzman Araştırmacı", "Tam Zamanlı", "Ofis", "Aktif", "Yazılım Geliştirme", "Ransomware Analiz Modülü",
                 "PBS", "0532 111 2241", LocalDate.of(1994, 6, 25));
@@ -381,12 +389,15 @@ public class DataInitializer {
 
     private void createPersonnelIfAbsent(
             PersonnelRepository personnelRepository,
+            UserProvisioningService userProvisioningService,
             String firstName, String lastName, String tcIdentityNumber,
             String email, String gender, LocalDate hireDate, String registrationNumber, String cadre,
             String title, String personnelType, String workType, String workStatus,
             String department, String duty, String projectWorkedOn, String phoneNumber, LocalDate birthDate) {
 
-        if (personnelRepository.findByEmail(email).isPresent()) {
+        Personnel existing = personnelRepository.findByEmail(email).orElse(null);
+        if (existing != null) {
+            userProvisioningService.provisionForPersonnel(existing);
             return;
         }
 
@@ -409,7 +420,8 @@ public class DataInitializer {
                 .phoneNumber(phoneNumber)
                 .birthDate(birthDate)
                 .build();
-        personnelRepository.save(personnel);
+        Personnel savedPersonnel = personnelRepository.save(personnel);
+        userProvisioningService.provisionForPersonnel(savedPersonnel);
     }
 
     private static final long HIERARCHY_DIRECTOR_USER_ID = 9001L;
