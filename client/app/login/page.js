@@ -7,8 +7,6 @@ import { toast } from 'react-toastify';
 import {
     Box,
     Button,
-    Checkbox,
-    FormControlLabel,
     IconButton,
     InputAdornment,
     Paper,
@@ -22,11 +20,11 @@ export default function LoginPage() {
     const router = useRouter();
     const [formData, setFormData] = useState({
         email: '',
-        password: '',
-        rememberMe: false
+        password: ''
     });
 
     const [showPassword, setShowPassword] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleClickShowPassword = () => {
         setShowPassword((prev) => !prev);
@@ -37,19 +35,32 @@ export default function LoginPage() {
     };
 
     const handleChange = (e) => {
-        const { name, value, checked, type } = e.target;
+        const { name, value } = e.target;
         setFormData((prev) => ({
             ...prev,
-            [name]: type === 'checkbox' ? checked : value
+            [name]: value
         }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        if (isSubmitting) {
+            return;
+        }
+
+        const usernameOrEmail = formData.email.trim();
+
+        if (!usernameOrEmail || !formData.password) {
+            toast.warning('Kullanıcı adı/e-posta ve şifre alanlarını doldurun.');
+            return;
+        }
+
+        setIsSubmitting(true);
+
         try {
             const response = await api.post('/api/auth/login', {
-                usernameOrEmail: formData.email,
+                usernameOrEmail,
                 password: formData.password
             });
 
@@ -99,6 +110,8 @@ export default function LoginPage() {
                 ? 'Kullanıcı adı veya şifre hatalı! Lütfen bilgilerinizi kontrol edin. 🔑'
                 : 'Giriş başarısız! Lütfen tekrar deneyin.';
             toast.error(errorMessage);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -275,38 +288,15 @@ export default function LoginPage() {
                                 }}
                             />
 
-                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', mt: 1 }}>
-                                <FormControlLabel
-                                    control={
-                                        <Checkbox
-                                            name="rememberMe"
-                                            checked={formData.rememberMe}
-                                            onChange={handleChange}
-                                            sx={{
-                                                padding: '4px',
-                                                '&.Mui-checked': { color: '#E32619' }
-                                            }}
-                                        />
-                                    }
-                                    label="Beni Hatırla"
-                                    sx={{
-                                        '& .MuiFormControlLabel-label': { fontSize: '0.75rem', fontWeight: 500, color: '#4B5563' }
-                                    }}
-                                />
-                                <Typography
-                                    variant="body2"
-                                    component="a"
-                                    href="#"
-                                    sx={{ fontSize: '0.75rem', color: '#9CA3AF', textDecoration: 'none', '&:hover': { color: '#4B5563' } }}
-                                >
-                                    Şifremi Unuttum
-                                </Typography>
-                            </Box>
-
                             <Button
                                 type="submit"
                                 fullWidth
                                 variant="contained"
+                                disabled={
+                                    isSubmitting ||
+                                    !formData.email.trim() ||
+                                    !formData.password
+                                }
                                 sx={{
                                     mt: 4,
                                     py: 1.5,
@@ -319,7 +309,7 @@ export default function LoginPage() {
                                     '&:hover': { backgroundColor: '#c91e13', boxShadow: 'none' }
                                 }}
                             >
-                                Giriş
+                                {isSubmitting ? 'Giriş Yapılıyor...' : 'Giriş'}
                             </Button>
                         </Box>
                     </Paper>
