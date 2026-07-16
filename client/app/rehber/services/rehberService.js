@@ -2,7 +2,7 @@ import api from "../../api/axiosInstance";
 
 /**
  * Backend'deki DirectoryEntry entity'si şu alanları döndürüyor:
- * { id, fullName, unit, title, duty, project, email, phoneNumber }
+ * { id, fullName, unit, title, duty, project, email, phoneNumber, photoUrl }
  *
  * Frontend component'leri (PersonCell, GorevCell, ContactCell) ise
  * adSoyad / birim / unvan / gorevler / ePosta / telefon isimlerini bekliyor.
@@ -17,7 +17,7 @@ function mapDirectoryEntryToRehberRow(entry) {
         gorevler: [entry.duty, entry.project].filter(Boolean),
         ePosta: entry.email,
         telefon: entry.phoneNumber,
-        avatarUrl: null,
+        avatarUrl: entry.photoUrl || null,
     };
 }
 

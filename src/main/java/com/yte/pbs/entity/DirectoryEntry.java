@@ -33,6 +33,9 @@ public class DirectoryEntry extends BaseEntity {
     @Column(name = "phone_number")
     private String phoneNumber;
 
+    @Column(name = "photo_url")
+    private String photoUrl;
+
     // Boş constructor (JPA için zorunlu)
     public DirectoryEntry() {
     }

@@ -50,6 +50,7 @@ public class PersonnelService {
         entry.setProject(personnel.getProjectWorkedOn());
         entry.setEmail(personnel.getEmail());
         entry.setPhoneNumber(personnel.getPhoneNumber());
+        entry.setPhotoUrl(personnel.getPhotoUrl());
         directoryEntryRepository.save(entry);
     }
 
@@ -62,6 +63,7 @@ public class PersonnelService {
         node.setPersonnelSurname(personnel.getLastName());
         node.setPersonnelJobTitle(buildJobTitle(personnel));
         node.setDepartment(personnel.getDepartment());
+        node.setPhotoUrl(personnel.getPhotoUrl());
         node.setSuperiorPersonnel(resolveHierarchySuperior(all, personnel.getDepartment()));
         personnelHierarchyRepository.save(node);
     }

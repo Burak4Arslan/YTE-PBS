@@ -73,6 +73,7 @@ public class UserProvisioningService {
         user.setWorkType(personnel.getWorkType());
         user.setWorkStatus(personnel.getWorkStatus());
         user.setRoomNumber(personnel.getRoomNumber());
+        user.setProfileImageUrl(personnel.getPhotoUrl());
         user.setPersonnelId(personnel.getId());
         user.getAuthorities().add(employeeAuthority);
 
