@@ -15,6 +15,8 @@ public interface PersonnelRepository extends JpaRepository<Personnel, Long>, Jpa
 
     Optional<Personnel> findByEmail(String email);
 
+    Optional<Personnel> findFirstByOrderByIdDesc();
+
     // --- REHBER DROPDOWN FİLTRELERİ İÇİN DİNAMİK SORGULAR ---
 
     @Query("SELECT DISTINCT p.title FROM Personnel p WHERE p.title IS NOT NULL")

@@ -57,6 +57,13 @@ public class PersonnelController {
                 .orElse(ResponseEntity.noContent().build());
     }
 
+    @GetMapping("/latest")
+    public ResponseEntity<Personnel> getLatestPersonnel() {
+        return personnelService.getLatestPersonnel()
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.noContent().build());
+    }
+
 
     @GetMapping("/options/titles")
     public ResponseEntity<List<String>> getTitles() {

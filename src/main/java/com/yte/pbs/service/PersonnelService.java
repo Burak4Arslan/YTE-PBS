@@ -112,6 +112,10 @@ public class PersonnelService {
         return personnelRepository.findByEmail(email);
     }
 
+    public Optional<Personnel> getLatestPersonnel() {
+        return personnelRepository.findFirstByOrderByIdDesc();
+    }
+
     public List<String> getDistinctTitles() { return personnelRepository.findDistinctTitles(); }
     public List<String> getDistinctDuties() { return personnelRepository.findDistinctDuties(); }
     public List<String> getDistinctDepartments() { return personnelRepository.findDistinctDepartments(); }

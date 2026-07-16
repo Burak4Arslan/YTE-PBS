@@ -10,6 +10,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 export default function Home() {
     const [news, setNews] = useState([]);
     const [events, setEvents] = useState([]);
+    const [latestPersonnel, setLatestPersonnel] = useState(null);
     const [loading, setLoading] = useState(true);
     const [currentNewsIndex, setCurrentNewsIndex] = useState(0);
 
@@ -17,13 +18,14 @@ export default function Home() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [newsRes, eventsRes] = await Promise.all([
+                const [newsRes, eventsRes, latestPersonnelRes] = await Promise.all([
                     axiosInstance.get("/api/news"),
-                    axiosInstance.get("/api/events")
-
+                    axiosInstance.get("/api/events"),
+                    axiosInstance.get("/api/personnel/latest")
                 ]);
                 if (newsRes && newsRes.data) setNews(newsRes.data);
                 if (eventsRes && eventsRes.data) setEvents(eventsRes.data);
+                if (latestPersonnelRes && latestPersonnelRes.data) setLatestPersonnel(latestPersonnelRes.data);
             } catch (error) {
                 console.error("Veriler çekilirken hata oluştu:", error);
             } finally {
@@ -35,7 +37,6 @@ export default function Home() {
     }, []);
 
     const birthdays = events.filter(e => e.eventType === "BIRTHDAY");
-    const welcomes = events.filter(e => e.eventType === "WELCOME");
 
     const formatDate = (dateStr) => {
         if (!dateStr) return "";
@@ -190,24 +191,24 @@ export default function Home() {
                                 👤 ARAMIZA HOŞGELDİN
                             </Typography>
 
-                            {welcomes.length > 0 ? welcomes.slice(0, 1).map((person) => (
-                                <Box key={person.id}>
+                            {latestPersonnel ? (
+                                <Box key={latestPersonnel.id}>
                                     <Avatar
-                                        src={person.profileImageUrl}
+                                        src={latestPersonnel.photoUrl || undefined}
                                         sx={{ width: 70, height: 70, mx: "auto", mb: 1 }}
                                     />
                                     <Typography variant="caption" color="textSecondary" display="block">Hoşgeldin!</Typography>
                                     <Typography variant="body2" color="error" fontWeight="bold">
-                                        {person.fullName}
+                                        {[latestPersonnel.firstName, latestPersonnel.lastName].filter(Boolean).join(" ")}
                                     </Typography>
                                     <Typography variant="caption" color="textSecondary" display="block" sx={{ mt: 0.5 }}>
                                         Seninle daha güçlüyüz!
                                     </Typography>
                                     <Typography variant="body2" fontWeight="bold" sx={{ mt: 1 }}>
-                                        {formatDate(person.eventDate)}
+                                        {formatDate(latestPersonnel.hireDate)}
                                     </Typography>
                                 </Box>
-                            )) : (
+                            ) : (
                                 <Typography variant="body2" color="textSecondary">Yeni katılan personel yok.</Typography>
                             )}
                         </CardContent>
