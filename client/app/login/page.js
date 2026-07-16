@@ -55,31 +55,38 @@ export default function LoginPage() {
 
             console.log('Giriş Başarılı! Backend Cevabı:', response.data);
 
-            let userRole = null;
-            const typedInput = formData.email.trim().toLowerCase();
+            const rolePriority = ['ADMIN', 'HR', 'MANAGER', 'EMPLOYEE'];
+            const rawAuthorities = Array.isArray(response.data?.authorities)
+                ? response.data.authorities
+                : [];
 
-            if (typedInput === 'admin' || typedInput === 'admin@pbs.com') {
-                userRole = 'ADMIN';
-            } else {
-                if (response.data && response.data.authorities && Array.isArray(response.data.authorities)) {
-                    const firstAuth = response.data.authorities[0];
-                    userRole = typeof firstAuth === 'object' ? (firstAuth.authority || firstAuth.name) : firstAuth;
-                } else if (response.data && (response.data.authority || response.data.role)) {
-                    userRole = response.data.authority || response.data.role;
-                }
-            }
+            const grantedRoles = rawAuthorities
+                .map((authority) => {
+                    const value = typeof authority === 'string'
+                        ? authority
+                        : authority?.authority || authority?.name;
+
+                    if (typeof value !== 'string') {
+                        return null;
+                    }
+
+                    const normalizedValue = value.trim().toUpperCase();
+
+                    return normalizedValue.startsWith('ROLE_')
+                        ? normalizedValue.substring(5)
+                        : normalizedValue;
+                })
+                .filter((role) => rolePriority.includes(role));
+
+            const userRole = rolePriority.find((role) =>
+                grantedRoles.includes(role)
+            );
 
             if (!userRole) {
-                userRole = 'EMPLOYEE';
+                throw new Error('Giriş yanıtında geçerli kullanıcı rolü bulunamadı.');
             }
 
-            if (typeof userRole === 'string' && userRole.toUpperCase().startsWith('ROLE_')) {
-                userRole = userRole.substring(5);
-            }
-
-            userRole = userRole.toUpperCase();
-
-            console.log('Tarayıcıya (localStorage) Kesin Yazılan Rol:', userRole);
+            console.log('Tarayıcıya (localStorage) yazılan rol:', userRole);
             localStorage.setItem('user_role', userRole);
 
             router.push('/');
