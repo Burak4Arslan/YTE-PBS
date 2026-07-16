@@ -65,9 +65,9 @@ public class SecurityConfig {
                                 .requestMatchers("/api/events/**").permitAll()  // Etkinlikler
 
                                 // Admin özel
-                                .requestMatchers("/api/authorities/**").hasAuthority("ADMIN")
-                                .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
-                                .requestMatchers("/api/reports/**").hasAuthority("ADMIN")
+                                .requestMatchers("/api/authorities/**").hasRole("ADMIN")
+                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                                .requestMatchers("/api/reports/**").hasRole("ADMIN")
                                 .requestMatchers("/api/panel/**").hasRole("ADMIN")
 
                                 // Admin + personel
