@@ -1,13 +1,13 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { Box, Typography, Button } from '@mui/material';
 import LoginIcon from '@mui/icons-material/Login';
+import api from '../api/axiosInstance';
 
 export default function RoleGuard({ children, allowedRoles }) {
-    const router = useRouter();
     const [hasAccess, setHasAccess] = useState(null);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [isSwitchingAccount, setIsSwitchingAccount] = useState(false);
 
     useEffect(() => {
         const userRole = localStorage.getItem('user_role');
@@ -23,6 +23,24 @@ export default function RoleGuard({ children, allowedRoles }) {
             setHasAccess(true);
         }
     }, [allowedRoles]);
+
+    const handleLoginAction = async () => {
+        if (!isLoggedIn) {
+            window.location.replace('/login');
+            return;
+        }
+
+        setIsSwitchingAccount(true);
+
+        try {
+            await api.post('/api/auth/logout');
+            localStorage.removeItem('user_role');
+            window.location.replace('/login');
+        } catch (error) {
+            console.error('Farklı hesaba geçiş sırasında logout başarısız oldu:', error);
+            setIsSwitchingAccount(false);
+        }
+    };
 
     if (hasAccess === null) {
         return null;
@@ -56,7 +74,8 @@ export default function RoleGuard({ children, allowedRoles }) {
                 <Button
                     variant="contained"
                     startIcon={<LoginIcon />}
-                    onClick={() => router.push('/login')}
+                    onClick={handleLoginAction}
+                    disabled={isSwitchingAccount}
                     sx={{
                         backgroundColor: '#E32619',
                         fontWeight: 600,
@@ -67,7 +86,11 @@ export default function RoleGuard({ children, allowedRoles }) {
                         }
                     }}
                 >
-                    {isLoggedIn ? 'Farklı Hesapla Giriş Yap' : 'Giriş Yap'}
+                    {isSwitchingAccount
+                        ? 'Çıkış Yapılıyor...'
+                        : isLoggedIn
+                            ? 'Farklı Hesapla Giriş Yap'
+                            : 'Giriş Yap'}
                 </Button>
             </Box>
         );

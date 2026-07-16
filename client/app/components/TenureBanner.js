@@ -35,9 +35,21 @@ const calculateTenure = (startDateStr) => {
 export default function TenureBanner() {
     const pathname = usePathname();
     const [tenure, setTenure] = useState(null);
+    const [hasStoredRole, setHasStoredRole] = useState(false);
 
     useEffect(() => {
         if (pathname === "/login") {
+            setHasStoredRole(false);
+            return;
+        }
+
+        const storedRole = localStorage.getItem("user_role");
+        const hasRole = Boolean(storedRole);
+
+        setHasStoredRole(hasRole);
+
+        if (!hasRole) {
+            setTenure(null);
             return;
         }
 
@@ -61,7 +73,7 @@ export default function TenureBanner() {
         };
     }, [pathname]);
 
-    if (pathname === "/login") {
+    if (pathname === "/login" || !hasStoredRole) {
         return null;
     }
 
