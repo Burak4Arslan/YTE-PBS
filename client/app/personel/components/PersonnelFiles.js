@@ -49,7 +49,11 @@ const formatDate = (dateValue) => {
     }).format(new Date(dateValue));
 };
 
-export default function PersonnelFiles({ email, department = '-' }) {
+export default function PersonnelFiles({
+    email,
+    department = '-',
+    isOwnProfile = false
+}) {
     const [files, setFiles] = useState([]);
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [fileType, setFileType] = useState('');
@@ -57,9 +61,51 @@ export default function PersonnelFiles({ email, department = '-' }) {
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
     const [deletingId, setDeletingId] = useState(null);
+    const [accessChecked, setAccessChecked] = useState(false);
+    const [canManageFiles, setCanManageFiles] = useState(false);
+
+    useEffect(() => {
+        let isActive = true;
+
+        const checkAccess = async () => {
+            if (isOwnProfile) {
+                if (isActive) {
+                    setCanManageFiles(true);
+                    setAccessChecked(true);
+                }
+
+                return;
+            }
+
+            try {
+                const { data } = await api.get('/api/auth/me');
+                const roles = Array.isArray(data?.roles)
+                    ? data.roles
+                    : [];
+
+                if (isActive) {
+                    setCanManageFiles(roles.includes('ADMIN'));
+                }
+            } catch (error) {
+                if (isActive) {
+                    setCanManageFiles(false);
+                }
+            } finally {
+                if (isActive) {
+                    setAccessChecked(true);
+                }
+            }
+        };
+
+        void checkAccess();
+
+        return () => {
+            isActive = false;
+        };
+    }, [isOwnProfile]);
 
     const fetchFiles = async () => {
-        if (!email) {
+        if (!email || !canManageFiles) {
             return;
         }
 
@@ -80,12 +126,21 @@ export default function PersonnelFiles({ email, department = '-' }) {
         let isActive = true;
 
         const loadFiles = async () => {
-            if (!email) {
+            if (!accessChecked) {
+                return;
+            }
+
+            if (!email || !canManageFiles) {
                 if (isActive) {
+                    setFiles([]);
                     setLoading(false);
                 }
 
                 return;
+            }
+
+            if (isActive) {
+                setLoading(true);
             }
 
             try {
@@ -112,7 +167,7 @@ export default function PersonnelFiles({ email, department = '-' }) {
         return () => {
             isActive = false;
         };
-    }, [email]);
+    }, [email, accessChecked, canManageFiles]);
 
     const resetUploadForm = () => {
         setFileType('');
@@ -221,6 +276,10 @@ export default function PersonnelFiles({ email, department = '-' }) {
             setDeletingId(null);
         }
     };
+
+    if (!accessChecked || !canManageFiles) {
+        return null;
+    }
 
     return (
         <>

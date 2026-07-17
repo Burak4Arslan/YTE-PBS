@@ -174,7 +174,10 @@ export default function PersonnelDetailPage() {
                         email={email}
                         readOnly={!isOwnProfile}
                     />
-                    <PersonnelFiles email={email} />
+                    <PersonnelFiles
+                        email={email}
+                        isOwnProfile={isOwnProfile}
+                    />
                     <PersonnelProjectsSection projects={projects} loading={loading} error={error} />
                     <PersonnelExperienceSection experiences={experiences} loading={loading} error={error} saving={saving} onSave={handleExperienceSave} onDelete={handleExperienceDelete} />
                     <PersonnelEducationSection educations={educations} loading={loading} error={error} saving={saving} onSave={handleSave} onDelete={handleDelete} />
