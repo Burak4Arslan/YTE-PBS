@@ -7,6 +7,8 @@ import { toast } from 'react-toastify';
 import {
     Box,
     Button,
+    Checkbox,
+    FormControlLabel,
     IconButton,
     InputAdornment,
     Paper,
@@ -20,7 +22,8 @@ export default function LoginPage() {
     const router = useRouter();
     const [formData, setFormData] = useState({
         email: '',
-        password: ''
+        password: '',
+        rememberMe: false
     });
 
     const [showPassword, setShowPassword] = useState(false);
@@ -35,10 +38,10 @@ export default function LoginPage() {
     };
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
+        const { name, value, checked, type } = e.target;
         setFormData((prev) => ({
             ...prev,
-            [name]: value
+            [name]: type === 'checkbox' ? checked : value
         }));
     };
 
@@ -287,6 +290,52 @@ export default function LoginPage() {
                                     }
                                 }}
                             />
+
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    width: '100%',
+                                    mt: 1
+                                }}
+                            >
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            name="rememberMe"
+                                            checked={formData.rememberMe}
+                                            onChange={handleChange}
+                                            sx={{
+                                                padding: '4px',
+                                                '&.Mui-checked': { color: '#E32619' }
+                                            }}
+                                        />
+                                    }
+                                    label="Beni Hatırla"
+                                    sx={{
+                                        '& .MuiFormControlLabel-label': {
+                                            fontSize: '0.75rem',
+                                            fontWeight: 500,
+                                            color: '#4B5563'
+                                        }
+                                    }}
+                                />
+
+                                <Typography
+                                    variant="body2"
+                                    component="a"
+                                    href="#"
+                                    sx={{
+                                        fontSize: '0.75rem',
+                                        color: '#9CA3AF',
+                                        textDecoration: 'none',
+                                        '&:hover': { color: '#4B5563' }
+                                    }}
+                                >
+                                    Şifremi Unuttum
+                                </Typography>
+                            </Box>
 
                             <Button
                                 type="submit"
