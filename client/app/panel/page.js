@@ -269,9 +269,31 @@ export default function PanelPage() {
 
             await loadValues(selectedType.code);
 
-            toast.success(
-                `${createdValues.length} seçenek başarıyla eklendi.`
+            const uniqueInputCount = new Set(
+                newValues.map((value) =>
+                    value.trim().toLowerCase()
+                )
+            ).size;
+
+            const skippedCount = Math.max(
+                0,
+                uniqueInputCount - createdValues.length
             );
+
+            if (createdValues.length === 0) {
+                toast.info(
+                    'Yeni seçenek eklenmedi; tüm seçenekler zaten mevcut.'
+                );
+            } else if (skippedCount > 0) {
+                toast.success(
+                    `${createdValues.length} seçenek eklendi, ` +
+                    `${skippedCount} tekrar atlandı.`
+                );
+            } else {
+                toast.success(
+                    `${createdValues.length} seçenek başarıyla eklendi.`
+                );
+            }
 
             return true;
         } catch (error) {

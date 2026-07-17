@@ -86,6 +86,7 @@ public class CustomEnumService {
             );
         }
 
+        CustomEnumType type = getTypeByCode(code);
         Set<String> requestDuplicates = new HashSet<>();
         List<CustomEnumValueDto> addedValues = new ArrayList<>();
 
@@ -97,10 +98,38 @@ public class CustomEnumService {
                 continue;
             }
 
-            addedValues.add(addValue(
-                    code,
-                    new CustomEnumValueRequest(normalizedValue, null)
-            ));
+            CustomEnumValue existing = valueRepository
+                    .findByType_IdAndValueIgnoreCase(
+                            type.getId(),
+                            normalizedValue
+                    )
+                    .orElse(null);
+
+            if (existing != null) {
+                if (existing.isActive()) {
+                    continue;
+                }
+
+                existing.setActive(true);
+                existing.setSortOrder(
+                        resolveSortOrder(type.getId(), null)
+                );
+
+                addedValues.add(
+                        toValueDto(valueRepository.save(existing))
+                );
+                continue;
+            }
+
+            CustomEnumValue value = new CustomEnumValue();
+            value.setType(type);
+            value.setValue(normalizedValue);
+            value.setSortOrder(resolveSortOrder(type.getId(), null));
+            value.setActive(true);
+
+            addedValues.add(
+                    toValueDto(valueRepository.save(value))
+            );
         }
 
         return addedValues;
