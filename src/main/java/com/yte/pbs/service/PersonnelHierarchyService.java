@@ -35,6 +35,8 @@ public class PersonnelHierarchyService {
                 entity.getPersonnelJobTitle(),
                 entity.getDepartment(),
                 entity.getPhotoUrl(),
+                entity.getProjectWorkedOn(),
+                entity.getTeam(),
                 superior != null ? superior.getId() : null
         );
     }

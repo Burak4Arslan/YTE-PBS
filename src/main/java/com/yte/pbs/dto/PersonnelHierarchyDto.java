@@ -10,5 +10,7 @@ PersonnelHierarchyDto(
          String personnelJobTitle,
          String department,
          String photoUrl,
+         String projectWorkedOn,
+         String team,
          Long superiorPersonnelId
 ){}
