@@ -16,15 +16,15 @@ import {
 } from '@mui/material';
 
 const TextField = (props) => (
-    <MuiTextField 
-        {...props} 
+    <MuiTextField
+        {...props}
         slotProps={{
             ...props.slotProps,
             inputLabel: {
                 shrink: true,
                 ...props.slotProps?.inputLabel
             }
-        }} 
+        }}
     />
 );
 import {
@@ -439,7 +439,7 @@ export default function PersonalCorporateInfo({ email = '', readOnly = false }) 
                                                     if (!value) {
                                                         return true;
                                                     }
-    
+
                                                     if (
                                                         !/^\d{4}-\d{2}-\d{2}$/.test(
                                                             value
@@ -447,15 +447,15 @@ export default function PersonalCorporateInfo({ email = '', readOnly = false }) 
                                                     ) {
                                                         return 'Yıl 4 haneli olmalıdır.';
                                                     }
-    
+
                                                     if (value < '1900-01-01') {
                                                         return 'Doğum tarihi 1900 yılından önce olamaz.';
                                                     }
-    
+
                                                     if (value > maxBirthDate) {
                                                         return 'Doğum tarihi gelecekte olamaz.';
                                                     }
-    
+
                                                     return true;
                                                 }
                                             })}
@@ -474,24 +474,24 @@ export default function PersonalCorporateInfo({ email = '', readOnly = false }) 
                                             defaultValue=""
                                             sx={fieldSx}
                                             slotProps={{
-    
+
                                                 select: {
-    
+
                                                     MenuProps: {
-    
+
                                                         disableScrollLock: true
-    
+
                                                     }
-    
+
                                                 }
-    
+
                                             }}
                                             {...register('bloodType')}
                                         >
                                             <MenuItem value="">
                                                 Seçiniz
                                             </MenuItem>
-    
+
                                             {bloodTypes.map((bloodType) => (
                                                 <MenuItem
                                                     key={bloodType}
