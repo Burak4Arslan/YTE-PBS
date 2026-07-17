@@ -72,7 +72,7 @@ function FilterList({ title, items, selected, onSelect, collapsible = true }) {
                                 }}
                             >
                                 <ListItemText
-                                    primaryTypographyProps={{
+                                    primarytypographyprops={{
                                         variant: 'body2',
                                         fontWeight: isSelected ? 700 : 400
                                     }}
