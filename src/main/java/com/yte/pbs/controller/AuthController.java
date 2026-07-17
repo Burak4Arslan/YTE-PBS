@@ -43,6 +43,16 @@ public class AuthController {
             HttpServletRequest request,
             HttpServletResponse response
     ) {
+        if (loginRequest == null
+                || loginRequest.usernameOrEmail() == null
+                || loginRequest.usernameOrEmail().isBlank()
+                || loginRequest.password() == null
+                || loginRequest.password().isBlank()) {
+            return ResponseEntity
+                    .badRequest()
+                    .body("Kullanıcı adı/e-posta ve şifre alanları zorunludur.");
+        }
+
         try {
             Authentication authentication =
                     authenticationManager.authenticate(

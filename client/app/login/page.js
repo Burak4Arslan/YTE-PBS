@@ -27,6 +27,7 @@ export default function LoginPage() {
     });
 
     const [showPassword, setShowPassword] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleClickShowPassword = () => {
         setShowPassword((prev) => !prev);
@@ -47,39 +48,59 @@ export default function LoginPage() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        if (isSubmitting) {
+            return;
+        }
+
+        const usernameOrEmail = formData.email.trim();
+
+        if (!usernameOrEmail || !formData.password) {
+            toast.warning('Kullanıcı adı/e-posta ve şifre alanlarını doldurun.');
+            return;
+        }
+
+        setIsSubmitting(true);
+
         try {
             const response = await api.post('/api/auth/login', {
-                usernameOrEmail: formData.email,
+                usernameOrEmail,
                 password: formData.password
             });
 
             console.log('Giriş Başarılı! Backend Cevabı:', response.data);
 
-            let userRole = null;
-            const typedInput = formData.email.trim().toLowerCase();
+            const rolePriority = ['ADMIN', 'HR', 'MANAGER', 'EMPLOYEE'];
+            const rawAuthorities = Array.isArray(response.data?.authorities)
+                ? response.data.authorities
+                : [];
 
-            if (typedInput === 'admin' || typedInput === 'admin@pbs.com') {
-                userRole = 'ADMIN';
-            } else {
-                if (response.data && response.data.authorities && Array.isArray(response.data.authorities)) {
-                    const firstAuth = response.data.authorities[0];
-                    userRole = typeof firstAuth === 'object' ? (firstAuth.authority || firstAuth.name) : firstAuth;
-                } else if (response.data && (response.data.authority || response.data.role)) {
-                    userRole = response.data.authority || response.data.role;
-                }
-            }
+            const grantedRoles = rawAuthorities
+                .map((authority) => {
+                    const value = typeof authority === 'string'
+                        ? authority
+                        : authority?.authority || authority?.name;
+
+                    if (typeof value !== 'string') {
+                        return null;
+                    }
+
+                    const normalizedValue = value.trim().toUpperCase();
+
+                    return normalizedValue.startsWith('ROLE_')
+                        ? normalizedValue.substring(5)
+                        : normalizedValue;
+                })
+                .filter((role) => rolePriority.includes(role));
+
+            const userRole = rolePriority.find((role) =>
+                grantedRoles.includes(role)
+            );
 
             if (!userRole) {
-                userRole = 'EMPLOYEE';
+                throw new Error('Giriş yanıtında geçerli kullanıcı rolü bulunamadı.');
             }
 
-            if (typeof userRole === 'string' && userRole.toUpperCase().startsWith('ROLE_')) {
-                userRole = userRole.substring(5);
-            }
-
-            userRole = userRole.toUpperCase();
-
-            console.log('Tarayıcıya (localStorage) Kesin Yazılan Rol:', userRole);
+            console.log('Tarayıcıya (localStorage) yazılan rol:', userRole);
             localStorage.setItem('user_role', userRole);
 
             router.push('/');
@@ -92,6 +113,8 @@ export default function LoginPage() {
                 ? 'Kullanıcı adı veya şifre hatalı! Lütfen bilgilerinizi kontrol edin. 🔑'
                 : 'Giriş başarısız! Lütfen tekrar deneyin.';
             toast.error(errorMessage);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -268,7 +291,15 @@ export default function LoginPage() {
                                 }}
                             />
 
-                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', mt: 1 }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    width: '100%',
+                                    mt: 1
+                                }}
+                            >
                                 <FormControlLabel
                                     control={
                                         <Checkbox
@@ -283,14 +314,24 @@ export default function LoginPage() {
                                     }
                                     label="Beni Hatırla"
                                     sx={{
-                                        '& .MuiFormControlLabel-label': { fontSize: '0.75rem', fontWeight: 500, color: '#4B5563' }
+                                        '& .MuiFormControlLabel-label': {
+                                            fontSize: '0.75rem',
+                                            fontWeight: 500,
+                                            color: '#4B5563'
+                                        }
                                     }}
                                 />
+
                                 <Typography
                                     variant="body2"
                                     component="a"
                                     href="#"
-                                    sx={{ fontSize: '0.75rem', color: '#9CA3AF', textDecoration: 'none', '&:hover': { color: '#4B5563' } }}
+                                    sx={{
+                                        fontSize: '0.75rem',
+                                        color: '#9CA3AF',
+                                        textDecoration: 'none',
+                                        '&:hover': { color: '#4B5563' }
+                                    }}
                                 >
                                     Şifremi Unuttum
                                 </Typography>
@@ -300,6 +341,11 @@ export default function LoginPage() {
                                 type="submit"
                                 fullWidth
                                 variant="contained"
+                                disabled={
+                                    isSubmitting ||
+                                    !formData.email.trim() ||
+                                    !formData.password
+                                }
                                 sx={{
                                     mt: 4,
                                     py: 1.5,
@@ -312,7 +358,7 @@ export default function LoginPage() {
                                     '&:hover': { backgroundColor: '#c91e13', boxShadow: 'none' }
                                 }}
                             >
-                                Giriş
+                                {isSubmitting ? 'Giriş Yapılıyor...' : 'Giriş'}
                             </Button>
                         </Box>
                     </Paper>

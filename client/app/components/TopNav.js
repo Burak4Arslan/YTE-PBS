@@ -36,7 +36,7 @@ export default function TopNav({ userName = "User", avatarUrl = null }) {
     }, [pathname]);
 
     useEffect(() => {
-        if (pathname === "/login") {
+        if (pathname === "/login" || !localStorage.getItem("user_role")) {
             return;
         }
 
@@ -80,7 +80,7 @@ export default function TopNav({ userName = "User", avatarUrl = null }) {
         };
     }, [pathname, userName, avatarUrl]);
 
-    if (pathname === "/login") {
+    if (pathname === "/login" || !userRole) {
         return null;
     }
 

@@ -30,6 +30,12 @@ export default function YetkilendirmePage() {
     const [newUserSearch, setNewUserSearch] = useState('');
 
     useEffect(() => {
+        const userRole = localStorage.getItem('user_role');
+
+        if (userRole !== 'ADMIN') {
+            return;
+        }
+
         const fetchUsers = async () => {
             try {
                 const response = await axiosInstance.get('/api/yetkilendirme');
@@ -39,6 +45,7 @@ export default function YetkilendirmePage() {
                 toast.error("Yetkiler alınırken bir hata oluştu");
             }
         };
+
         fetchUsers();
     }, []);
 

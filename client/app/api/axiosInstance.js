@@ -27,17 +27,22 @@ axiosInstance.interceptors.response.use(
 
         const status = error.response.status;
 
-        // 2. Yetkisiz Erişim ve Oturum Sonlanma Yönetimi (401 + 403)
-        //    Spring Security oturum yokken 401, yetki yokken 403 döner — ikisini de yakala
-        if ((status === 401 || status === 403) && !isLoginRequest) {
-            toast.error("Oturumunuz sonlandı veya bu sayfaya erişim yetkiniz yok! Giriş sayfasına yönlendiriliyorsunuz... 🔒");
+        // 2. Oturum bulunamadığında veya süresi dolduğunda giriş sayfasına yönlendir
+        if (status === 401 && !isLoginRequest) {
+            toast.error("Oturumunuz sonlandı. Giriş sayfasına yönlendiriliyorsunuz... 🔒");
 
             setTimeout(() => {
                 if (typeof window !== 'undefined') {
                     window.location.href = '/login';
                 }
-            }, 2000); // 2 saniye toast okunsun diye bekletiyoruz
+            }, 2000);
 
+            return Promise.reject(error);
+        }
+
+        // 3. Kullanıcı giriş yapmış ancak işlem için gerekli yetkiye sahip değil
+        if (status === 403 && !isLoginRequest) {
+            toast.warning("Bu işlem için gerekli yetkiye sahip değilsiniz.");
             return Promise.reject(error);
         }
 

@@ -16,15 +16,15 @@ import {
 } from '@mui/material';
 
 const TextField = (props) => (
-    <MuiTextField 
-        {...props} 
+    <MuiTextField
+        {...props}
         slotProps={{
             ...props.slotProps,
             inputLabel: {
                 shrink: true,
                 ...props.slotProps?.inputLabel
             }
-        }} 
+        }}
     />
 );
 import {
@@ -59,6 +59,20 @@ const cardSx = {
     overflow: 'hidden'
 };
 
+function getLocalDateInputValue(date) {
+    const timezoneOffset = date.getTimezoneOffset() * 60 * 1000;
+
+    return new Date(date.getTime() - timezoneOffset)
+        .toISOString()
+        .slice(0, 10);
+}
+
+function normalizeOptionalText(value) {
+    const normalizedValue = String(value ?? '').trim();
+
+    return normalizedValue || null;
+}
+
 function splitFullName(fullName = '') {
     const parts = String(fullName).trim().split(/\s+/).filter(Boolean);
 
@@ -78,7 +92,15 @@ function splitFullName(fullName = '') {
 
 export default function PersonalCorporateInfo({ email = '', readOnly = false }) {
     const [saving, setSaving] = useState(false);
-    const { register, handleSubmit, reset, control } = useForm({
+    const maxBirthDate = getLocalDateInputValue(new Date());
+
+    const {
+        register,
+        handleSubmit,
+        reset,
+        control,
+        formState: { errors, isDirty }
+    } = useForm({
         defaultValues: {
             firstName: '',
             lastName: '',
@@ -202,22 +224,44 @@ export default function PersonalCorporateInfo({ email = '', readOnly = false }) 
         }
 
         setSaving(true);
+
         try {
-            await api.put('/api/personel/hakkımda', {
-                birthDate: data.birthDate || null,
-                bloodType: data.bloodType || null,
-                phoneNumber: data.phoneNumber || null,
-                vehiclePlate: data.vehiclePlate || null,
-                emergencyContactName: data.emergencyContactName || null,
-                emergencyContactPhone: data.emergencyContactPhone || null,
-                residentialAddress: data.residentialAddress || null,
-                internalPhoneNumber: data.internalPhoneNumber || null,
-                roomNumber: data.roomNumber || null
+            const { data: updatedProfile } = await api.put(
+                '/api/personel/hakkımda',
+                {
+                    birthDate: data.birthDate || null,
+                    bloodType: normalizeOptionalText(data.bloodType),
+                    phoneNumber: normalizeOptionalText(data.phoneNumber),
+                    vehiclePlate: normalizeOptionalText(data.vehiclePlate),
+                    emergencyContactName:
+                        normalizeOptionalText(data.emergencyContactName),
+                    emergencyContactPhone:
+                        normalizeOptionalText(data.emergencyContactPhone),
+                    residentialAddress:
+                        normalizeOptionalText(data.residentialAddress),
+                    internalPhoneNumber:
+                        normalizeOptionalText(data.internalPhoneNumber),
+                    roomNumber: normalizeOptionalText(data.roomNumber)
+                }
+            );
+
+            reset({
+                ...updatedProfile,
+                birthDate: updatedProfile.birthDate || '',
+                employmentStartDate:
+                    updatedProfile.employmentStartDate || '',
+                usesShuttleService:
+                    updatedProfile.usesShuttleService == null
+                        ? ''
+                        : String(updatedProfile.usesShuttleService)
             });
+
             toast.success('Profil bilgileri güncellendi.');
         } catch (error) {
-            console.error('Profil bilgileri güncellenemedi:', error);
-            toast.error('Profil bilgileri güncellenemedi.');
+            console.warn(
+                'Profil güncelleme isteği başarısız:',
+                error.response?.status || error.message
+            );
         } finally {
             setSaving(false);
         }
@@ -227,8 +271,29 @@ export default function PersonalCorporateInfo({ email = '', readOnly = false }) 
         <Box
             component="form"
             onSubmit={handleSubmit(onSubmit)}
+            noValidate
             sx={{ width: '100%' }}
         >
+            {!readOnly && (
+                <Box
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                        mb: 2
+                    }}
+                >
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        disabled={saving || !isDirty}
+                    >
+                        {saving
+                            ? 'Kaydediliyor...'
+                            : 'Değişiklikleri Kaydet'}
+                    </Button>
+                </Box>
+            )}
+
             <fieldset
                 disabled={readOnly || saving}
                 style={{ border: 0, margin: 0, minWidth: 0, padding: 0 }}
@@ -302,16 +367,18 @@ export default function PersonalCorporateInfo({ email = '', readOnly = false }) 
                                     />
                                 </Grid>
 
-                                <Grid size={{ xs: 12, sm: 6 }}>
-                                    <TextField
-                                        fullWidth
-                                        size="small"
-                                        label="T.C. Kimlik Numarası"
-                                        disabled
-                                        sx={fieldSx}
-                                        {...register('nationalIdentityNumber')}
-                                    />
-                                </Grid>
+                                {!readOnly && (
+                                    <Grid size={{ xs: 12, sm: 6 }}>
+                                        <TextField
+                                            fullWidth
+                                            size="small"
+                                            label="T.C. Kimlik Numarası"
+                                            disabled
+                                            sx={fieldSx}
+                                            {...register('nationalIdentityNumber')}
+                                        />
+                                    </Grid>
+                                )}
 
                                 <Grid size={{ xs: 12, sm: 6 }}>
                                     <TextField
@@ -347,107 +414,158 @@ export default function PersonalCorporateInfo({ email = '', readOnly = false }) 
                                     />
                                 </Grid>
 
-                                <Grid size={{ xs: 12, sm: 6 }}>
-                                    <TextField
-                                        fullWidth
-                                        size="small"
-                                        label="Doğum Tarihi"
-                                        type="date"
-                                        sx={fieldSx}
-                                        slotProps={{
-                                            inputLabel: { shrink: true }
-                                        }}
-                                        {...register('birthDate')}
-                                    />
-                                </Grid>
+                                {!readOnly && (
+                                    <Grid size={{ xs: 12, sm: 6 }}>
+                                        <TextField
+                                            fullWidth
+                                            size="small"
+                                            label="Doğum Tarihi"
+                                            type="date"
+                                            disabled={readOnly}
+                                            error={Boolean(errors.birthDate)}
+                                            helperText={
+                                                errors.birthDate?.message
+                                            }
+                                            sx={fieldSx}
+                                            slotProps={{
+                                                inputLabel: { shrink: true },
+                                                htmlInput: {
+                                                    min: '1900-01-01',
+                                                    max: maxBirthDate
+                                                }
+                                            }}
+                                            {...register('birthDate', {
+                                                validate: (value) => {
+                                                    if (!value) {
+                                                        return true;
+                                                    }
 
-                                <Grid size={{ xs: 12, sm: 6 }}>
-                                    <TextField
-                                        fullWidth
-                                        size="small"
-                                        select
-                                        label="Kan Grubu"
-                                        defaultValue=""
-                                        sx={fieldSx}
-                                        slotProps={{
+                                                    if (
+                                                        !/^\d{4}-\d{2}-\d{2}$/.test(
+                                                            value
+                                                        )
+                                                    ) {
+                                                        return 'Yıl 4 haneli olmalıdır.';
+                                                    }
 
-                                            select: {
+                                                    if (value < '1900-01-01') {
+                                                        return 'Doğum tarihi 1900 yılından önce olamaz.';
+                                                    }
 
-                                                MenuProps: {
+                                                    if (value > maxBirthDate) {
+                                                        return 'Doğum tarihi gelecekte olamaz.';
+                                                    }
 
-                                                    disableScrollLock: true
+                                                    return true;
+                                                }
+                                            })}
+                                        />
+                                    </Grid>
+                                )}
+
+                                {!readOnly && (
+                                    <Grid size={{ xs: 12, sm: 6 }}>
+                                        <TextField
+                                            fullWidth
+                                            size="small"
+                                            select
+                                            label="Kan Grubu"
+                                            disabled={readOnly}
+                                            defaultValue=""
+                                            sx={fieldSx}
+                                            slotProps={{
+
+                                                select: {
+
+                                                    MenuProps: {
+
+                                                        disableScrollLock: true
+
+                                                    }
 
                                                 }
 
-                                            }
-
-                                        }}
-                                        {...register('bloodType')}
-                                    >
-                                        <MenuItem value="">
-                                            Seçiniz
-                                        </MenuItem>
-
-                                        {bloodTypes.map((bloodType) => (
-                                            <MenuItem
-                                                key={bloodType}
-                                                value={bloodType}
-                                            >
-                                                {bloodType}
+                                            }}
+                                            {...register('bloodType')}
+                                        >
+                                            <MenuItem value="">
+                                                Seçiniz
                                             </MenuItem>
-                                        ))}
-                                    </TextField>
-                                </Grid>
+
+                                            {bloodTypes.map((bloodType) => (
+                                                <MenuItem
+                                                    key={bloodType}
+                                                    value={bloodType}
+                                                >
+                                                    {bloodType}
+                                                </MenuItem>
+                                            ))}
+                                        </TextField>
+                                    </Grid>
+                                )}
 
                                 <Grid size={{ xs: 12, sm: 6 }}>
                                     <TextField
                                         fullWidth
                                         size="small"
                                         label="Telefon"
+                                        disabled={readOnly}
                                         sx={fieldSx}
                                         {...register('phoneNumber')}
                                     />
                                 </Grid>
 
-                                <Grid size={{ xs: 12, sm: 6 }}>
-                                    <TextField
-                                        fullWidth
-                                        size="small"
-                                        label="Araç Plakası"
-                                        sx={fieldSx}
-                                        {...register('vehiclePlate')}
-                                    />
-                                </Grid>
+                                {!readOnly && (
+                                    <Grid size={{ xs: 12, sm: 6 }}>
+                                        <TextField
+                                            fullWidth
+                                            size="small"
+                                            label="Araç Plakası"
+                                            disabled={readOnly}
+                                            sx={fieldSx}
+                                            {...register('vehiclePlate')}
+                                        />
+                                    </Grid>
+                                )}
 
-                                <Grid size={{ xs: 12, sm: 6 }}>
-                                    <TextField
-                                        fullWidth
-                                        size="small"
-                                        label="Acil Durumda Ulaşılacak Kişi"
-                                        sx={fieldSx}
-                                        {...register('emergencyContactName')}
-                                    />
-                                </Grid>
+                                {!readOnly && (
+                                    <Grid size={{ xs: 12, sm: 6 }}>
+                                        <TextField
+                                            fullWidth
+                                            size="small"
+                                            label="Acil Durumda Ulaşılacak Kişi"
+                                            disabled={readOnly}
+                                            sx={fieldSx}
+                                            {...register('emergencyContactName')}
+                                        />
+                                    </Grid>
+                                )}
 
-                                <Grid size={{ xs: 12, sm: 6 }}>
-                                    <TextField
-                                        fullWidth
-                                        size="small"
-                                        label="Acil Durumda Ulaşılacak Kişi Tel"
-                                        sx={fieldSx}
-                                        {...register('emergencyContactPhone')}
-                                    />
-                                </Grid>
+                                {!readOnly && (
+                                    <Grid size={{ xs: 12, sm: 6 }}>
+                                        <TextField
+                                            fullWidth
+                                            size="small"
+                                            label="Acil Durumda Ulaşılacak Kişi Tel"
+                                            disabled={readOnly}
+                                            sx={fieldSx}
+                                            {...register('emergencyContactPhone')}
+                                        />
+                                    </Grid>
+                                )}
 
-                                <Grid size={{ xs: 12 }}>
-                                    <TextField
-                                        fullWidth
-                                        size="small"
-                                        label="İkametgâh Adresi"
-                                        sx={fieldSx}
-                                        {...register('residentialAddress')}
-                                    />
-                                </Grid>
+                                {!readOnly && (
+                                    <Grid size={{ xs: 12 }}>
+                                        <TextField
+                                            fullWidth
+                                            size="small"
+                                            label="İkametgâh Adresi"
+                                            disabled={readOnly}
+                                            sx={fieldSx}
+                                            {...register('residentialAddress')}
+                                        />
+                                    </Grid>
+                                )}
                             </Grid>
                         </CardContent>
                     </Card>
@@ -649,6 +767,7 @@ export default function PersonalCorporateInfo({ email = '', readOnly = false }) 
                                         fullWidth
                                         size="small"
                                         label="Dahili Numara"
+                                        disabled={readOnly}
                                         sx={fieldSx}
                                         {...register('internalPhoneNumber')}
                                     />
@@ -659,6 +778,7 @@ export default function PersonalCorporateInfo({ email = '', readOnly = false }) 
                                         fullWidth
                                         size="small"
                                         label="Oda Numarası"
+                                        disabled={readOnly}
                                         sx={fieldSx}
                                         {...register('roomNumber')}
                                     />
@@ -669,14 +789,6 @@ export default function PersonalCorporateInfo({ email = '', readOnly = false }) 
                 </Grid>
             </Grid>
             </fieldset>
-
-            {!readOnly && (
-                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
-                    <Button type="submit" variant="contained" disabled={saving}>
-                        Kaydet
-                    </Button>
-                </Box>
-            )}
 
         </Box>
     );
