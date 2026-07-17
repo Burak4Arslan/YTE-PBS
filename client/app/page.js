@@ -4,6 +4,7 @@ import axiosInstance from "./api/axiosInstance";
 import { Grid, Card, CardContent, Typography, Avatar, Box, CircularProgress } from "@mui/material";
 import AttendanceCard from "./personel/components/AttendanceCard";
 import RehberView from "@/app/rehber/rehberView";
+import RoleGuard from "./components/RoleGuard";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
@@ -36,7 +37,17 @@ export default function Home() {
         fetchData();
     }, []);
 
-    const birthdays = events.filter(e => e.eventType === "BIRTHDAY");
+    const currentMonth = new Date().getMonth();
+    const birthdays = events.filter(e => {
+        if (e.eventType !== "BIRTHDAY") return false;
+        if (!e.eventDate) return false;
+        const eventMonth = new Date(e.eventDate).getMonth();
+        return eventMonth === currentMonth;
+    });
+
+    const isLatestPersonnelThisMonth = latestPersonnel && latestPersonnel.hireDate 
+        ? new Date(latestPersonnel.hireDate).getMonth() === currentMonth 
+        : false;
 
     const formatDate = (dateStr) => {
         if (!dateStr) return "";
@@ -53,6 +64,7 @@ export default function Home() {
     }
 
     return (
+        <RoleGuard allowedRoles={['ADMIN', 'HR', 'MANAGER', 'EMPLOYEE']}>
         <Box sx={{ padding: 3, backgroundColor: "#f5f5f5", minHeight: "100vh" }}>
             <Grid container spacing={2}>
 
@@ -191,7 +203,7 @@ export default function Home() {
                                 👤 ARAMIZA HOŞGELDİN
                             </Typography>
 
-                            {latestPersonnel ? (
+                            {isLatestPersonnelThisMonth ? (
                                 <Box key={latestPersonnel.id}>
                                     <Avatar
                                         src={latestPersonnel.photoUrl || undefined}
@@ -209,7 +221,7 @@ export default function Home() {
                                     </Typography>
                                 </Box>
                             ) : (
-                                <Typography variant="body2" color="textSecondary">Yeni katılan personel yok.</Typography>
+                                <Typography variant="body2" color="textSecondary">Bu ay yeni katılan personel yok.</Typography>
                             )}
                         </CardContent>
                     </Card>
@@ -230,5 +242,6 @@ export default function Home() {
                 </Grid>
             </Grid>
         </Box>
+        </RoleGuard>
     );
 }

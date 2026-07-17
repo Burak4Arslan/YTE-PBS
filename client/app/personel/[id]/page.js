@@ -12,6 +12,7 @@ import PersonnelEducationSection from '../components/PersonnelEducationSection';
 import PersonnelExperienceSection from '../components/PersonnelExperienceSection';
 import PersonnelContributionsSection from '../components/PersonnelContributionsSection';
 import { createEducation, deleteEducation, getEducations, getPersonnelEmail, getPersonnelProjects, updateEducation, getExperiences, createExperience, updateExperience, deleteExperience, getContributions, createContribution, updateContribution, deleteContribution } from '../services/personnelDetailService';
+import RoleGuard from '../../components/RoleGuard';
 
 export default function PersonnelDetailPage() {
     const params = useParams();
@@ -153,6 +154,7 @@ export default function PersonnelDetailPage() {
     };
 
     return (
+        <RoleGuard allowedRoles={['ADMIN', 'HR', 'MANAGER', 'EMPLOYEE']}>
         <Box
             sx={{
                 minHeight: '100vh',
@@ -185,5 +187,6 @@ export default function PersonnelDetailPage() {
                 </Stack>
             </Container>
         </Box>
+        </RoleGuard>
     );
 }

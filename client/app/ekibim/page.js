@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import RoleGuard from '../components/RoleGuard';
 import {
     Avatar,
     Box,
@@ -237,6 +238,7 @@ export default function MyTeamPage() {
     }, [loadSelectedDetails]);
 
     return (
+        <RoleGuard allowedRoles={['ADMIN', 'HR', 'MANAGER', 'EMPLOYEE']}>
         <Box sx={{ minHeight: '100vh', backgroundColor: '#f5f5f5', py: 2 }}>
             <Container maxWidth={false} sx={{ px: { xs: 2, md: 3 } }}>
                 <Grid container spacing={2} sx={{ alignItems: 'flex-start' }}>
@@ -266,5 +268,6 @@ export default function MyTeamPage() {
                 </Grid>
             </Container>
         </Box>
+        </RoleGuard>
     );
 }

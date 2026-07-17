@@ -15,6 +15,9 @@ import org.springframework.http.MediaType;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
+import org.springframework.security.core.Authentication;
+import com.yte.pbs.security.CustomUserDetails;
+import com.yte.pbs.dto.PersonnelPublicDto;
 
 @RestController
 @RequestMapping("/api/personnel")
@@ -51,9 +54,29 @@ public class PersonnelController {
     }
 
     @GetMapping
-    public ResponseEntity<Personnel> getPersonnelByEmail(@RequestParam String email) {
+    public ResponseEntity<?> getPersonnelByEmail(@RequestParam String email, Authentication authentication) {
         return personnelService.getByEmail(email)
-                .map(ResponseEntity::ok)
+                .map(personnel -> {
+                    boolean isAdmin = authentication.getAuthorities().stream()
+                            .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+                    
+                    String currentUserEmail = null;
+                    if (authentication.getPrincipal() instanceof CustomUserDetails userDetails) {
+                        currentUserEmail = userDetails.getUser().getEmail();
+                    } else if (authentication.getPrincipal() instanceof org.springframework.security.core.userdetails.UserDetails ud) {
+                        currentUserEmail = ud.getUsername(); // If fallback
+                    } else {
+                        currentUserEmail = authentication.getName();
+                    }
+
+                    boolean isOwner = email.equalsIgnoreCase(currentUserEmail);
+
+                    if (isAdmin || isOwner) {
+                        return ResponseEntity.ok(personnel);
+                    } else {
+                        return ResponseEntity.ok(new PersonnelPublicDto(personnel));
+                    }
+                })
                 .orElse(ResponseEntity.noContent().build());
     }
 

@@ -5,6 +5,7 @@ import com.yte.pbs.entity.Contribution;
 import com.yte.pbs.repository.ContributionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.yte.pbs.security.SecurityUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,6 +35,7 @@ public class ContributionService {
     }
 
     public ContributionDto addContribution(Long userId, ContributionDto dto) {
+        SecurityUtils.verifyOwnership(userId);
         Contribution contribution = new Contribution();
         updateContributionFields(contribution, dto);
         contribution.setUserId(userId);
@@ -54,6 +56,7 @@ public class ContributionService {
         Contribution contribution = contributionRepository.findById(conId)
                 .orElseThrow(() -> new RuntimeException("Contribution entry not found"));
 
+        SecurityUtils.verifyOwnership(contribution.getUserId());
         updateContributionFields(contribution, dto);
         Contribution updated = contributionRepository.save(contribution);
         return new ContributionDto(
@@ -68,6 +71,9 @@ public class ContributionService {
     }
 
     public void deleteContribution(Long conId) {
+        Contribution contribution = contributionRepository.findById(conId)
+                .orElseThrow(() -> new RuntimeException("Contribution entry not found"));
+        SecurityUtils.verifyOwnership(contribution.getUserId());
         contributionRepository.deleteById(conId);
     }
 

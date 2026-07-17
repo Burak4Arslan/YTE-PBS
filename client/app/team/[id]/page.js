@@ -1,35 +1,74 @@
 'use client';
 
-import React from 'react';
-import { Box, Container, Typography } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { Box, Container, Typography, CircularProgress } from '@mui/material';
 import EmployeeCard from '../components/EmployeeCard';
-
-/*
-Deneyim ve Katkılar kısımlarının frontendinde örnek yaparken
-src/main/java/com.yte.pbs/config/DataInitializer.java'daki
-Cenk Çelik kullanılabilir.
- */
+import RoleGuard from '../../components/RoleGuard';
+import { getPersonnelDirectoryEntry, getPersonnelInfo } from '../../personel/services/personnelDetailService';
 
 export default function EmployeeProfilePage({ params }) {
-    const sampleEmployee = {
-        photoUrl: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=190",
-        name: "Dr. Cenk Çelik",
-        department: "Dijital Strateji ve Dijital Dönüşüm Planlama",
-        role: "Kıdemli Uzman Araştırmacı - Proje Yöneticisi - MGM",
-        startDate: "12-04-2023",
-        registrationNumber: "00000",
-        staffType: "AG",
-        workType: "Tam Zamanlı",
-        workingStatus: "Aktif",
-        employeeType: "MARTEK",
-        birthDate: "12-05-1995",
-        intercom: "3940",
-        officeNumber: "216",
-        phone: "0655 555 55 55",
-        email: "cenk.celil@tubitak.gov.tr"
-    };
+    const [employee, setEmployee] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    useEffect(() => {
+        const fetchEmployee = async () => {
+            try {
+                // First get the directory entry to find the email
+                const directoryEntry = await getPersonnelDirectoryEntry(params.id);
+                if (directoryEntry && directoryEntry.email) {
+                    // Then get the full details using the email
+                    const fullInfo = await getPersonnelInfo(directoryEntry.email);
+                    if (fullInfo) {
+                        setEmployee({
+                            photoUrl: fullInfo.photoUrl || directoryEntry.photoUrl,
+                            name: `${fullInfo.firstName || ''} ${fullInfo.lastName || ''}`.trim() || directoryEntry.fullName,
+                            department: fullInfo.department || directoryEntry.unit,
+                            role: fullInfo.title || directoryEntry.title,
+                            startDate: fullInfo.hireDate,
+                            registrationNumber: fullInfo.registrationNumber,
+                            staffType: fullInfo.cadre,
+                            workType: fullInfo.workType,
+                            workingStatus: fullInfo.workStatus,
+                            employeeType: fullInfo.personnelType,
+                            birthDate: fullInfo.birthDate,
+                            intercom: fullInfo.extensionNumber,
+                            officeNumber: fullInfo.roomNumber,
+                            phone: fullInfo.phoneNumber || directoryEntry.phoneNumber,
+                            email: fullInfo.email || directoryEntry.email
+                        });
+                    }
+                }
+            } catch (err) {
+                console.error("Çalışan bilgileri alınamadı:", err);
+                setError("Personel bulunamadı veya yüklenirken bir hata oluştu.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (params?.id) {
+            fetchEmployee();
+        }
+    }, [params?.id]);
+
+    if (loading) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#f8f9fa' }}>
+                <CircularProgress />
+            </Box>
+        );
+    }
+
+    if (error || !employee) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#f8f9fa' }}>
+                <Typography color="error">{error || "Personel bulunamadı."}</Typography>
+            </Box>
+        );
+    }
 
     return (
+        <RoleGuard allowedRoles={['ADMIN', 'HR', 'MANAGER', 'EMPLOYEE']}>
         <Box
             sx={{
                 display: 'flex',
@@ -54,11 +93,12 @@ export default function EmployeeProfilePage({ params }) {
                 </Typography>
                 <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
 
-                    <EmployeeCard employee={sampleEmployee} />
+                    <EmployeeCard employee={employee} />
                 </Box>
 
 
             </Container>
         </Box>
+        </RoleGuard>
     );
 }

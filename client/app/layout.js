@@ -13,6 +13,11 @@ const roboto = Roboto({
     display: "swap",
 });
 
+export const metadata = {
+  title: 'YTE Personel Bilgi Sistemi',
+  description: 'TÜBİTAK BİLGEM YTE Personel Bilgi Sistemi',
+};
+
 export default function RootLayout({ children }) {
     return (
         <html lang="tr" className={roboto.className}>

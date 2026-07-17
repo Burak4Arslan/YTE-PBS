@@ -1,34 +1,41 @@
 package com.yte.pbs.controller;
 
 import org.springframework.web.bind.annotation.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.yte.pbs.repository.PersonnelRepository;
+import com.yte.pbs.entity.Personnel;
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.*;
-
 @RestController
 @RequestMapping("/api/events")
 @CrossOrigin("*")
 public class EmployeeEventController {
 
+    @Autowired
+    private PersonnelRepository personnelRepository;
+
     @GetMapping
     public List<Map<String, Object>> getAllEvents() {
         List<Map<String, Object>> eventList = new ArrayList<>();
+        List<Personnel> personnelList = personnelRepository.findAll();
+        
+        LocalDate today = LocalDate.now();
+        Month currentMonth = today.getMonth();
 
-        // 1. Örnek: Bu Ay Doğanlar için Veri
-        Map<String, Object> event1 = new HashMap<>();
-        event1.put("id", 1);
-        event1.put("fullName", "Ahmet Bulut");
-        event1.put("profileImageUrl", "https://randomuser.me/api/portraits/men/32.jpg");
-        event1.put("eventDate", "2026-06-10");
-        event1.put("eventType", "BIRTHDAY");
-        eventList.add(event1);
-
-        // 2. Örnek: Aramıza Hoşgeldin için Veri
-        Map<String, Object> event2 = new HashMap<>();
-        event2.put("id", 2);
-        event2.put("fullName", "Ahmet Bulut");
-        event2.put("profileImageUrl", "https://randomuser.me/api/portraits/men/32.jpg");
-        event2.put("eventDate", "2026-07-10");
-        event2.put("eventType", "WELCOME");
-        eventList.add(event2);
+        for (Personnel p : personnelList) {
+            if (p.getBirthDate() != null) {
+                if (p.getBirthDate().getMonth() == currentMonth) {
+                    Map<String, Object> event = new HashMap<>();
+                    event.put("id", p.getId());
+                    event.put("fullName", (p.getFirstName() + " " + p.getLastName()).trim());
+                    event.put("profileImageUrl", p.getPhotoUrl());
+                    event.put("eventDate", p.getBirthDate().toString());
+                    event.put("eventType", "BIRTHDAY");
+                    eventList.add(event);
+                }
+            }
+        }
 
         return eventList;
     }

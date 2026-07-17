@@ -78,7 +78,7 @@ export default function TopNav({ userName = "User", avatarUrl = null }) {
         return () => {
             ignore = true;
         };
-    }, [pathname, userName, avatarUrl]);
+    }, [userRole]);
 
     if (pathname === "/login" || !userRole) {
         return null;

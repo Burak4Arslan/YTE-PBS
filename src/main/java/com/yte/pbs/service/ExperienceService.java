@@ -5,6 +5,7 @@ import com.yte.pbs.entity.Experience;
 import com.yte.pbs.repository.ExperienceRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.yte.pbs.security.SecurityUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,6 +28,7 @@ public class ExperienceService {
     }
 
     public ExperienceDto addExperience(Long userId, ExperienceDto dto) {
+        SecurityUtils.verifyOwnership(userId);
         Experience experience = new Experience();
         updateExperienceFields(experience, dto);
         experience.setUserId(userId);
@@ -40,6 +42,7 @@ public class ExperienceService {
         Experience experience = experienceRepository.findById(expId)
                 .orElseThrow(() -> new RuntimeException("Experience entry not found"));
 
+        SecurityUtils.verifyOwnership(experience.getUserId());
         updateExperienceFields(experience, dto);
         Experience updated = experienceRepository.save(experience);
         return new ExperienceDto(updated.getId(), updated.getUserId(), updated.getWorkPlace(), updated.getRole(),
@@ -47,6 +50,9 @@ public class ExperienceService {
     }
 
     public void deleteExperience(Long expId) {
+        Experience experience = experienceRepository.findById(expId)
+                .orElseThrow(() -> new RuntimeException("Experience entry not found"));
+        SecurityUtils.verifyOwnership(experience.getUserId());
         experienceRepository.deleteById(expId);
     }
 

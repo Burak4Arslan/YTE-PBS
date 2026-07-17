@@ -9,6 +9,7 @@ import {
     FormControl, CircularProgress, InputLabel
 } from '@mui/material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import RoleGuard from '../../components/RoleGuard';
 
 // Tekrar eden form satırı bileşeni — label solda, input sağda
 function FormRow({ label, children, required }) {
@@ -75,6 +76,14 @@ export default function PersonnelAddPage() {
         licensePlate: '', bloodType: '', emergencyContactPerson: '', emergencyContactPhone: '', photoUrl: ''
     });
 
+    const [options, setOptions] = useState({
+        titles: [],
+        duties: [],
+        departments: [],
+        projects: [],
+        teams: []
+    });
+
     // BACKEND AUTH GUARD
     useEffect(() => {
         const checkAuth = async () => {
@@ -91,7 +100,29 @@ export default function PersonnelAddPage() {
                 console.error("Yetki doğrulama hatası:", error);
             }
         };
+        const fetchOptions = async () => {
+            try {
+                const [titles, duties, departments, projects, teams] = await Promise.all([
+                    axiosInstance.get('/api/personnel/options/titles'),
+                    axiosInstance.get('/api/personnel/options/duties'),
+                    axiosInstance.get('/api/personnel/options/departments'),
+                    axiosInstance.get('/api/personnel/options/projects'),
+                    axiosInstance.get('/api/personnel/options/teams')
+                ]);
+                setOptions({
+                    titles: titles.data || [],
+                    duties: duties.data || [],
+                    departments: departments.data || [],
+                    projects: projects.data || [],
+                    teams: teams.data || []
+                });
+            } catch (error) {
+                console.error("Seçenekler yüklenemedi:", error);
+            }
+        };
+
         checkAuth();
+        fetchOptions();
     }, [router]);
 
     const handleChange = (e) => {
@@ -133,6 +164,7 @@ export default function PersonnelAddPage() {
         );
     }
     return (
+        <RoleGuard allowedRoles={['ADMIN']}>
         <Box sx={{ maxWidth: 1200, mx: 'auto', py: 4, px: 3 }}>
             <Box
                 component="form"
@@ -201,8 +233,7 @@ export default function PersonnelAddPage() {
                         <FormRow label="Unvan" required>
                             <Select fullWidth size="small" value={formData.title} onChange={handleSelectChange('title')} displayEmpty sx={selectSx} MenuProps={{ disableScrollLock: true }}>
                                 <MenuItem value="" disabled><em>Seçiniz</em></MenuItem>
-                                <MenuItem value="Aday Mühendis">Aday Mühendis</MenuItem>
-                                <MenuItem value="Uzman Mühendis">Uzman Mühendis</MenuItem>
+                                {options.titles.map((t, i) => <MenuItem key={i} value={t}>{t}</MenuItem>)}
                             </Select>
                         </FormRow>
                         <FormRow label="Personel Türü" required>
@@ -233,25 +264,13 @@ export default function PersonnelAddPage() {
                         <FormRow label="Birim" required>
                             <Select fullWidth size="small" value={formData.department} onChange={handleSelectChange('department')} displayEmpty sx={selectSx} MenuProps={{ disableScrollLock: true }}>
                                 <MenuItem value="" disabled><em>Seçiniz</em></MenuItem>
-                                <MenuItem value="Yazılım Geliştirme">Yazılım Geliştirme</MenuItem>
-                                <MenuItem value="Sistem Yönetimi">Sistem Yönetimi</MenuItem>
-                                <MenuItem value="Yönetim">Yönetim</MenuItem>
-                                <MenuItem value="QA">QA</MenuItem>
-                                <MenuItem value="UI/UX">UI/UX</MenuItem>
-                                <MenuItem value="DevOps">DevOps</MenuItem>
+                                {options.departments.map((d, i) => <MenuItem key={i} value={d}>{d}</MenuItem>)}
                             </Select>
                         </FormRow>
                         <FormRow label="Görevi" required>
                             <Select fullWidth size="small" value={formData.duty} onChange={handleSelectChange('duty')} displayEmpty sx={selectSx} MenuProps={{ disableScrollLock: true }}>
                                 <MenuItem value="" disabled><em>Seçiniz</em></MenuItem>
-                                <MenuItem value="Backend Geliştirme">Backend Geliştirme</MenuItem>
-                                <MenuItem value="Frontend Geliştirme">Frontend Geliştirme</MenuItem>
-                                <MenuItem value="API Geliştirme">API Geliştirme</MenuItem>
-                                <MenuItem value="Proje Yönetimi">Proje Yönetimi</MenuItem>
-                                <MenuItem value="Kalite Kontrol">Kalite Kontrol</MenuItem>
-                                <MenuItem value="Arayüz Tasarımı">Arayüz Tasarımı</MenuItem>
-                                <MenuItem value="Sunucu Yönetimi">Sunucu Yönetimi</MenuItem>
-                                <MenuItem value="Veritabanı Yönetimi">Veritabanı Yönetimi</MenuItem>
+                                {options.duties.map((d, i) => <MenuItem key={i} value={d}>{d}</MenuItem>)}
                             </Select>
                         </FormRow>
                         <FormRow label="Takım">
@@ -260,8 +279,7 @@ export default function PersonnelAddPage() {
                         <FormRow label="Çalışılan Proje">
                             <Select fullWidth size="small" value={formData.projectWorkedOn} onChange={handleSelectChange('projectWorkedOn')} displayEmpty sx={selectSx} MenuProps={{ disableScrollLock: true }}>
                                 <MenuItem value="" disabled><em>Seçiniz</em></MenuItem>
-                                <MenuItem value="PBS">PBS</MenuItem>
-                                <MenuItem value="İnfrastruktur">İnfrastruktur</MenuItem>
+                                {options.projects.map((p, i) => <MenuItem key={i} value={p}>{p}</MenuItem>)}
                             </Select>
                         </FormRow>
                         <FormRow label="Mentor">
@@ -423,5 +441,6 @@ export default function PersonnelAddPage() {
                 </Box>
             </Box>
         </Box>
+        </RoleGuard>
     );
 }

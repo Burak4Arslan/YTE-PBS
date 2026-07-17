@@ -27,6 +27,7 @@ import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import PersonIcon from '@mui/icons-material/Person';
 import axiosInstance from '../api/axiosInstance';
 import { toast } from 'react-toastify';
+import RoleGuard from '../components/RoleGuard';
 
 export default function PersonelPage() {
     const router = useRouter();
@@ -139,6 +140,7 @@ export default function PersonelPage() {
     ];
 
     return (
+        <RoleGuard allowedRoles={['ADMIN']}>
         <Box sx={{ maxWidth: '1400px', margin: '0 auto', mt: 4, px: 3 }}>
 
             {/* Filters Row */}
@@ -287,5 +289,6 @@ export default function PersonelPage() {
                 </Table>
             </TableContainer>
         </Box>
+        </RoleGuard>
     );
 }

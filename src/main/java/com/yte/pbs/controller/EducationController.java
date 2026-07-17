@@ -5,6 +5,7 @@ import com.yte.pbs.repository.EducationRepository;
 import com.yte.pbs.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.yte.pbs.security.SecurityUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -34,6 +35,7 @@ public class EducationController {
 
         if (userOptional.isPresent()) {
             var user = userOptional.get();
+            SecurityUtils.verifyOwnership(user.getId());
             educationInput.setUserId(user.getId());
 
             Education savedEducation = educationRepository.save(educationInput);
@@ -47,6 +49,7 @@ public class EducationController {
     public ResponseEntity<?> updateEducation(@PathVariable Long id, @RequestBody Education educationInput) {
         return educationRepository.findById(id)
                 .map(existingEducation -> {
+                    SecurityUtils.verifyOwnership(existingEducation.getUserId());
                     existingEducation.setEducationType(educationInput.getEducationType());
                     existingEducation.setSchoolName(educationInput.getSchoolName());
                     existingEducation.setDepartment(educationInput.getDepartment());
@@ -62,10 +65,10 @@ public class EducationController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteEducation(@PathVariable Long id) {
-        if (educationRepository.existsById(id)) {
+        return educationRepository.findById(id).map(education -> {
+            SecurityUtils.verifyOwnership(education.getUserId());
             educationRepository.deleteById(id);
-            return ResponseEntity.ok("Eğitim kaydı başarıyla silindi.");
-        }
-        return ResponseEntity.notFound().build();
+            return ResponseEntity.ok().body("Eğitim kaydı başarıyla silindi.");
+        }).orElse(ResponseEntity.notFound().build());
     }
 }
