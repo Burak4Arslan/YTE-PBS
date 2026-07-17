@@ -33,9 +33,18 @@ export async function proxy(request) {
         const roles = data.roles || [];
         
         // Admin yetkisi gerektiren prefixler
-        const adminPaths = ['/personel', '/raporlar', '/panel', '/yetkilendirme'];
-        const isAdminPath = adminPaths.some(path => pathname === path || pathname.startsWith(path + '/'));
-        
+        const adminPaths = ['/raporlar', '/panel', '/yetkilendirme'];
+        const isStrictAdminPath = adminPaths.some(path => pathname === path || pathname.startsWith(path + '/'));
+
+        // /personel (liste) ve /personel/ekle admin'e özel, ama /personel/{id} gibi
+        // tekil profil sayfaları değil — o sayfa (personel/[id]/page.js) ve ilgili
+        // API'ler zaten "bu profil sana mı ait" kontrolünü kendileri yapıyor
+        // (isOwnProfile, PersonalCorporateInfo readOnly toggle, ensureCanAccess vb.).
+        // Bu kontrol olmadan hiçbir personel kendi hakkımda sayfasına erişemezdi.
+        const isPersonelAdminOnlyPath = pathname === '/personel' || pathname === '/personel/ekle';
+
+        const isAdminPath = isStrictAdminPath || isPersonelAdminOnlyPath;
+
         if (isAdminPath && !roles.includes('ADMIN')) {
             // Admin değilse yetkisiz erişim, anasayfaya yönlendir
             return NextResponse.redirect(new URL('/', request.url));
