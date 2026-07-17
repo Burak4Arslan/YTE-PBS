@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import { Box, Container, Stack } from '@mui/material';
 import { toast } from 'react-toastify';
 import PersonalCorporateInfo from '../../team/components/PersonalCorporateInfo';
+import api from '../../api/axiosInstance';
 import PersonnelFiles from '../components/PersonnelFiles';
 import PersonnelProjectsSection from '../components/PersonnelProjectsSection';
 import PersonnelEducationSection from '../components/PersonnelEducationSection';
@@ -16,6 +17,7 @@ export default function PersonnelDetailPage() {
     const params = useParams();
     const userId = params.id;
     const [email, setEmail] = useState('');
+    const [isOwnProfile, setIsOwnProfile] = useState(false);
     const [educations, setEducations] = useState([]);
     const [projects, setProjects] = useState([]);
     const [experiences, setExperiences] = useState([]);
@@ -27,11 +29,35 @@ export default function PersonnelDetailPage() {
     const loadDetails = useCallback(async () => {
         setLoading(true);
         setError('');
+        setIsOwnProfile(false);
+
         try {
             const resolvedEmail = await getPersonnelEmail(userId);
             setEmail(resolvedEmail);
 
-            const [educationData, projectData, experienceData, contributionData] = await Promise.all([getEducations(resolvedEmail), getPersonnelProjects(resolvedEmail), getExperiences(resolvedEmail), getContributions(resolvedEmail)]);
+            const [
+                myProfile,
+                educationData,
+                projectData,
+                experienceData,
+                contributionData
+            ] = await Promise.all([
+                api.get('/api/personel/hakkımda')
+                    .then(({ data }) => data)
+                    .catch(() => null),
+                getEducations(resolvedEmail),
+                getPersonnelProjects(resolvedEmail),
+                getExperiences(resolvedEmail),
+                getContributions(resolvedEmail)
+            ]);
+
+            const currentUserEmail = myProfile?.email?.trim().toLowerCase();
+            const viewedUserEmail = String(resolvedEmail).trim().toLowerCase();
+
+            setIsOwnProfile(
+                Boolean(currentUserEmail) &&
+                currentUserEmail === viewedUserEmail
+            );
 
             setEducations(educationData);
             setProjects(projectData);
@@ -144,7 +170,10 @@ export default function PersonnelDetailPage() {
                 }}
             >
                 <Stack spacing={2}>
-                    <PersonalCorporateInfo email={email} readOnly />
+                    <PersonalCorporateInfo
+                        email={email}
+                        readOnly={!isOwnProfile}
+                    />
                     <PersonnelFiles email={email} />
                     <PersonnelProjectsSection projects={projects} loading={loading} error={error} />
                     <PersonnelExperienceSection experiences={experiences} loading={loading} error={error} saving={saving} onSave={handleExperienceSave} onDelete={handleExperienceDelete} />
