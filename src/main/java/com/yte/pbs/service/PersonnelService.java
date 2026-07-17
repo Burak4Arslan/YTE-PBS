@@ -64,6 +64,8 @@ public class PersonnelService {
         node.setPersonnelJobTitle(buildJobTitle(personnel));
         node.setDepartment(personnel.getDepartment());
         node.setPhotoUrl(personnel.getPhotoUrl());
+        node.setProjectWorkedOn(personnel.getProjectWorkedOn());
+        node.setTeam(personnel.getTeam());
         node.setSuperiorPersonnel(resolveHierarchySuperior(all, personnel.getDepartment()));
         personnelHierarchyRepository.save(node);
     }

@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 @Configuration
 public class DataInitializer {
@@ -65,6 +66,12 @@ public class DataInitializer {
             //General
             initializeDirectoryEntries(directoryEntryRepository);
             initializePersonnel(personnelRepository, userProvisioningService);
+            initializeDetailsForAllUsers(
+                    userRepository.findAll(),
+                    educationRepository,
+                    projectRepository,
+                    userProjectRepository,
+                    attendanceRecordRepository);
             initializePersonnelHierarchy(personnelHierarchyRepository);
         };
     }
@@ -316,6 +323,90 @@ public class DataInitializer {
         }
     }
 
+    private void initializeDetailsForAllUsers(
+            List<User> users,
+            EducationRepository educationRepository,
+            ProjectRepository projectRepository,
+            UserProjectRepository userProjectRepository,
+            AttendanceRecordRepository attendanceRecordRepository) {
+
+        for (User user : users) {
+            initializeDefaultEducation(user, educationRepository);
+            initializeDefaultUserProject(user, projectRepository, userProjectRepository);
+            initializeRecentAttendance(user, attendanceRecordRepository);
+        }
+    }
+
+    private void initializeDefaultEducation(User user, EducationRepository educationRepository) {
+        if (!educationRepository.findByUserId(user.getId()).isEmpty()) {
+            return;
+        }
+
+        Education education = new Education();
+        education.setUserId(user.getId());
+        education.setEducationType("Lisans");
+        education.setSchoolName("Ankara Üniversitesi");
+        education.setDepartment("Bilgisayar Mühendisliği");
+        education.setStartDate(LocalDate.of(2014, 9, 15));
+        education.setGraduationDate(LocalDate.of(2018, 6, 20));
+        education.setDescription("Lisans eğitim kaydı");
+        educationRepository.save(education);
+    }
+
+    private void initializeDefaultUserProject(
+            User user,
+            ProjectRepository projectRepository,
+            UserProjectRepository userProjectRepository) {
+
+        if (!userProjectRepository.findByUserId(user.getId()).isEmpty()) {
+            return;
+        }
+
+        String projectName = hasText(user.getCurrentProject())
+                ? user.getCurrentProject()
+                : "Personel Bilgi Sistemi";
+        Project project = findOrCreateProject(
+                projectRepository,
+                projectName,
+                LocalDate.of(2023, 1, 1),
+                LocalDate.of(2026, 12, 31));
+
+        UserProject userProject = new UserProject();
+        userProject.setUserId(user.getId());
+        userProject.setProject(project);
+        userProject.setDuty(hasText(user.getDuty()) ? user.getDuty() : "Proje Uzmanı");
+        userProject.setBeginDate(
+                user.getEmploymentStartDate() != null
+                        ? user.getEmploymentStartDate()
+                        : LocalDate.of(2023, 1, 1));
+        userProject.setEndDate(LocalDate.of(2026, 12, 31));
+        userProjectRepository.save(userProject);
+    }
+
+    private void initializeRecentAttendance(
+            User user,
+            AttendanceRecordRepository attendanceRecordRepository) {
+
+        LocalDate oneWeekAgo = LocalDate.now().minusDays(7);
+        boolean hasRecentRecord = attendanceRecordRepository
+                .findByUserIdOrderByAttendanceDateDescCheckInTimeDescIdDesc(user.getId())
+                .stream()
+                .anyMatch(record -> !record.getAttendanceDate().isBefore(oneWeekAgo));
+
+        if (!hasRecentRecord) {
+            saveAttendanceRecord(
+                    attendanceRecordRepository,
+                    user,
+                    LocalDate.now().minusDays(1),
+                    LocalTime.of(9, 0),
+                    LocalTime.of(18, 0));
+        }
+    }
+
+    private boolean hasText(String value) {
+        return value != null && !value.isBlank();
+    }
+
 
     private void initializePersonnel(
             PersonnelRepository personnelRepository, UserProvisioningService userProvisioningService) {
@@ -385,6 +476,10 @@ public class DataInitializer {
                 "cenk.celil@tubitak.gov.tr", "Erkek", LocalDate.of(2024, 3, 4), "PBS-0009", "Mühendis",
                 "Uzman Araştırmacı", "Tam Zamanlı", "Ofis", "Aktif", "Yazılım Geliştirme", "Ransomware Analiz Modülü",
                 "PBS", "0532 111 2241", LocalDate.of(1994, 6, 25));
+        createPersonnelIfAbsent(personnelRepository, userProvisioningService, "Elif", "Yildiz", "10000000210",
+                "elif.yildiz@tubitak.yte.org", "Kadın", LocalDate.of(2024, 1, 8), "PBS-0010", "Mühendis",
+                "Mühendis", "Tam Zamanlı", "Ofis", "Aktif", "Yazılım Geliştirme", "Backend Geliştirme",
+                "PBS", "0532 111 2242", LocalDate.of(1996, 8, 12));
     }
 
     private void createPersonnelIfAbsent(

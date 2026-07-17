@@ -1,12 +1,12 @@
-
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Alert, Box, CircularProgress, Typography, IconButton, Tooltip, Collapse } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import PersonnelNode from './PersonnelNode';
+import OrganizasyonFilterSidebar from './OrganizasyonFilterSidebar';
 import {
     buildPersonnelHierarchyTree,
     fetchDirectoryIdByFullName,
@@ -15,12 +15,20 @@ import {
 
 const STEM_WIDTH = 48;
 
-function HierarchyBranch({ node, parentDepartment }) {
+function distinctValues(list, key) {
+    return Array.from(new Set(list.map((item) => item[key]).filter(Boolean))).sort((a, b) =>
+        a.localeCompare(b, 'tr')
+    );
+}
+
+function HierarchyBranch({ node, parentDepartment, isMatch }) {
     const router = useRouter();
     const hasChildren = node.children.length > 0;
     const showDepartmentLabel = Boolean(node.department) && node.department !== parentDepartment;
     const isClickable = Boolean(node.directoryEntryId);
+    
     const [isExpanded, setIsExpanded] = useState(true);
+    const matched = isMatch(node);
 
     const handleClick = () => {
         if (isClickable) router.push(`/rehber?personelId=${node.directoryEntryId}`);
@@ -47,7 +55,9 @@ function HierarchyBranch({ node, parentDepartment }) {
                             borderRadius: 4,
                             background: 'linear-gradient(90deg, #1976d2, #42a5f5)',
                             boxShadow: '0 2px 8px rgba(25, 118, 210, 0.3)',
-                            zIndex: 1
+                            zIndex: 1,
+                            opacity: matched ? 1 : 0.35,
+                            transition: 'opacity 0.15s ease'
                         }}
                     >
                         <Typography
@@ -69,8 +79,9 @@ function HierarchyBranch({ node, parentDepartment }) {
                         onClick={handleClick}
                         sx={{
                             cursor: isClickable ? 'pointer' : 'default',
+                            opacity: matched ? 1 : 0.35,
                             transition: 'opacity 0.15s ease',
-                            '&:hover': isClickable ? { opacity: 0.8 } : undefined
+                            '&:hover': isClickable ? { opacity: matched ? 0.8 : 0.5 } : undefined
                         }}
                     >
                         <PersonnelNode
@@ -142,11 +153,11 @@ function HierarchyBranch({ node, parentDepartment }) {
                                             }
                                         }}
                                     />
-                                    <HierarchyBranch node={child} parentDepartment={node.department} />
+                                    <HierarchyBranch node={child} parentDepartment={node.department} isMatch={isMatch} />
                                 </Box>
                             );
                         })}
-                    </Box>
+                        </Box>
                     </Box>
                 </Collapse>
             )}
@@ -155,9 +166,15 @@ function HierarchyBranch({ node, parentDepartment }) {
 }
 
 export default function PersonnelSectionCard() {
+    const [flatList, setFlatList] = useState([]);
     const [roots, setRoots] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    const [searchText, setSearchText] = useState('');
+    const [selectedDepartment, setSelectedDepartment] = useState(null);
+    const [selectedProject, setSelectedProject] = useState(null);
+    const [selectedTeam, setSelectedTeam] = useState(null);
 
     useEffect(() => {
         let active = true;
@@ -172,6 +189,7 @@ export default function PersonnelSectionCard() {
                         .toLowerCase();
                     return { ...person, directoryEntryId: directoryIdByFullName.get(fullName) ?? null };
                 });
+                setFlatList(enriched);
                 setRoots(buildPersonnelHierarchyTree(enriched));
             })
             .catch(() => {
@@ -184,6 +202,24 @@ export default function PersonnelSectionCard() {
             active = false;
         };
     }, []);
+
+    const departments = useMemo(() => distinctValues(flatList, 'department'), [flatList]);
+    const projects = useMemo(() => distinctValues(flatList, 'projectWorkedOn'), [flatList]);
+    const teams = useMemo(() => distinctValues(flatList, 'team'), [flatList]);
+
+    const isMatch = useMemo(() => {
+        const normalizedSearch = searchText.trim().toLowerCase();
+        return (node) => {
+            if (selectedDepartment && node.department !== selectedDepartment) return false;
+            if (selectedProject && node.projectWorkedOn !== selectedProject) return false;
+            if (selectedTeam && node.team !== selectedTeam) return false;
+            if (normalizedSearch) {
+                const fullName = [node.personnelName, node.personnelSurname].filter(Boolean).join(' ').toLowerCase();
+                if (!fullName.includes(normalizedSearch)) return false;
+            }
+            return true;
+        };
+    }, [searchText, selectedDepartment, selectedProject, selectedTeam]);
 
     if (loading) {
         return (
@@ -198,21 +234,37 @@ export default function PersonnelSectionCard() {
     }
 
     return (
-        <Box sx={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            gap: 6, 
-            overflowX: 'auto', 
-            overflowY: 'hidden',
-            p: 4,
-            pt: 6, // extra top padding for root badges
-            backgroundColor: 'background.default',
-            borderRadius: 4,
-            minHeight: '600px'
-        }}>
-            {roots.map((root) => (
-                <HierarchyBranch key={root.id} node={root} />
-            ))}
+        <Box sx={{ display: 'flex', gap: 3, alignItems: 'flex-start' }}>
+            <OrganizasyonFilterSidebar
+                searchText={searchText}
+                onSearchChange={setSearchText}
+                departments={departments}
+                selectedDepartment={selectedDepartment}
+                onSelectDepartment={setSelectedDepartment}
+                projects={projects}
+                selectedProject={selectedProject}
+                onSelectProject={setSelectedProject}
+                teams={teams}
+                selectedTeam={selectedTeam}
+                onSelectTeam={setSelectedTeam}
+            />
+            <Box sx={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                gap: 6, 
+                overflowX: 'auto', 
+                overflowY: 'hidden',
+                p: 4,
+                pt: 6,
+                backgroundColor: 'background.default',
+                borderRadius: 4,
+                minHeight: '600px',
+                flex: 1 
+            }}>
+                {roots.map((root) => (
+                    <HierarchyBranch key={root.id} node={root} isMatch={isMatch} />
+                ))}
+            </Box>
         </Box>
     );
 }
