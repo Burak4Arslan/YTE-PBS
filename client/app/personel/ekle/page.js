@@ -10,6 +10,19 @@ import {
 } from '@mui/material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import RoleGuard from '../../components/RoleGuard';
+import { getCustomEnumOptionMap } from '../../services/customEnumOptions';
+
+const PERSONNEL_OPTION_CODES = [
+    'ACADEMIC_TITLE',
+    'CADRE',
+    'TITLE',
+    'PERSONNEL_TYPE',
+    'WORK_TYPE',
+    'WORK_STATUS',
+    'DEPARTMENT',
+    'DUTY',
+    'SHUTTLE_USAGE'
+];
 
 // Tekrar eden form satırı bileşeni — label solda, input sağda
 function FormRow({ label, children, required }) {
@@ -77,9 +90,15 @@ export default function PersonnelAddPage() {
     });
 
     const [options, setOptions] = useState({
+        academicTitles: [],
+        cadres: [],
         titles: [],
-        duties: [],
+        personnelTypes: [],
+        workTypes: [],
+        workStatuses: [],
         departments: [],
+        duties: [],
+        shuttleUsages: [],
         projects: [],
         teams: []
     });
@@ -102,17 +121,21 @@ export default function PersonnelAddPage() {
         };
         const fetchOptions = async () => {
             try {
-                const [titles, duties, departments, projects, teams] = await Promise.all([
-                    axiosInstance.get('/api/personnel/options/titles'),
-                    axiosInstance.get('/api/personnel/options/duties'),
-                    axiosInstance.get('/api/personnel/options/departments'),
+                const [customOptions, projects, teams] = await Promise.all([
+                    getCustomEnumOptionMap(PERSONNEL_OPTION_CODES),
                     axiosInstance.get('/api/personnel/options/projects'),
                     axiosInstance.get('/api/personnel/options/teams')
                 ]);
                 setOptions({
-                    titles: titles.data || [],
-                    duties: duties.data || [],
-                    departments: departments.data || [],
+                    academicTitles: customOptions.ACADEMIC_TITLE,
+                    cadres: customOptions.CADRE,
+                    titles: customOptions.TITLE,
+                    personnelTypes: customOptions.PERSONNEL_TYPE,
+                    workTypes: customOptions.WORK_TYPE,
+                    workStatuses: customOptions.WORK_STATUS,
+                    departments: customOptions.DEPARTMENT,
+                    duties: customOptions.DUTY,
+                    shuttleUsages: customOptions.SHUTTLE_USAGE,
                     projects: projects.data || [],
                     teams: teams.data || []
                 });
@@ -211,7 +234,10 @@ export default function PersonnelAddPage() {
                             </Select>
                         </FormRow>
                         <FormRow label="Akademik Unvan">
-                            <TextField fullWidth size="small" name="academicTitle" value={formData.academicTitle} onChange={handleChange} sx={inputSx} />
+                            <Select fullWidth size="small" value={formData.academicTitle} onChange={handleSelectChange('academicTitle')} displayEmpty sx={selectSx} MenuProps={{ disableScrollLock: true }}>
+                                <MenuItem value=""><em>Seçiniz</em></MenuItem>
+                                {options.academicTitles.map((value) => <MenuItem key={value} value={value}>{value}</MenuItem>)}
+                            </Select>
                         </FormRow>
 
                         <RedDivider />
@@ -226,8 +252,7 @@ export default function PersonnelAddPage() {
                         <FormRow label="Kadro" required>
                             <Select fullWidth size="small" value={formData.cadre} onChange={handleSelectChange('cadre')} displayEmpty sx={selectSx} MenuProps={{ disableScrollLock: true }}>
                                 <MenuItem value="" disabled><em>Seçiniz</em></MenuItem>
-                                <MenuItem value="Mühendis">Mühendis</MenuItem>
-                                <MenuItem value="İdari Personel">İdari Personel</MenuItem>
+                                {options.cadres.map((value) => <MenuItem key={value} value={value}>{value}</MenuItem>)}
                             </Select>
                         </FormRow>
                         <FormRow label="Unvan" required>
@@ -239,22 +264,19 @@ export default function PersonnelAddPage() {
                         <FormRow label="Personel Türü" required>
                             <Select fullWidth size="small" value={formData.personnelType} onChange={handleSelectChange('personnelType')} displayEmpty sx={selectSx} MenuProps={{ disableScrollLock: true }}>
                                 <MenuItem value="" disabled><em>Seçiniz</em></MenuItem>
-                                <MenuItem value="Tam Zamanlı">Tam Zamanlı</MenuItem>
-                                <MenuItem value="Stajyer">Stajyer</MenuItem>
+                                {options.personnelTypes.map((value) => <MenuItem key={value} value={value}>{value}</MenuItem>)}
                             </Select>
                         </FormRow>
                         <FormRow label="Çalışma Türü" required>
                             <Select fullWidth size="small" value={formData.workType} onChange={handleSelectChange('workType')} displayEmpty sx={selectSx} MenuProps={{ disableScrollLock: true }}>
                                 <MenuItem value="" disabled><em>Seçiniz</em></MenuItem>
-                                <MenuItem value="Ofis">Ofis</MenuItem>
-                                <MenuItem value="Uzaktan">Uzaktan</MenuItem>
+                                {options.workTypes.map((value) => <MenuItem key={value} value={value}>{value}</MenuItem>)}
                             </Select>
                         </FormRow>
                         <FormRow label="Çalışma Durumu" required>
                             <Select fullWidth size="small" value={formData.workStatus} onChange={handleSelectChange('workStatus')} displayEmpty sx={selectSx} MenuProps={{ disableScrollLock: true }}>
                                 <MenuItem value="" disabled><em>Seçiniz</em></MenuItem>
-                                <MenuItem value="Aktif">Aktif</MenuItem>
-                                <MenuItem value="İzinli">İzinli</MenuItem>
+                                {options.workStatuses.map((value) => <MenuItem key={value} value={value}>{value}</MenuItem>)}
                             </Select>
                         </FormRow>
 
@@ -288,8 +310,7 @@ export default function PersonnelAddPage() {
                         <FormRow label="Servis Kullanımı">
                             <Select fullWidth size="small" value={formData.shuttleUsage} onChange={handleSelectChange('shuttleUsage')} displayEmpty sx={selectSx} MenuProps={{ disableScrollLock: true }}>
                                 <MenuItem value="" disabled><em>Seçiniz</em></MenuItem>
-                                <MenuItem value="Evet">Evet</MenuItem>
-                                <MenuItem value="Hayır">Hayır</MenuItem>
+                                {options.shuttleUsages.map((value) => <MenuItem key={value} value={value}>{value}</MenuItem>)}
                             </Select>
                         </FormRow>
                     </Box>

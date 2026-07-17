@@ -6,6 +6,7 @@ import com.yte.pbs.service.UserProvisioningService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
@@ -16,6 +17,7 @@ import java.util.List;
 public class DataInitializer {
 
     @Bean
+    @Order(1)
     CommandLineRunner initializeAuthorityAndUserData(
             AuthorityRepository authorityRepository,
             UserRepository userRepository,

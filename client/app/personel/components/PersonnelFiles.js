@@ -28,14 +28,7 @@ import {
 } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import api from '../../api/axiosInstance';
-
-const fileTypes = [
-    'CV',
-    'Sertifika',
-    'Diploma',
-    'Kimlik Belgesi',
-    'Diğer'
-];
+import { getCustomEnumOptionValues } from '../../services/customEnumOptions';
 
 const formatDate = (dateValue) => {
     if (!dateValue) {
@@ -63,6 +56,13 @@ export default function PersonnelFiles({
     const [deletingId, setDeletingId] = useState(null);
     const [accessChecked, setAccessChecked] = useState(false);
     const [canManageFiles, setCanManageFiles] = useState(false);
+    const [fileTypes, setFileTypes] = useState([]);
+
+    useEffect(() => {
+        getCustomEnumOptionValues('FILE_TYPE')
+            .then(setFileTypes)
+            .catch((error) => console.error('Dosya türleri yüklenemedi:', error));
+    }, []);
 
     useEffect(() => {
         let isActive = true;

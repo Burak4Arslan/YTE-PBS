@@ -1,14 +1,24 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Box, Button, Divider, Drawer, IconButton, Stack, TextField, Typography } from '@mui/material';
+import { Box, Button, Divider, Drawer, IconButton, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import { getCustomEnumOptionValues } from '../../services/customEnumOptions';
 
 const emptyValues = { type: '', description: '', link: '', uploadDate: '', attachment: null, attachedFilePath: '', attachmentName: '' };
 
 export default function ContributionsDrawer({ open, contribution, loading, onClose, onSave }) {
     const { register, handleSubmit, reset, formState: { errors } } = useForm({ defaultValues: emptyValues });
+    const [eventTypes, setEventTypes] = useState([]);
+
+    useEffect(() => {
+        if (!open) return;
+
+        getCustomEnumOptionValues('EVENT_TYPE')
+            .then(setEventTypes)
+            .catch((error) => console.error('Etkinlik türleri yüklenemedi:', error));
+    }, [open]);
 
     useEffect(() => {
         reset(contribution ? {
@@ -31,7 +41,9 @@ export default function ContributionsDrawer({ open, contribution, loading, onClo
                 </Stack>
                 <Divider sx={{ my: 2.5 }} />
                 <Stack spacing={2}>
-                    <TextField label="Etkinlik Türü" size="small" fullWidth error={Boolean(errors.type)} helperText={errors.type?.message} {...register('type', { required: 'Etkinlik türü zorunludur.' })} />
+                    <TextField select label="Etkinlik Türü" size="small" fullWidth defaultValue="" error={Boolean(errors.type)} helperText={errors.type?.message} {...register('type', { required: 'Etkinlik türü zorunludur.' })}>
+                        {eventTypes.map((value) => <MenuItem key={value} value={value}>{value}</MenuItem>)}
+                    </TextField>
                     <TextField label="Açıklama" size="small" fullWidth multiline minRows={3} slotProps={{ htmlInput: { maxLength: 1000 } }} error={Boolean(errors.description)} helperText={errors.description?.message} {...register('description')} />
                     <TextField label="Link" size="small" fullWidth error={Boolean(errors.link)} helperText={errors.link?.message} {...register('link')} />
                     <Box>
