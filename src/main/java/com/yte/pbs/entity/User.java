@@ -110,6 +110,9 @@ public class User extends BaseEntity {
     @Column(name = "personnel_id")
     private Long personnelId;
 
+    @Column(name = "authorization_listed", nullable = false, columnDefinition = "boolean default false")
+    private boolean authorizationListed = false;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_authorities",

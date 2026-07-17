@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.ArrayList;
 import java.util.HashSet;
 
 @Service
@@ -25,18 +24,28 @@ public class UserAuthorityService {
     private final AuthorityRepository authorityRepository;
 
     public List<UserAuthorityDto> getAllUsersAuthorities() {
-        return userRepository.findAll().stream().map(user -> {
-            List<String> frontendRoles = user.getAuthorities().stream()
-                    .map(auth -> mapBackendToFrontendRole(auth.getName()))
-                    .filter(role -> role != null)
-                    .collect(Collectors.toList());
-            
-            return UserAuthorityDto.builder()
-                    .id(user.getId())
-                    .name(user.getFirstName() + " " + user.getLastName())
-                    .roles(frontendRoles)
-                    .build();
-        }).collect(Collectors.toList());
+        return userRepository.findByAuthorizationListedTrueOrderByIdAsc().stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<UserAuthorityDto> getRegisteredUsers() {
+        return userRepository.findAll().stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
+    }
+
+    private UserAuthorityDto toDto(User user) {
+        List<String> frontendRoles = user.getAuthorities().stream()
+                .map(auth -> mapBackendToFrontendRole(auth.getName()))
+                .filter(role -> role != null)
+                .collect(Collectors.toList());
+
+        return UserAuthorityDto.builder()
+                .id(user.getId())
+                .name(user.getFirstName() + " " + user.getLastName())
+                .roles(frontendRoles)
+                .build();
     }
 
     @Transactional
@@ -47,9 +56,6 @@ public class UserAuthorityService {
                 .collect(Collectors.toMap(Authority::getName, auth -> auth));
 
         for (UserAuthorityDto userDto : request.getUsers()) {
-            // New users might have negative or null ID in a real system, but our mock sends Date.now()
-            // Wait, we shouldn't create users here, only update existing ones.
-            // If the user doesn't exist, we can ignore or throw an error.
             userRepository.findById(userDto.getId()).ifPresent(user -> {
                 Set<Authority> newAuthorities = new HashSet<>();
                 if (userDto.getRoles() != null) {
@@ -61,6 +67,7 @@ public class UserAuthorityService {
                     }
                 }
                 user.setRoles(newAuthorities);
+                user.setAuthorizationListed(true);
                 userRepository.save(user);
             });
         }

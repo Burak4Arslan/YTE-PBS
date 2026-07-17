@@ -23,6 +23,12 @@ public class UserAuthorityController {
         return ResponseEntity.ok(userAuthorityService.getAllUsersAuthorities());
     }
 
+    @GetMapping("/kayitli-kullanicilar")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<UserAuthorityDto>> getRegisteredUsers() {
+        return ResponseEntity.ok(userAuthorityService.getRegisteredUsers());
+    }
+
     @PostMapping("/kaydet")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> updateAuthorities(@RequestBody UpdateUserAuthoritiesRequest request) {

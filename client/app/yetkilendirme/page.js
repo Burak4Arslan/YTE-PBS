@@ -27,6 +27,7 @@ const ROLES = ['Standart Kullanıcı', 'Yetkili Kullanıcı', 'Süper Kullanıc�
 export default function YetkilendirmePage() {
     const [isEditing, setIsEditing] = useState(false);
     const [users, setUsers] = useState([]);
+    const [registeredUsers, setRegisteredUsers] = useState([]);
     const [newUserSearch, setNewUserSearch] = useState('');
 
     useEffect(() => {
@@ -38,8 +39,12 @@ export default function YetkilendirmePage() {
 
         const fetchUsers = async () => {
             try {
-                const response = await axiosInstance.get('/api/yetkilendirme');
-                setUsers(response.data || []);
+                const [listedResponse, registeredResponse] = await Promise.all([
+                    axiosInstance.get('/api/yetkilendirme'),
+                    axiosInstance.get('/api/yetkilendirme/kayitli-kullanicilar')
+                ]);
+                setUsers(listedResponse.data || []);
+                setRegisteredUsers(registeredResponse.data || []);
             } catch (error) {
                 console.error("Yetkiler alınamadı", error);
                 toast.error("Yetkiler alınırken bir hata oluştu");
@@ -84,16 +89,39 @@ export default function YetkilendirmePage() {
 
     const handleAddUser = () => {
         if (!newUserSearch.trim()) return;
-        
-        // Mock adding user
-        const newUser = {
-            id: Date.now(),
-            name: newUserSearch,
-            roles: ['Standart Kullanıcı']
-        };
-        setUsers([...users, newUser]);
+
+        const normalizedSearch = newUserSearch.trim().toLocaleLowerCase('tr-TR');
+        const selectedUser = registeredUsers.find(user =>
+            user.name.toLocaleLowerCase('tr-TR') === normalizedSearch
+        );
+
+        if (!selectedUser) {
+            toast.warning('Lütfen sistemde kayıtlı bir kullanıcı seçin.');
+            return;
+        }
+
+        if (users.some(user => user.id === selectedUser.id)) {
+            toast.info('Bu kullanıcı zaten yetkilendirme listesinde.');
+            return;
+        }
+
+        setUsers([...users, {
+            ...selectedUser,
+            roles: selectedUser.roles?.length
+                ? selectedUser.roles
+                : ['Standart Kullanıcı']
+        }]);
         setNewUserSearch('');
     };
+
+    const matchingUsers = newUserSearch.trim()
+        ? registeredUsers
+            .filter(candidate => !users.some(user => user.id === candidate.id))
+            .filter(candidate => candidate.name
+                .toLocaleLowerCase('tr-TR')
+                .includes(newUserSearch.trim().toLocaleLowerCase('tr-TR')))
+            .slice(0, 5)
+        : [];
 
     return (
         <RoleGuard allowedRoles={['ADMIN']}>
@@ -143,22 +171,50 @@ export default function YetkilendirmePage() {
 
                 {isEditing && (
                     <Box sx={{ mt: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <TextField 
-                            size="small"
-                            placeholder="Kemal Yılmaz"
-                            value={newUserSearch}
-                            onChange={(e) => setNewUserSearch(e.target.value)}
-                            slotProps={{
-                                input: {
-                                    endAdornment: (
-                                        <InputAdornment position="end">
-                                            <SearchIcon fontSize="small" />
-                                        </InputAdornment>
-                                    ),
-                                    sx: { borderRadius: '4px', bgcolor: '#fff', width: '250px' }
-                                }
-                            }}
-                        />
+                        <Box sx={{ position: 'relative', width: '250px' }}>
+                            <TextField
+                                size="small"
+                                placeholder="Kemal Yılmaz"
+                                value={newUserSearch}
+                                onChange={(e) => setNewUserSearch(e.target.value)}
+                                slotProps={{
+                                    input: {
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <SearchIcon fontSize="small" />
+                                            </InputAdornment>
+                                        ),
+                                        sx: { borderRadius: '4px', bgcolor: '#fff', width: '250px' }
+                                    }
+                                }}
+                            />
+                            {matchingUsers.length > 0 && (
+                                <Paper sx={{
+                                    position: 'absolute',
+                                    top: '100%',
+                                    left: 0,
+                                    right: 0,
+                                    zIndex: 10,
+                                    mt: 0.5,
+                                    overflow: 'hidden'
+                                }}>
+                                    {matchingUsers.map(candidate => (
+                                        <Box
+                                            key={candidate.id}
+                                            onClick={() => setNewUserSearch(candidate.name)}
+                                            sx={{
+                                                px: 1.5,
+                                                py: 1,
+                                                cursor: 'pointer',
+                                                '&:hover': { bgcolor: '#f5f5f5' }
+                                            }}
+                                        >
+                                            {candidate.name}
+                                        </Box>
+                                    ))}
+                                </Paper>
+                            )}
+                        </Box>
                         <Button 
                             variant="contained" 
                             onClick={handleAddUser}

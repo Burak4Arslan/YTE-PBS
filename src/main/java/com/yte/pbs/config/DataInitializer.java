@@ -66,6 +66,7 @@ public class DataInitializer {
             //General
             initializeDirectoryEntries(directoryEntryRepository);
             initializePersonnel(personnelRepository, userProvisioningService);
+            initializeAuthorizationList(userRepository);
             initializeDetailsForAllUsers(
                     userRepository.findAll(),
                     educationRepository,
@@ -74,6 +75,20 @@ public class DataInitializer {
                     attendanceRecordRepository);
             initializePersonnelHierarchy(personnelHierarchyRepository);
         };
+    }
+
+    private void initializeAuthorizationList(UserRepository userRepository) {
+        if (userRepository.existsByAuthorizationListedTrue()) {
+            return;
+        }
+
+        userRepository.findAll().stream()
+                .sorted((first, second) -> first.getId().compareTo(second.getId()))
+                .limit(5)
+                .forEach(user -> {
+                    user.setAuthorizationListed(true);
+                    userRepository.save(user);
+                });
     }
 
     private Authority findOrCreateAuthority(
