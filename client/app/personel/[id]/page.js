@@ -11,13 +11,14 @@ import PersonnelProjectsSection from '../components/PersonnelProjectsSection';
 import PersonnelEducationSection from '../components/PersonnelEducationSection';
 import PersonnelExperienceSection from '../components/PersonnelExperienceSection';
 import PersonnelContributionsSection from '../components/PersonnelContributionsSection';
-import { createEducation, deleteEducation, getEducations, getPersonnelEmail, getPersonnelProjects, updateEducation, getExperiences, createExperience, updateExperience, deleteExperience, getContributions, createContribution, updateContribution, deleteContribution } from '../services/personnelDetailService';
+import { createEducation, deleteEducation, getEducations, getPersonnelDirectoryEntry, getPersonnelProjects, updateEducation, getExperiences, createExperience, updateExperience, deleteExperience, getContributions, createContribution, updateContribution, deleteContribution } from '../services/personnelDetailService';
 import RoleGuard from '../../components/RoleGuard';
 
 export default function PersonnelDetailPage() {
     const params = useParams();
     const userId = params.id;
     const [email, setEmail] = useState('');
+    const [department, setDepartment] = useState('-');
     const [isOwnProfile, setIsOwnProfile] = useState(false);
     const [educations, setEducations] = useState([]);
     const [projects, setProjects] = useState([]);
@@ -31,10 +32,15 @@ export default function PersonnelDetailPage() {
         setLoading(true);
         setError('');
         setIsOwnProfile(false);
+        setDepartment('-');
 
         try {
-            const resolvedEmail = await getPersonnelEmail(userId);
+            const directoryEntry =
+                await getPersonnelDirectoryEntry(userId);
+            const resolvedEmail = directoryEntry.email;
+
             setEmail(resolvedEmail);
+            setDepartment(directoryEntry.unit || '-');
 
             const [
                 myProfile,
@@ -178,6 +184,7 @@ export default function PersonnelDetailPage() {
                     />
                     <PersonnelFiles
                         email={email}
+                        department={department}
                         isOwnProfile={isOwnProfile}
                     />
                     <PersonnelProjectsSection projects={projects} loading={loading} error={error} />
